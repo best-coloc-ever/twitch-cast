@@ -1,0 +1,20 @@
+web:
+    build: web/
+    ports:
+        - '80:80'
+    volumes:
+        - './web/chromecast:/chromecast'
+        - 'twitch-cast-data:/data'
+    container_name: frontend
+
+streamer:
+    build: streamer
+    command: 'twitch.tv/cohhcarnage'
+    container_name: streamer
+
+hls-proxy:
+    build: hls-proxy
+    volumes:
+        - 'twitch-cast-data:/data'
+    restart: always
+    container_name: hls-proxy
