@@ -1,0 +1,72 @@
+<head>
+  <script async>
+    var APPLICATION_ID = '8F368C04'
+    var session;
+
+    function sessionListener(e) {
+      session = e;
+      if (session.media.length)
+        console.log('Session discovered: ' + session.media[0]);
+    }
+
+    function onRequestSessionSuccess(e) {
+      console.log('Session success:');
+      session = e;
+
+      var mediaInfo = new chrome.cast.media.MediaInfo(
+        'http://178.62.170.231/video/stream.m3u8',
+        'application/vnd.apple.mpegurl'
+      );
+      var request = new chrome.cast.media.LoadRequest(mediaInfo);
+
+      function onMediaDiscovered(how, media) {
+        currentMedia = media;
+      }
+
+      session.loadMedia(
+        request,
+        onMediaDiscovered.bind(this, 'loadMedia'),
+        console.error.bind(console, 'Error loading media')
+      );
+    }
+
+    function receiverListener(e) {
+      if (e === chrome.cast.ReceiverAvailability.AVAILABLE) {
+        console.log('Receiver available');
+
+        chrome.cast.requestSession(
+          onRequestSessionSuccess,
+          console.error.bind(console, 'Failed to launch a session request')
+        );
+      }
+    }
+
+    function initializeCastApi() {
+      var sessionRequest = new chrome.cast.SessionRequest(APPLICATION_ID);
+      var apiConfig = new chrome.cast.ApiConfig(
+        sessionRequest,
+        sessionListener,
+        receiverListener
+      );
+
+      chrome.cast.initialize(
+        apiConfig,
+        console.log.bind(console, 'Chromecast succesfully initialized'),
+        console.error.bind(console, 'Error while initializing Chromecast')
+      );
+    }
+
+    function initialize(loaded, errorInfo) {
+      if (loaded)
+        initializeCastApi();
+      else
+        console.log(errorInfo);
+    }
+
+    window['__onGCastApiAvailable'] = initialize;
+  </script>
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js" defer></script>
+</head>
+
+<body>
+</body>
