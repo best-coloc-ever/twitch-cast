@@ -1,9 +1,9 @@
-web:
-    build: web/
+frontend:
+    build: frontend/
     ports:
         - '80:80'
     volumes:
-        - './web/chromecast:/chromecast'
+        - './frontend/chromecast:/chromecast'
         - 'twitch-cast-data:/data'
     container_name: frontend
 
