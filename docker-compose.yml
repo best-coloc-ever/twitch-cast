@@ -5,6 +5,7 @@ frontend:
     volumes:
         - './frontend/chromecast:/chromecast'
         - 'twitch-cast-data:/data'
+    restart: always
     container_name: frontend
 
 streamer:
