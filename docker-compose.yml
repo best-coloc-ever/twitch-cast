@@ -9,7 +9,6 @@ frontend:
 
 streamer:
     build: streamer
-    command: 'twitch.tv/cohhcarnage'
     container_name: streamer
 
 hls-proxy:

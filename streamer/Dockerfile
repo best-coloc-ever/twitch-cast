@@ -8,4 +8,5 @@ RUN pip install \
     Flask
 
 ADD ./stream.sh /
-ENTRYPOINT ["/stream.sh"]
+ADD ./api.py /
+ENTRYPOINT ["/api.py"]
