@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-channel=$1
+url=$1
 
 livestreamer \
-    $channel \
+    $url \
     best \
     --player-external-http \
     --player-external-http-port 4242 \
