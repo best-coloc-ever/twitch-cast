@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -u
+
 output_directory="/data/video"
 output_playlist_file_name="stream.m3u8"
 output_ts_file_pattern="stream-#####.ts"
@@ -14,7 +16,7 @@ sout_config_pretty="\
         delsegs = true,\
         numsegs = 10,\
         index = $output_directory/$output_playlist_file_name,\
-        index-url = http://178.62.170.231/video/$output_ts_file_pattern\
+        index-url = http://$SERVER_NAME/video/$output_ts_file_pattern\
     },\
     mux = ts{\
         use-key-frames\
