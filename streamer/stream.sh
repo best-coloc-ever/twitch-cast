@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-channel=$1
+url=$1
+log_file="/livestreamer.log"
 
 livestreamer \
-    $channel \
+    $url \
     best \
     --player-external-http \
     --player-external-http-port 4242 \
-    --yes-run-as-root
+    --yes-run-as-root &> $log_file

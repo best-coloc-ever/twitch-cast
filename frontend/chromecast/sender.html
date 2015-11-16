@@ -1,6 +1,7 @@
 <head>
   <script async>
     var APPLICATION_ID = '8F368C04'
+    var CAST_DELAY = 15000;
     var session;
 
     function sessionListener(e) {
@@ -30,14 +31,33 @@
       );
     }
 
+    function cast() {
+      var channel = $("#channel");
+      var formData = new FormData();
+      formData.append('channel', channel.val());
+
+      $.ajax({
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        url: '/stream',
+        success: function(data) {
+          $('#state').text('Ready soon...');
+          setTimeout(function() {
+            $('#state').text('Ready!')
+            chrome.cast.requestSession(
+              onRequestSessionSuccess,
+              console.error.bind(console, 'Failed to launch a session request')
+            );
+          }, CAST_DELAY);
+        }
+      });
+    }
+
     function receiverListener(e) {
       if (e === chrome.cast.ReceiverAvailability.AVAILABLE) {
         console.log('Receiver available');
-
-        chrome.cast.requestSession(
-          onRequestSessionSuccess,
-          console.error.bind(console, 'Failed to launch a session request')
-        );
       }
     }
 
@@ -66,7 +86,12 @@
     window['__onGCastApiAvailable'] = initialize;
   </script>
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js" defer></script>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 
 <body>
+  <label>Channel: </label>
+  <input type="text" id="channel">
+  <button onclick="cast()">Cast</button>
+  <div id="state"></div>
 </body>
