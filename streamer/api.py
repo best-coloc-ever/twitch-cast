@@ -1,38 +1,48 @@
 #!/usr/bin/env python
 
-from flask import Flask, request
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-import os
-import subprocess
-from signal import SIGTERM
+from streaming import Stream
 
-streamer_process = None
-def start_stream(url):
-    global streamer_process
+monitored_streams = set()
 
-    if streamer_process is not None:
-        os.killpg(streamer_process.pid, SIGTERM)
-
-    # TODO: check if sucessful
-    streamer_process = subprocess.Popen(
-        ['/stream.sh', url],
-        stdout=subprocess.PIPE,
-        preexec_fn=os.setsid,
+@app.route('/streams', methods=['GET'])
+def streams():
+    return jsonify(
+        streams=[
+            stream.to_json()
+            for stream in monitored_streams
+        ]
     )
 
-@app.route('/stream', methods=['POST'])
-def stream():
+@app.route('/start', methods=['POST'])
+def start_stream():
     channel = request.form['channel']
+    quality = request.form['quality']
 
     url = 'twitch.tv/{}'.format(channel) # Twitch specific (for now ?)
-    start_stream(url)
+    stream = Stream(url, quality)
 
-    return 'OK'
+    if stream in monitored_streams:
+        status = 'ALREADY_STARTED'
+    else:
+        available = stream.is_available()
+        if available:
+            status = 'OK'
+            stream.start()
+            monitored_streams.add(stream)
+        else:
+            status = 'UNAVAILABLE'
+
+    return jsonify(
+        status=status
+    )
 
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=80,
+        debug=True
     )
