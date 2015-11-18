@@ -7,22 +7,59 @@ app = Flask(__name__)
 import hls
 import os
 
-hls_proxy = hls.Proxy(
-    os.environ['SERVER_HOSTNAME'],
-    os.environ['STREAMER_HOSTNAME'],
-    os.environ['OUTPUT_DIRECTORY'],
-    os.environ['OUTPUT_INDEX_FILE_NAME'],
-    os.environ['OUTPUT_TS_FILE_PATTERN'],
-)
+hls_proxies = set()
+
+def poll_proxies():
+    dead_proxies = [
+        proxy for proxy in hls_proxies
+        if not proxy.alive()
+    ]
+
+    for proxy in dead_proxies:
+        hls_proxies.remove(proxy)
+
+@app.route('/proxies', methods=['GET'])
+def proxies():
+    poll_proxies()
+
+    return jsonify(
+        proxies=[
+            proxy.to_json()
+            for proxy in hls_proxies
+        ]
+    )
 
 @app.route('/watch', methods=['POST'])
 def watch():
     port = request.form['port']
 
-    hls_proxy.start(port)
+    poll_proxies()
+
+    proxy = hls.Proxy(port)
+    if proxy in hls_proxies:
+        status = 'ALREADY_WATCHING'
+    else:
+        proxy.start()
+        hls_proxies.add(proxy)
+        status = 'OK'
 
     return jsonify(
-        status='OK'
+        status=status
+    )
+
+@app.route('/unwatch', methods=['POST'])
+def unwatch():
+    port = request.form['port']
+
+    proxy = hls.Proxy(port)
+    if proxy in hls_proxies:
+        hls_proxies.remove(proxy)
+        status = 'OK'
+    else:
+        status = 'NOT_FOUND'
+
+    return jsonify(
+        status=status
     )
 
 if __name__ == '__main__':

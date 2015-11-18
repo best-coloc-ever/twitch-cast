@@ -76,6 +76,11 @@ class Proxy:
             return False
         return self.process.poll() is None
 
+    def to_json(self):
+        return {
+            'port': self.port
+        }
+
     def __del__(self):
         if self.alive():
             self.process.kill()
