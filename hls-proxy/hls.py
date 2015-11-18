@@ -1,62 +1,76 @@
+import os
 import sys
 import subprocess
 
-VLC_COMMAND = lambda in_stream, sout_config: [
+SERVER_HOSTNAME         = os.environ['SERVER_HOSTNAME']
+STREAMER_HOSTNAME       = os.environ['STREAMER_HOSTNAME']
+OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
+OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
+OUTPUT_TS_FILE_PATTERN  = os.environ['OUTPUT_TS_FILE_PATTERN']
+SEGMENT_LEN             = 12 # Seconds
+
+SOUT_CONFIG_TEMPLATE = '\
+#std {{\
+    access = livehttp {{\
+        seglen = {seg_len},\
+        delsegs = true,\
+        numsegs = 10,\
+        index = {out_dir}/{idx_file},\
+        index-url = http://{hostname}/video/{ts_pattern}\
+    }},\
+    mux = ts{{\
+        use-key-frames\
+    }},\
+    dst = /data/video/{ts_pattern}\
+}}'
+
+def sout_config(subdir):
+    raw = SOUT_CONFIG_TEMPLATE.format(
+        seg_len=SEGMENT_LEN,
+        out_dir=os.path.join(OUTPUT_DIRECTORY, subdir),
+        idx_file=OUTPUT_INDEX_FILE_NAME,
+        hostname=SERVER_HOSTNAME,
+        ts_pattern=OUTPUT_TS_FILE_PATTERN
+    )
+    # Removing whitespaces because of VLC's weird parsing rules
+    return ''.join(raw.split())
+
+VLC_COMMAND = lambda port: [
     'vlc',
     '-I', 'dummy',
     '--play-and-exit',
     '--live-caching', '300',
-    in_stream,
-    '--sout', sout_config
+    'http://{}:{}'.format(STREAMER_HOSTNAME, port),
+    '--sout', sout_config('{}'.format(port))
 ]
 
 class Proxy:
 
-    SEGMENT_LEN = 12
-
-    def __init__(self, hostname, streamer_hostname, out_dir, idx_file, ts_pattern):
-        self.hostname = hostname
-        self.streamer_hostname = streamer_hostname
-        self.out_dir = out_dir
-        self.idx_file = idx_file
-        self.ts_pattern = ts_pattern
+    def __init__(self, port):
         self.process = None
+        self.port = port
 
-    def start(self, port):
-        if self.process is not None:
-            self.process.kill()
-
-        in_stream = 'http://{}:{}'.format(self.streamer_hostname, port)
-        command = VLC_COMMAND(
-            in_stream,
-            self.sout_config()
-        )
-
+    def start(self):
         self.process = subprocess.Popen(
-            command,
+            VLC_COMMAND(self.port),
             stdout=sys.stderr.fileno(),
             stderr=subprocess.PIPE,
         )
 
-    def sout_config(self):
-        raw = '#std {{\
-            access = livehttp {{\
-                seglen = {seg_len},\
-                delsegs = true,\
-                numsegs = 10,\
-                index = {out_dir}/{idx_file},\
-                index-url = http://{hostname}/video/{ts_pattern}\
-            }},\
-            mux = ts{{\
-                use-key-frames\
-            }},\
-            dst = /data/video/{ts_pattern}\
-        }}'.format(
-            seg_len=Proxy.SEGMENT_LEN,
-            out_dir=self.out_dir,
-            idx_file=self.idx_file,
-            hostname=self.hostname,
-            ts_pattern=self.ts_pattern
-        )
-        # Removing whitespaces because of VLC's weird parsing rules
-        return ''.join(raw.split())
+    def alive(self):
+        if self.process is None:
+            return False
+        return self.process.poll() is None
+
+    def __del__(self):
+        if self.process is not None:
+            self.process.kill()
+
+    def __hash__(self):
+        return hash(self.port)
+
+    def __eq__(self, other):
+        return self.port == other.port
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
