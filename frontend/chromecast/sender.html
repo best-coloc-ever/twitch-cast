@@ -1,7 +1,6 @@
 <head>
   <script async>
     var APPLICATION_ID = '8F368C04'
-    var CAST_DELAY = 15000;
     var session;
 
     function sessionListener(e) {
@@ -32,27 +31,10 @@
     }
 
     function cast() {
-      var channel = $("#channel");
-      var formData = new FormData();
-      formData.append('channel', channel.val());
-
-      $.ajax({
-        method: 'POST',
-        data: formData,
-        processData: false,
-        contentType: false,
-        url: '/stream',
-        success: function(data) {
-          $('#state').text('Ready soon...');
-          setTimeout(function() {
-            $('#state').text('Ready!')
-            chrome.cast.requestSession(
-              onRequestSessionSuccess,
-              console.error.bind(console, 'Failed to launch a session request')
-            );
-          }, CAST_DELAY);
-        }
-      });
+      chrome.cast.requestSession(
+        onRequestSessionSuccess,
+        console.error.bind(console, 'Failed to launch a session request')
+      );
     }
 
     function receiverListener(e) {
@@ -84,14 +66,138 @@
     }
 
     window['__onGCastApiAvailable'] = initialize;
+
   </script>
   <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js" defer></script>
   <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-  <label>Channel: </label>
-  <input type="text" id="channel">
-  <button onclick="cast()">Cast</button>
-  <div id="state"></div>
+  <div class="col-md-6 col-md-offset-3">
+    <div class="container-fluid">
+
+      <div class="jumbotron">
+        <h1>Twitch Cast</h1>
+        <button class="btn btn-primary btn-lg" onclick="cast()">Start Casting!</button>
+      </div>
+
+      <div class="container-fluid">
+        <div class="well">
+
+          <div class="input-group">
+            <input type="text" placeholder="Add a channel" class="form-control" id="channel">
+            <span class="input-group-btn">
+              <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Monitor<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a href="#" id="watch-best">Best (Source)</a></li>
+                  <li><a href="#" id="watch-high">High</a></li>
+                  <li><a href="#" id="watch-medium">Medium</a></li>
+                  <li><a href="#" id="watch-low">Low</a></li>
+                </ul>
+              </div>
+            </span>
+          </div>
+
+          <h2>Monitored streams:</h2><br>
+          <div id="streams" class="container-fluid">
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function addStream(quality) {
+      var fd = new FormData();
+      fd.append('channel', $('#channel').val());
+      fd.append('quality', quality);
+
+      $.ajax({
+        method: 'POST',
+        url: '/streamer/start',
+        data: fd,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+          var status = response['status'];
+
+          if(status == 'OK')
+            fetchStreams();
+          else
+            alert('Error: ' + status);
+        }
+      });
+    }
+
+    function watch(port) {
+      var fd = new FormData();
+      fd.append('port', port);
+
+      $.ajax({
+        method: 'POST',
+        url: '/hls-proxy/watch',
+        data: fd,
+        processData: false,
+        contentType: false
+      });
+    }
+
+    function displayStreams(streams) {
+      var container = $('#streams');
+      container.empty();
+
+      streams.forEach(function(stream) {
+        var urlLabel = $('<span>')
+            .addClass('label label-default')
+            .text(stream['url']);
+        var qualityLabel = $('<span>')
+            .addClass('label label-info')
+            .text(stream['quality']);
+        var activationButton = $('<button>')
+          .addClass('btn btn-sm pull-right')
+          .text('Watch')
+          .click(function() { watch(stream['port']); });
+
+        var row = $('<div>')
+          .addClass('row')
+          .append($('<div>')
+            .addClass('col-md-12')
+            .append(
+              urlLabel, ' ',
+              qualityLabel, ' ',
+              activationButton
+            )
+          )
+
+        container.append(row);
+      })
+    }
+
+    function fetchStreams() {
+      $.ajax({
+        url: '/streamer/streams',
+        success: function (json) { displayStreams(json['streams']); }
+      });
+    }
+
+    function initDom() {
+      $('#watch-best').click(function(e)   { addStream('best');   });
+      $('#watch-high').click(function(e)   { addStream('high');   });
+      $('#watch-medium').click(function(e) { addStream('medium'); });
+      $('#watch-low').click(function(e)    { addStream('low');    });
+
+      fetchStreams();
+    }
+
+    $(initDom);
+  </script>
+
 </body>

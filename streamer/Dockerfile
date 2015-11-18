@@ -7,6 +7,5 @@ RUN pip install \
     livestreamer \
     Flask
 
-ADD ./stream.sh /
-ADD ./api.py /
+ADD ./ /
 ENTRYPOINT ["/api.py"]
