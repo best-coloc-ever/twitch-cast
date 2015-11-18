@@ -48,6 +48,11 @@ class Stream:
             stderr=subprocess.PIPE,
         )
 
+    def alive(self):
+        if self.process is None:
+            return False
+        return self.process.poll() is None
+
     def to_json(self):
         return {
             'url': self.url,
@@ -56,7 +61,7 @@ class Stream:
         }
 
     def __del__(self):
-        if self.process is not None:
+        if self.alive():
             self.process.kill()
 
     def __hash__(self):

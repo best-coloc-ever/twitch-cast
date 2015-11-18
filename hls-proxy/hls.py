@@ -63,7 +63,7 @@ class Proxy:
         return self.process.poll() is None
 
     def __del__(self):
-        if self.process is not None:
+        if self.alive():
             self.process.kill()
 
     def __hash__(self):
