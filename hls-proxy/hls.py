@@ -57,7 +57,8 @@ class Proxy:
         local_path = os.path.join(OUTPUT_DIRECTORY, subdir)
         server_path = os.path.join(SERVER_PATH, subdir)
 
-        os.makedirs(local_path)
+        if not os.path.exists(local_path):
+            os.makedirs(local_path)
 
         command = VLC_COMMAND(
             self.port,
