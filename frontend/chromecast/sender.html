@@ -1,7 +1,8 @@
 <head>
   <script async>
     var APPLICATION_ID = '8F368C04'
-    var session;
+    var session = null;
+    var currentStream = null;
 
     function sessionListener(e) {
       session = e;
@@ -9,12 +10,9 @@
         console.log('Session discovered: ' + session.media[0]);
     }
 
-    function onRequestSessionSuccess(e) {
-      console.log('Session success:');
-      session = e;
-
+    function play() {
       var mediaInfo = new chrome.cast.media.MediaInfo(
-        '/video/stream.m3u8',
+        '/video/' + currentStream + '/stream.m3u8',
         'application/vnd.apple.mpegurl'
       );
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -30,11 +28,25 @@
       );
     }
 
+    function onRequestSessionSuccess(e) {
+      console.log('Session success:');
+      session = e;
+
+      play();
+    }
+
     function cast() {
-      chrome.cast.requestSession(
-        onRequestSessionSuccess,
-        console.error.bind(console, 'Failed to launch a session request')
-      );
+      if (currentStream != null) {
+        if (session == null)
+          chrome.cast.requestSession(
+            onRequestSessionSuccess,
+            console.error.bind(console, 'Failed to launch a session request')
+          );
+        else
+          play();
+      }
+      else
+        alert('No current stream!');
     }
 
     function receiverListener(e) {
@@ -115,6 +127,9 @@
   </div>
 
   <script>
+    var streams;
+    var proxies;
+
     function addStream(quality) {
       var fd = new FormData();
       fd.append('channel', $('#channel').val());
@@ -150,11 +165,26 @@
       });
     }
 
-    function displayStreams(streams) {
+    function unwatch(port) {
+      var fd = new FormData();
+      fd.append('port', port);
+
+      $.ajax({
+        method: 'POST',
+        url: '/hls-proxy/unwatch',
+        data: fd,
+        processData: false,
+        contentType: false
+      });
+    }
+
+    function displayStreams() {
       var container = $('#streams');
       container.empty();
 
       streams.forEach(function(stream) {
+        var port = stream['port'];
+
         var urlLabel = $('<span>')
             .addClass('label label-default')
             .text(stream['url']);
@@ -164,11 +194,11 @@
         var activationButton = $('<button>')
           .addClass('btn btn-sm pull-right')
           .text('Watch')
-          .click(function() { watch(stream['port']); });
+          .click(function() { watch(port); fetchStreams(); });
 
         var row = $('<div>')
           .addClass('row')
-          .append($('<div>')
+          .append($('<div id="row-' + port + '">')
             .addClass('col-md-12')
             .append(
               urlLabel, ' ',
@@ -178,13 +208,62 @@
           )
 
         container.append(row);
-      })
+      });
+    }
+
+    function update_stream_statuses() {
+      proxies.forEach(function(proxy) {
+        var port = proxy['port'];
+
+        var div = $('#row-' + port);
+        if (div.length) {
+          var watchButton = div.children().last();
+
+          watchButton.unbind();
+          watchButton.text('Stop Watching');
+          watchButton.addClass('btn-danger');
+          watchButton.click(function() { unwatch(port); fetchStreams(); })
+
+          if (currentStream != port) {
+            var makeCurrentButton = $('<button>')
+              .addClass('btn btn-primary btn-sm pull-right')
+              .text('Make current stream')
+              .click(function() {
+                currentStream = port;
+                refresh();
+                cast();
+              });
+
+            div.append(makeCurrentButton);
+          }
+          else {
+            div.append($('<span>')
+              .addClass('label label-primary')
+              .text('Current stream')
+            );
+          }
+        }
+      });
+    }
+
+    function refresh() {
+      displayStreams();
+      update_stream_statuses();
     }
 
     function fetchStreams() {
       $.ajax({
         url: '/streamer/streams',
-        success: function (json) { displayStreams(json['streams']); }
+        success: function(json) {
+          streams = json['streams'];
+          $.ajax({
+            url: '/hls-proxy/proxies',
+            success: function(json) {
+              proxies = json['proxies'];
+              refresh();
+            }
+          });
+        }
       });
     }
 
