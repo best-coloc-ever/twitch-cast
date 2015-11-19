@@ -17,10 +17,10 @@ hls-proxy:
     volumes:
         - 'twitch-cast-data:/data'
     environment:
-        - 'SERVER_HOSTNAME=${SERVER_NAME}'
-        - 'STREAMER_HOSTNAME=streamer'
-        - 'OUTPUT_DIRECTORY=/data/video'
-        - 'SERVER_PATH=/video'
-        - 'OUTPUT_INDEX_FILE_NAME=stream.m3u8'
-        - 'OUTPUT_TS_FILE_PATTERN=stream-#####.ts'
+        SERVER_HOSTNAME: '${SERVER_NAME}'
+        STREAMER_HOSTNAME: 'streamer'
+        OUTPUT_DIRECTORY: '/data/video'
+        SERVER_PATH: '/video'
+        OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
+        OUTPUT_TS_FILE_PATTERN: 'stream-#####.ts'
     container_name: hls-proxy
