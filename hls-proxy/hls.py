@@ -79,9 +79,14 @@ class Proxy:
             return False
         return self.process.poll() is None
 
+    def ready(self):
+        index_file_path = os.path.join(self.local_path, OUTPUT_INDEX_FILE_NAME)
+        return os.path.exists(index_file_path)
+
     def to_json(self):
         return {
-            'port': self.port
+            'port': self.port,
+            'ready': self.ready()
         }
 
     def __del__(self):
