@@ -116,7 +116,10 @@
             </span>
           </div>
 
-          <h2>Monitored streams:</h2><br>
+          <h2>Monitored streams:</h2>
+          <button type="button" class="btn btn-default" onclick="fetchStreams()">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+          </button><br><br>
           <div id="streams" class="container-fluid">
           </div>
 
@@ -212,17 +215,20 @@
     }
 
     function update_stream_statuses() {
+
       proxies.forEach(function(proxy) {
         var port = proxy['port'];
+        var ready = proxy['ready'];
 
         var div = $('#row-' + port);
         if (div.length) {
           var watchButton = div.children().last();
 
           watchButton.unbind();
-          watchButton.text('Stop Watching');
-          watchButton.addClass('btn-danger');
-          watchButton.click(function() { unwatch(port); fetchStreams(); })
+          watchButton.text(ready ? 'Stop Watching' : 'Fetching...');
+          watchButton.addClass(ready ? 'btn-danger' : 'btn-info');
+          if (ready)
+            watchButton.click(function() { unwatch(port); fetchStreams(); })
 
           if (currentStream != port) {
             var makeCurrentButton = $('<button>')
