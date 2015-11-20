@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import subprocess
 
 SERVER_HOSTNAME         = os.environ['SERVER_HOSTNAME']
@@ -52,18 +53,19 @@ class Proxy:
         self.process = None
         self.port = port
 
-    def start(self):
         subdir = '{}'.format(self.port)
-        local_path = os.path.join(OUTPUT_DIRECTORY, subdir)
-        server_path = os.path.join(SERVER_PATH, subdir)
+        self.local_path = os.path.join(OUTPUT_DIRECTORY, subdir)
+        self.server_path = os.path.join(SERVER_PATH, subdir)
 
-        if not os.path.exists(local_path):
-            os.makedirs(local_path)
+    def start(self):
+        if os.path.exists(self.local_path):
+            shutil.rmtree(self.local_path)
+        os.makedirs(self.local_path)
 
         command = VLC_COMMAND(
             self.port,
-            local_path,
-            server_path
+            self.local_path,
+            self.server_path
         )
 
         self.process = subprocess.Popen(
@@ -85,6 +87,8 @@ class Proxy:
     def __del__(self):
         if self.alive():
             self.process.kill()
+        if os.path.exists(self.local_path):
+            shutil.rmtree(self.local_path)
 
     def __hash__(self):
         return hash(self.port)
