@@ -69,7 +69,7 @@ class Proxy:
         self.process = subprocess.Popen(
             command,
             stdout=sys.stderr.fileno(),
-            stderr=subprocess.PIPE,
+            stderr=sys.stderr.fileno(),
         )
 
     def alive(self):
