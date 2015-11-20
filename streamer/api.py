@@ -8,8 +8,19 @@ from streaming import Stream
 
 monitored_streams = set()
 
+def poll_streams():
+    dead_streams = [
+        stream for stream in monitored_streams
+        if not stream.alive()
+    ]
+
+    for stream in dead_streams:
+        monitored_streams.remove(stream)
+
 @app.route('/streams', methods=['GET'])
 def streams():
+    poll_streams()
+
     return jsonify(
         streams=[
             stream.to_json()
@@ -21,6 +32,8 @@ def streams():
 def start_stream():
     channel = request.form['channel']
     quality = request.form['quality']
+
+    poll_streams()
 
     url = 'twitch.tv/{}'.format(channel) # Twitch specific (for now ?)
     stream = Stream(url, quality)
