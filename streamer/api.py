@@ -2,16 +2,16 @@
 
 from streaming import Stream
 
-monitored_streams = set()
+monitored_streams = dict()
 
 def poll_streams():
     dead_streams = [
-        stream for stream in monitored_streams
+        id for id, stream in monitored_streams.items()
         if not stream.alive()
     ]
 
-    for stream in dead_streams:
-        monitored_streams.remove(stream)
+    for id in dead_streams:
+        monitored_streams.remove(id)
 
 from flask import Flask, request, jsonify
 
@@ -25,8 +25,22 @@ def streams():
     return jsonify(
         streams=[
             stream.to_json()
-            for stream in monitored_streams
+            for stream in monitored_streams.values()
         ]
+    )
+
+@app.route('/stream/<int:stream_id>', methods=['GET'])
+@preprocess(poll_streams)
+def stream(stream_id):
+    try:
+        stream = monitored_streams[stream_id]
+    except KeyError:
+        return jsonify(
+            errors=['stream with id {} does not exist'.format(stream_id)]
+        ), 404
+
+    return jsonify(
+        stream=stream.to_json()
     )
 
 @app.route('/streams', methods=['POST'])
@@ -36,14 +50,14 @@ def monitor_stream(payload):
     url = 'twitch.tv/{}'.format(payload['channel'])
     stream = Stream(url, payload['quality'])
 
-    if stream in monitored_streams:
+    if stream in monitored_streams.values():
         status = 'ALREADY_STARTED'
     else:
         available = stream.is_available()
         if available:
             status = 'OK'
             stream.start()
-            monitored_streams.add(stream)
+            monitored_streams[stream.port] = stream
         else:
             status = 'UNAVAILABLE'
 
