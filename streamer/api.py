@@ -65,6 +65,20 @@ def monitor_stream(payload):
         status=status
     )
 
+@app.route('/stream/<int:stream_id>', methods=['DELETE'])
+@preprocess(poll_streams)
+def unmonitor_stream(stream_id):
+    try:
+        del monitored_streams[stream_id]
+    except KeyError:
+        return jsonify(
+            errors=['stream with id {} does not exist'.format(stream_id)]
+        ), 404
+
+    return jsonify(
+        status='OK'
+    )
+
 if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
