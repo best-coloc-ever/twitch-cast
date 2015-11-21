@@ -55,9 +55,9 @@ class Stream:
 
     def to_json(self):
         return {
+            'id': self.port,
             'url': self.url,
-            'quality': self.quality,
-            'port': self.port
+            'quality': self.quality
         }
 
     def __del__(self):

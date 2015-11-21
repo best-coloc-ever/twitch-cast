@@ -85,8 +85,9 @@ class Proxy:
 
     def to_json(self):
         return {
-            'port': self.port,
-            'ready': self.ready()
+            'id': self.port,
+            'ready': self.ready(),
+            'url': os.path.join(self.server_path, OUTPUT_INDEX_FILE_NAME)
         }
 
     def __del__(self):

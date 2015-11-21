@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "channel": {
+      "type": "string"
+    },
+    "quality": {
+      "enum": [
+        "worst",
+        "low",
+        "medium",
+        "high",
+        "best"
+      ]
+    }
+  },
+  "required": [
+    "channel",
+    "quality"
+  ]
+}
