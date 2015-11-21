@@ -154,6 +154,13 @@
       });
     }
 
+    function unmonitor(stream_id) {
+      $.ajax({
+        method: 'DELETE',
+        url: '/streamer/stream/' + stream_id,
+      });
+    }
+
     function watch(stream_id) {
       $.ajax({
         method: 'POST',
@@ -189,7 +196,7 @@
           .click(function() { watch(stream.id); fetchStreams(); });
         var unmonitorButton = $('<button>')
           .addClass('btn btn-sm')
-          .click(function() { watch(stream.id); fetchStreams(); })
+          .click(function() { unmonitor(stream.id); fetchStreams(); })
           .wrapInner($('<span>')
             .addClass('glyphicon glyphicon-remove')
           );
