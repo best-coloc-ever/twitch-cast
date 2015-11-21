@@ -5,7 +5,8 @@ RUN apt-get update -qq && apt-get install -yqq \
     unzip
 
 RUN pip install \
-    Flask
+    Flask \
+    jsonschema
 
 # Install my fork of Livestreamer
 ENV branch fix-crash-on-httpserver-sigpipe

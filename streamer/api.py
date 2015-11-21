@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
 from streaming import Stream
 
 monitored_streams = set()
@@ -17,10 +13,15 @@ def poll_streams():
     for stream in dead_streams:
         monitored_streams.remove(stream)
 
-@app.route('/streams', methods=['GET'])
-def streams():
-    poll_streams()
+from flask import Flask, request, jsonify
 
+app = Flask(__name__)
+
+from utils import validate_json_request, preprocess
+
+@app.route('/streams', methods=['GET'])
+@preprocess(poll_streams)
+def streams():
     return jsonify(
         streams=[
             stream.to_json()
@@ -28,15 +29,12 @@ def streams():
         ]
     )
 
-@app.route('/start', methods=['POST'])
-def start_stream():
-    channel = request.form['channel']
-    quality = request.form['quality']
-
-    poll_streams()
-
-    url = 'twitch.tv/{}'.format(channel) # Twitch specific (for now ?)
-    stream = Stream(url, quality)
+@app.route('/streams', methods=['POST'])
+@validate_json_request('monitor_stream')
+@preprocess(poll_streams)
+def monitor_stream(payload):
+    url = 'twitch.tv/{}'.format(payload['channel'])
+    stream = Stream(url, payload['quality'])
 
     if stream in monitored_streams:
         status = 'ALREADY_STARTED'
