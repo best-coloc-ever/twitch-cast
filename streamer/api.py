@@ -44,9 +44,9 @@ def stream(stream_id):
     )
 
 @app.route('/streams', methods=['POST'])
-@validate_json_request('monitor_stream')
+@validate_json_request('monitor')
 @preprocess(poll_streams)
-def monitor_stream(payload):
+def monitor(payload):
     url = 'twitch.tv/{}'.format(payload['channel'])
     stream = Stream(url, payload['quality'])
 
@@ -67,7 +67,7 @@ def monitor_stream(payload):
 
 @app.route('/stream/<int:stream_id>', methods=['DELETE'])
 @preprocess(poll_streams)
-def unmonitor_stream(stream_id):
+def unmonitor(stream_id):
     try:
         del monitored_streams[stream_id]
     except KeyError:
