@@ -11,7 +11,7 @@ def poll_streams():
     ]
 
     for id in dead_streams:
-        monitored_streams.remove(id)
+        del monitored_streams[id]
 
 from flask import Flask, request, jsonify
 
