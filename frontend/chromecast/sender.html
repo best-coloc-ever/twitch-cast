@@ -2,7 +2,7 @@
   <script async>
     var APPLICATION_ID = '8F368C04'
     var session = null;
-    var currentStream = null;
+    var currentProxy = null;
 
     function sessionListener(e) {
       session = e;
@@ -12,7 +12,7 @@
 
     function play() {
       var mediaInfo = new chrome.cast.media.MediaInfo(
-        '/video/' + currentStream + '/stream.m3u8',
+        currentProxy.url,
         'application/vnd.apple.mpegurl'
       );
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -36,7 +36,7 @@
     }
 
     function cast() {
-      if (currentStream != null) {
+      if (currentProxy != null) {
         if (session == null)
           chrome.cast.requestSession(
             onRequestSessionSuccess,
@@ -111,6 +111,7 @@
                   <li><a href="#" id="watch-high">High</a></li>
                   <li><a href="#" id="watch-medium">Medium</a></li>
                   <li><a href="#" id="watch-low">Low</a></li>
+                  <li><a href="#" id="watch-worst">Worst</a></li>
                 </ul>
               </div>
             </span>
@@ -133,17 +134,15 @@
     var streams;
     var proxies;
 
-    function addStream(quality) {
-      var fd = new FormData();
-      fd.append('channel', $('#channel').val());
-      fd.append('quality', quality);
-
+    function monitor(quality) {
       $.ajax({
         method: 'POST',
-        url: '/streamer/start',
-        data: fd,
-        processData: false,
-        contentType: false,
+        url: '/streamer/streams',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'channel': $('#channel').val(),
+          'quality': quality
+        }),
         success: function(response) {
           var status = response['status'];
 
@@ -155,29 +154,21 @@
       });
     }
 
-    function watch(port) {
-      var fd = new FormData();
-      fd.append('port', port);
-
+    function watch(stream_id) {
       $.ajax({
         method: 'POST',
-        url: '/hls-proxy/watch',
-        data: fd,
-        processData: false,
-        contentType: false
+        url: '/hls-proxy/proxies',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          'stream_id': stream_id
+        })
       });
     }
 
-    function unwatch(port) {
-      var fd = new FormData();
-      fd.append('port', port);
-
+    function unwatch(stream_id) {
       $.ajax({
-        method: 'POST',
-        url: '/hls-proxy/unwatch',
-        data: fd,
-        processData: false,
-        contentType: false
+        method: 'DELETE',
+        url: '/hls-proxy/proxy/' + stream_id,
       });
     }
 
@@ -186,27 +177,32 @@
       container.empty();
 
       streams.forEach(function(stream) {
-        var port = stream['port'];
-
         var urlLabel = $('<span>')
             .addClass('label label-default')
             .text(stream['url']);
         var qualityLabel = $('<span>')
             .addClass('label label-info')
             .text(stream['quality']);
-        var activationButton = $('<button>')
+        var monitorButton = $('<button>')
           .addClass('btn btn-sm pull-right')
           .text('Watch')
-          .click(function() { watch(port); fetchStreams(); });
+          .click(function() { watch(stream.id); fetchStreams(); });
+        var unmonitorButton = $('<button>')
+          .addClass('btn btn-sm')
+          .click(function() { watch(stream.id); fetchStreams(); })
+          .wrapInner($('<span>')
+            .addClass('glyphicon glyphicon-remove')
+          );
 
         var row = $('<div>')
           .addClass('row')
-          .append($('<div id="row-' + port + '">')
+          .append($('<div id="row-' + stream.id + '">')
             .addClass('col-md-12')
             .append(
+              unmonitorButton, ' ',
               urlLabel, ' ',
               qualityLabel, ' ',
-              activationButton
+              monitorButton
             )
           )
 
@@ -217,30 +213,29 @@
     function update_stream_statuses() {
 
       proxies.forEach(function(proxy) {
-        var port = proxy['port'];
-        var ready = proxy['ready'];
-
-        var div = $('#row-' + port);
+        var div = $('#row-' + proxy.id);
         if (div.length) {
           var watchButton = div.children().last();
 
           watchButton.unbind();
-          watchButton.text(ready ? 'Stop Watching' : 'Fetching...');
-          watchButton.addClass(ready ? 'btn-danger' : 'btn-info');
-          if (ready)
-            watchButton.click(function() { unwatch(port); fetchStreams(); })
+          watchButton.text(proxy.ready ? 'Stop Watching' : 'Fetching...');
+          watchButton.addClass(proxy.ready ? 'btn-danger' : 'btn-info');
+          if (proxy.ready)
+            watchButton.click(function() { unwatch(proxy.id); fetchStreams(); })
 
-          if (currentStream != port) {
-            var makeCurrentButton = $('<button>')
-              .addClass('btn btn-primary btn-sm pull-right')
-              .text('Make current stream')
-              .click(function() {
-                currentStream = port;
-                refresh();
-                cast();
-              });
+          if (!currentProxy || currentProxy.id != proxy.id) {
+            if (proxy.ready) {
+              var makeCurrentButton = $('<button>')
+                .addClass('btn btn-primary btn-sm pull-right')
+                .text('Make current stream')
+                .click(function() {
+                  currentProxy = proxy;
+                  refresh();
+                  cast();
+                });
 
-            div.append(makeCurrentButton);
+              div.append(makeCurrentButton);
+            }
           }
           else {
             div.append($('<span>')
@@ -274,10 +269,11 @@
     }
 
     function initDom() {
-      $('#watch-best').click(function(e)   { addStream('best');   });
-      $('#watch-high').click(function(e)   { addStream('high');   });
-      $('#watch-medium').click(function(e) { addStream('medium'); });
-      $('#watch-low').click(function(e)    { addStream('low');    });
+      $('#watch-best')  .click(monitor.bind(null, 'best'));
+      $('#watch-high')  .click(monitor.bind(null, 'high'));
+      $('#watch-medium').click(monitor.bind(null, 'medium'));
+      $('#watch-low')   .click(monitor.bind(null, 'low'));
+      $('#watch-worst') .click(monitor.bind(null, 'worst'));
 
       fetchStreams();
     }
