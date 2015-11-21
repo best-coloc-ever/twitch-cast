@@ -8,7 +8,8 @@ RUN apt-get update -qq && apt-get install -yqq \
 RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
 RUN pip install \
-    Flask
+    Flask \
+    jsonschema
 
 ADD ./ /
 ENTRYPOINT ["/api.py"]

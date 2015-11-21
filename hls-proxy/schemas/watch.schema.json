@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "stream_id": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "stream_id"
+  ]
+}
