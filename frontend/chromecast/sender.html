@@ -144,12 +144,10 @@
           'quality': quality
         }),
         success: function(response) {
-          var status = response['status'];
-
-          if(status == 'OK')
             fetchStreams();
-          else
-            alert('Error: ' + status);
+        },
+        error: function(response) {
+          alert("FAILED, don't know how to get error code")
         }
       });
     }
@@ -263,11 +261,12 @@
       $.ajax({
         url: '/streamer/streams',
         success: function(json) {
-          streams = json['streams'];
+          streams = json;
+          console.log(streams);
           $.ajax({
             url: '/hls-proxy/proxies',
             success: function(json) {
-              proxies = json['proxies'];
+              proxies = json;
               refresh();
             }
           });
