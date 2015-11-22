@@ -13,7 +13,8 @@ def poll_streams():
     for id in dead_streams:
         del monitored_streams[id]
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
+from json import dumps
 
 app = Flask(__name__)
 
@@ -22,11 +23,12 @@ from utils import validate_json_request, preprocess
 @app.route('/streams', methods=['GET'])
 @preprocess(poll_streams)
 def streams():
-    return jsonify(
-        streams=[
+    return Response(
+        dumps([
             stream.to_json()
             for stream in monitored_streams.values()
-        ]
+        ]),
+        mimetype='application/json'
     )
 
 @app.route('/streams/<int:stream_id>', methods=['GET'])
@@ -39,9 +41,7 @@ def stream(stream_id):
             errors=['stream with id {} does not exist'.format(stream_id)]
         ), 404
 
-    return jsonify(
-        stream=stream.to_json()
-    )
+    return Response(dumps(stream.to_json()), mimetype='application/json')
 
 @app.route('/streams', methods=['POST'])
 @validate_json_request('monitor')
@@ -51,19 +51,15 @@ def monitor(payload):
     stream = Stream(url, payload['quality'])
 
     if stream in monitored_streams.values():
-        status = 'ALREADY_STARTED'
+        return '', 400
     else:
         available = stream.is_available()
         if available:
-            status = 'OK'
             stream.start()
             monitored_streams[stream.port] = stream
+            return Response(dumps(stream.to_json()), mimetype='application/json')
         else:
-            status = 'UNAVAILABLE'
-
-    return jsonify(
-        status=status
-    )
+            return '', 404
 
 @app.route('/streams/<int:stream_id>', methods=['DELETE'])
 @preprocess(poll_streams)

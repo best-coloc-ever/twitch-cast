@@ -13,7 +13,8 @@ def poll_proxies():
     for id in dead_proxies:
         del hls_proxies[id]
 
-from flask import Flask, request, jsonify
+from flask import Response, Flask, request, jsonify
+from json import dumps
 
 app = Flask(__name__)
 
@@ -22,11 +23,12 @@ from utils import validate_json_request, preprocess
 @app.route('/proxies', methods=['GET'])
 @preprocess(poll_proxies)
 def proxies():
-    return jsonify(
-        proxies=[
+    return Response(
+        dumps([
             proxy.to_json()
             for proxy in hls_proxies.values()
-        ]
+        ]),
+        mimetype='application/json'
     )
 
 @app.route('/proxies/<int:proxy_id>', methods=['GET'])
@@ -39,9 +41,7 @@ def proxy(proxy_id):
             errors=['proxy with id {} does not exist'.format(proxy_id)]
         ), 404
 
-    return jsonify(
-        proxy=proxy.to_json()
-    )
+    return Response(dumps(proxy.to_json()), mimetype='application/json')
 
 @app.route('/proxies', methods=['POST'])
 @validate_json_request('watch')
@@ -50,17 +50,13 @@ def watch(payload):
     stream_id = payload['stream_id']
 
     try:
-        hls_proxies[stream_id]
-        status = 'ALREADY_WATCHING'
+        proxy = hls_proxies[stream_id]
+        return '', 400
     except KeyError:
         proxy = Proxy(stream_id)
         proxy.start()
         hls_proxies[stream_id] = proxy
-        status = 'OK'
-
-    return jsonify(
-        status=status
-    )
+        return Response(dumps(proxy.to_json()), mimetype='application/json')
 
 @app.route('/proxies/<int:proxy_id>', methods=['DELETE'])
 def unwatch(proxy_id):
