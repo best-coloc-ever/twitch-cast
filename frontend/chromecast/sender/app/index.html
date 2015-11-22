@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" >
+  <head>
+    <title>Twitch Caster</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic">
+    <link rel="stylesheet" href="./bower_components/angular-material/angular-material.css"/>
+    <link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.css"/>
+    <link rel="stylesheet" href="assets/app.css"/>
+
+    <style type="text/css">
+        /**
+         * Hide when Angular is not yet loaded and initialized
+         */
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+          display: none !important;
+        }
+    </style>
+
+  </head>
+
+  <script src="./bower_components/angular/angular.js"></script>
+  <script src="./bower_components/angular-animate/angular-animate.js"></script>
+  <script src="./bower_components/angular-route/angular-route.js"></script>
+  <script src="./bower_components/angular-resource/angular-resource.js"></script>
+  <script src="./bower_components/angular-aria/angular-aria.js"></script>
+  <script src="./bower_components/angular-messages/angular-messages.js"></script>
+  <script type="text/javascript" src="./bower_components/angular-material/angular-material.js"></script>
+
+  <script src="./src/app.js"></script>
+
+  <script src="./src/twitch/twitch.module.js"></script>
+  <script src="./src/twitch/twitch.controller.js"></script>
+  <script src="./src/twitch/twitch.proxies.service.js"></script>
+  <script src="./src/twitch/twitch.streams.service.js"></script>
+
+  <script src="./src/twitch/stream/stream.component.js"></script>
+
+  <script src="./src/chromecast/chromecast.module.js"></script>
+  <script src="./src/chromecast/chromecast.service.js"></script>
+
+  <body ng-app="TwitchCaster" layout="column" ng-controller="TwitchController as twitchCtrl" ng-cloak>
+    <md-toolbar layout="row">
+          <div class="md-toolbar-tools">
+            <h1>Twitch Caster</h1>
+          </div>
+        </md-toolbar>
+    <div layout-padding layout="column" role="main" class="main" >
+      <div layout-padding flex="25" id="chromecast">
+        <div layout="row" layout-align="center center">
+          <md-button class="md-raised md-primary" id="cast-button" ng-disabled="!twitchCtrl.apiLoaded" ng-click="twitchCtrl.cast()">
+            <i class="fa fa-twitch fa-5x "></i>  <span class="md-display-3">&nbsp; Start Casting</span>
+          </md-button>
+        </div>
+      </div>
+      <div layout-padding flex="75" id="streams">
+        <ng-include src="'src/twitch/view/streams.html'"  onload=""  autoscroll=""></ng-include>
+      </div>
+    </div>
+
+  </body>
+
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js" defer></script>
+
+</html>

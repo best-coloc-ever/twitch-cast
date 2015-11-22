@@ -1,0 +1,17 @@
+<md-card>
+ <!-- <img src="" class="md-card-image" alt="image caption"> -->
+ <md-card-content>
+   <h2>{{bceStream.stream.name}}</h2>
+   <p>{{bceStream.stream.quality}} @ {{bceStream.stream.port}}</p>
+
+   <div ng-show="bceStream.working" layout="row" layout-sm="column" layout-align="space-around">
+     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+   </div>
+ </md-card-content>
+ <md-card-actions layout="row" layout-align="end center">
+   <md-button ng-show="bceStream.stream.port" ng-click="bceStream.doStuff()">Make Current Stream</md-button>
+   <md-button ng-show="bceStream.stream.port" ng-click="bceStream.stopWatch()">Stop watching</md-button>
+   <md-button ng-show="!bceStream.stream.port" ng-click="bceStream.watch()">Watch</md-button>
+   <md-button ng-show="!bceStream.stream.port" ng-click="bceStream.unmonitor()">Stop monitoring</md-button>
+ </md-card-actions>
+</md-card>
