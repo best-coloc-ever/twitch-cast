@@ -29,7 +29,7 @@ def proxies():
         ]
     )
 
-@app.route('/proxy/<int:proxy_id>', methods=['GET'])
+@app.route('/proxies/<int:proxy_id>', methods=['GET'])
 @preprocess(poll_proxies)
 def proxy(proxy_id):
     try:
@@ -62,7 +62,7 @@ def watch(payload):
         status=status
     )
 
-@app.route('/proxy/<int:proxy_id>', methods=['DELETE'])
+@app.route('/proxies/<int:proxy_id>', methods=['DELETE'])
 def unwatch(proxy_id):
     try:
         del hls_proxies[proxy_id]

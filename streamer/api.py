@@ -29,7 +29,7 @@ def streams():
         ]
     )
 
-@app.route('/stream/<int:stream_id>', methods=['GET'])
+@app.route('/streams/<int:stream_id>', methods=['GET'])
 @preprocess(poll_streams)
 def stream(stream_id):
     try:
@@ -65,7 +65,7 @@ def monitor(payload):
         status=status
     )
 
-@app.route('/stream/<int:stream_id>', methods=['DELETE'])
+@app.route('/streams/<int:stream_id>', methods=['DELETE'])
 @preprocess(poll_streams)
 def unmonitor(stream_id):
     try:

@@ -157,7 +157,7 @@
     function unmonitor(stream_id) {
       $.ajax({
         method: 'DELETE',
-        url: '/streamer/stream/' + stream_id,
+        url: '/streamer/streams/' + stream_id,
       });
     }
 
@@ -175,7 +175,7 @@
     function unwatch(stream_id) {
       $.ajax({
         method: 'DELETE',
-        url: '/hls-proxy/proxy/' + stream_id,
+        url: '/hls-proxy/proxies/' + stream_id,
       });
     }
 
