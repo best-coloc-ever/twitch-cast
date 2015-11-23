@@ -12,7 +12,7 @@
 
     function play() {
       var mediaInfo = new chrome.cast.media.MediaInfo(
-        currentProxy.url,
+        currentProxy.indexUrl,
         'application/vnd.apple.mpegurl'
       );
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -147,7 +147,7 @@
             fetchStreams();
         },
         error: function(response) {
-          alert("FAILED, don't know how to get error code")
+          alert(response)
         }
       });
     }
