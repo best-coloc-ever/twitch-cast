@@ -2,7 +2,7 @@
   <script async>
     var APPLICATION_ID = '8F368C04'
     var session = null;
-    var currentProxy = null;
+    var currentStream = null;
 
     function sessionListener(e) {
       session = e;
@@ -12,7 +12,7 @@
 
     function play() {
       var mediaInfo = new chrome.cast.media.MediaInfo(
-        currentProxy.indexUrl,
+        currentStream.proxy.indexUrl,
         'application/vnd.apple.mpegurl'
       );
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -36,7 +36,7 @@
     }
 
     function cast() {
-      if (currentProxy != null) {
+      if (currentStream != null) {
         if (session == null)
           chrome.cast.requestSession(
             onRequestSessionSuccess,
@@ -132,7 +132,6 @@
 
   <script>
     var streams;
-    var proxies;
 
     function monitor(quality) {
       $.ajax({
@@ -144,7 +143,7 @@
           'quality': quality
         }),
         success: function(response) {
-            fetchStreams();
+          fetchStreams();
         },
         error: function(response) {
           alert(response)
@@ -162,18 +161,14 @@
     function watch(stream_id) {
       $.ajax({
         method: 'POST',
-        url: '/hls-proxy/proxies',
-        contentType: 'application/json',
-        data: JSON.stringify({
-          'stream_id': stream_id
-        })
+        url: '/streamer/streams/' + stream_id + '/watch',
       });
     }
 
     function unwatch(stream_id) {
       $.ajax({
-        method: 'DELETE',
-        url: '/hls-proxy/proxies/' + stream_id,
+        method: 'POST',
+        url: '/streamer/streams/' + stream_id + '/unwatch',
       });
     }
 
@@ -182,16 +177,25 @@
       container.empty();
 
       streams.forEach(function(stream) {
+        var proxy = stream.proxy;
+
         var urlLabel = $('<span>')
             .addClass('label label-default')
             .text(stream['url']);
         var qualityLabel = $('<span>')
             .addClass('label label-info')
             .text(stream['quality']);
-        var monitorButton = $('<button>')
+        var watchButton = $('<button>')
           .addClass('btn btn-sm pull-right')
           .text('Watch')
           .click(function() { watch(stream.id); fetchStreams(); });
+        if (proxy) {
+          watchButton.unbind();
+          watchButton.text(proxy.ready ? 'Stop Watching' : 'Fetching...');
+          watchButton.addClass(proxy.ready ? 'btn-danger' : 'btn-info');
+          if (proxy.ready)
+            watchButton.click(function() { unwatch(stream.id); fetchStreams(); })
+        }
         var unmonitorButton = $('<button>')
           .addClass('btn btn-sm')
           .click(function() { unmonitor(stream.id); fetchStreams(); })
@@ -199,62 +203,42 @@
             .addClass('glyphicon glyphicon-remove')
           );
 
+        var div = $('<div>')
+          .addClass('col-md-12')
+          .append(
+            unmonitorButton, ' ',
+            urlLabel, ' ',
+            qualityLabel, ' ',
+            watchButton
+          );
+
+        if (!currentStream || currentStream.id != stream.id) {
+          if (proxy && proxy.ready) {
+            var makeCurrentButton = $('<button>')
+              .addClass('btn btn-primary btn-sm pull-right')
+              .text('Make current stream')
+              .click(function() {
+                currentStream = stream;
+                displayStreams();
+                cast();
+              });
+
+            div.append(makeCurrentButton);
+          }
+        }
+        else {
+          div.append($('<span>')
+            .addClass('label label-primary')
+            .text('Current stream')
+          );
+        }
+
         var row = $('<div>')
           .addClass('row')
-          .append($('<div id="row-' + stream.id + '">')
-            .addClass('col-md-12')
-            .append(
-              unmonitorButton, ' ',
-              urlLabel, ' ',
-              qualityLabel, ' ',
-              monitorButton
-            )
-          )
+          .append(div)
 
         container.append(row);
       });
-    }
-
-    function update_stream_statuses() {
-
-      proxies.forEach(function(proxy) {
-        var div = $('#row-' + proxy.id);
-        if (div.length) {
-          var watchButton = div.children().last();
-
-          watchButton.unbind();
-          watchButton.text(proxy.ready ? 'Stop Watching' : 'Fetching...');
-          watchButton.addClass(proxy.ready ? 'btn-danger' : 'btn-info');
-          if (proxy.ready)
-            watchButton.click(function() { unwatch(proxy.id); fetchStreams(); })
-
-          if (!currentProxy || currentProxy.id != proxy.id) {
-            if (proxy.ready) {
-              var makeCurrentButton = $('<button>')
-                .addClass('btn btn-primary btn-sm pull-right')
-                .text('Make current stream')
-                .click(function() {
-                  currentProxy = proxy;
-                  refresh();
-                  cast();
-                });
-
-              div.append(makeCurrentButton);
-            }
-          }
-          else {
-            div.append($('<span>')
-              .addClass('label label-primary')
-              .text('Current stream')
-            );
-          }
-        }
-      });
-    }
-
-    function refresh() {
-      displayStreams();
-      update_stream_statuses();
     }
 
     function fetchStreams() {
@@ -262,14 +246,7 @@
         url: '/streamer/streams',
         success: function(json) {
           streams = json;
-          console.log(streams);
-          $.ajax({
-            url: '/hls-proxy/proxies',
-            success: function(json) {
-              proxies = json;
-              refresh();
-            }
-          });
+          displayStreams();
         }
       });
     }
