@@ -4,17 +4,21 @@ frontend:
         - '80:80'
     volumes:
         - './frontend/chromecast:/chromecast'
+        - './frontend/nginx.conf:/etc/nginx/nginx.conf'
         - 'twitch-cast-data:/data'
     restart: always
     container_name: frontend
 
 streamer:
     build: streamer
+    volumes:
+        - './streamer:/streamer'
     container_name: streamer
 
 hls-proxy:
     build: hls-proxy
     volumes:
+        - './hls-proxy:/hls-proxy'
         - 'twitch-cast-data:/data'
     environment:
         SERVER_HOSTNAME: '${SERVER_NAME}'

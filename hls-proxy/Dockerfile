@@ -11,5 +11,5 @@ RUN pip install \
     Flask \
     jsonschema
 
-ADD ./ /
-ENTRYPOINT ["/api.py"]
+WORKDIR "/hls-proxy"
+ENTRYPOINT ["./api.py"]

@@ -5,7 +5,7 @@ from flask import request, jsonify
 from functools import wraps
 from jsonschema import Draft4Validator
 
-SCHEMA_DIR = '/schemas'
+SCHEMA_DIR = './schemas'
 SCHEMA_EXTENSION = '.schema.json'
 
 def validate_json_request(schema_name):

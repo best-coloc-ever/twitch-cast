@@ -15,5 +15,5 @@ RUN unzip /tmp/livestreamer.zip -d /tmp
 RUN cd /tmp/livestreamer-${branch} && python setup.py install
 RUN rm -rf /tmp/livestreamer.zip /tmp/livestreamer-${branch}
 
-ADD ./ /
-ENTRYPOINT ["/api.py"]
+WORKDIR "/streamer"
+ENTRYPOINT ["./api.py"]
