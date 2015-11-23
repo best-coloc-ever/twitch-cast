@@ -1,8 +1,12 @@
 FROM ubuntu
 
-RUN apt-get update -qq && apt-get install -yqq \
+RUN apt-get update && apt-get install -y \
     python-pip \
-    unzip
+    unzip \
+    vlc
+
+# Hackish but simplest way I found to allow VLC to run as root
+RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
 RUN pip install \
     Flask \
