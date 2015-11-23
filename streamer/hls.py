@@ -28,47 +28,38 @@ SOUT_CONFIG_TEMPLATE = '\
     dst = {ts_path}\
 }}'
 
-def sout_config(local_root, server_root):
-    raw = SOUT_CONFIG_TEMPLATE.format(
-        seg_len=SEGMENT_LEN,
-        index_path=os.path.join(local_root, OUTPUT_INDEX_FILE_NAME),
-        ts_url=urljoin(server_root, OUTPUT_TS_FILE_PATTERN),
-        ts_path=os.path.join(local_root, OUTPUT_TS_FILE_PATTERN)
-    )
-    # Removing whitespaces because of VLC's weird parsing rules
-    return ''.join(raw.split())
-
-VLC_COMMAND = lambda port, local_root, server_root: [
+VLC_COMMAND = lambda port, sout_config: [
     'vlc',
     '-I', 'dummy',
     '--play-and-exit',
     '--live-caching', '300',
     'http://{}:{}'.format(STREAMER_HOSTNAME, port),
-    '--sout', sout_config(local_root, server_root)
+    '--sout', sout_config
 ]
 
 class Proxy:
 
-    def __init__(self, port):
+    def __init__(self, stream):
         self.process = None
-        self.port = port
+        self.stream = stream
 
-        subdir = '{}/'.format(self.port)
+        subdir = '{}/{}/'.format(stream.channel, stream.quality)
         self.local_root = os.path.join(OUTPUT_DIRECTORY, subdir)
         self.server_root = urljoin(
             'http://{}'.format(SERVER_HOSTNAME),
             os.path.join(SERVER_PATH, subdir)
         )
 
+        self.index_path = os.path.join(self.local_root, OUTPUT_INDEX_FILE_NAME)
+        self.index_url = os.path.join(self.server_root, OUTPUT_INDEX_FILE_NAME)
+
     def start(self):
-        if os.path.exists(self.local_root):
-            shutil.rmtree(self.local_root)
+        self.cleanup_local_data()
         os.makedirs(self.local_root)
 
         command = VLC_COMMAND(
-            self.port,
-            self.local_root,
-            self.server_root
+            self.stream.port,
+            self.sout_config()
         )
 
         self.process = subprocess.Popen(
@@ -77,33 +68,35 @@ class Proxy:
             stderr=sys.stderr.fileno(),
         )
 
+    def sout_config(self):
+        raw = SOUT_CONFIG_TEMPLATE.format(
+            seg_len=SEGMENT_LEN,
+            index_path=self.index_path,
+            ts_url=urljoin(self.server_root, OUTPUT_TS_FILE_PATTERN),
+            ts_path=os.path.join(self.local_root, OUTPUT_TS_FILE_PATTERN)
+        )
+        # Removing whitespaces because of VLC's weird parsing rules
+        return ''.join(raw.split())
+
     def alive(self):
         if self.process is None:
             return False
         return self.process.poll() is None
 
     def ready(self):
-        index_file_path = os.path.join(self.local_root, OUTPUT_INDEX_FILE_NAME)
-        return os.path.exists(index_file_path)
+        return os.path.exists(self.index_path)
 
     def to_json(self):
         return {
-            'id': self.port,
             'ready': self.ready(),
-            'indexUrl': os.path.join(self.server_root, OUTPUT_INDEX_FILE_NAME)
+            'indexUrl': self.index_url,
         }
+
+    def cleanup_local_data(self):
+        if os.path.exists(self.local_root):
+            shutil.rmtree(self.local_root)
 
     def __del__(self):
         if self.alive():
             self.process.kill()
-        if os.path.exists(self.local_root):
-            shutil.rmtree(self.local_root)
-
-    def __hash__(self):
-        return hash(self.port)
-
-    def __eq__(self, other):
-        return self.port == other.port
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
+        self.cleanup_local_data()

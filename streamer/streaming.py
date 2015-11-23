@@ -3,6 +3,8 @@ import subprocess
 import socket
 import livestreamer
 
+from hls import Proxy
+
 LIVESTREAMER_COMMAND = lambda url, quality, port: [
     'livestreamer',
     url,
@@ -25,17 +27,24 @@ def bindable_port():
 
 class Stream:
 
-    def __init__(self, url, quality):
-        self.url = url
+    id_counter = 1
+
+    def __init__(self, channel, quality):
+        self.id = Stream.id_counter
+        Stream.id_counter += 1
+
+        self.channel = channel
         self.quality = quality
+        self.url = 'twitch.tv/{}'.format(channel)
         self.port = bindable_port()
         self.process = None
+        self.proxy = None
 
     def is_available(self):
         streams = livestreamer.streams(self.url)
         return streams.has_key(self.quality)
 
-    def start(self):
+    def monitor(self):
         command = LIVESTREAMER_COMMAND(
             self.url,
             self.quality,
@@ -48,19 +57,35 @@ class Stream:
             stderr=sys.stderr.fileno(),
         )
 
+    def watch(self):
+        self.proxy = Proxy(self)
+        self.proxy.start()
+
+    def unwatch(self):
+        if self.proxy:
+            del self.proxy
+            self.proxy = None
+
     def alive(self):
+        if self.proxy and not self.proxy.alive():
+            self.unwatch()
         if self.process is None:
             return False
         return self.process.poll() is None
 
     def to_json(self):
+        proxy = self.proxy.to_json() if self.proxy else None
+
         return {
-            'id': self.port,
+            'id': self.id,
+            'channel': self.channel,
+            'quality': self.quality,
             'url': self.url,
-            'quality': self.quality
+            'proxy': proxy,
         }
 
     def __del__(self):
+        self.unwatch()
         if self.alive():
             self.process.kill()
 
