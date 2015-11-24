@@ -7,29 +7,59 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, TwitchCastProxiesService) {
+      controller: function(TwitchCastStreamsService, ChromecastService) {
         var vm = this;
 
-        vm.doStuff = function () {
+        if (!vm.stream.id) {
+          TwitchCastStreamsService.save(null, {
+            channel: vm.stream.channel,
+            quality: vm.stream.quality
+          }, function(stream) {
+            vm.stream = stream;
+          }, function(error) {
+            vm.unmonitor(vm.stream);
+          });
+        }
+
+        vm.doStuff = function() {
           console.log('stuff is done');
         };
 
-        vm.unmonitor = function(stream) {
+        vm.unmonitor = function() {
           // remove from display
           vm.discard(vm.stream);
           // do stuff on the server
+          vm.stream.$delete();
         };
 
-        vm.watch = function (stream) {
-          vm.stream.port = 69;
+        vm.watch = function() {
           vm.working = true;
+          vm.stream.$watch(
+            function(stream) {
+              vm.working = false;
+              vm.stream = stream;
+            },
+            function(error) {
+              vm.working = false;
+            });
         };
 
-        vm.stopWatch = function (stream) {
-          delete vm.stream.port;
-          vm.working = false;
+        vm.stopWatch = function() {
+          vm.stream.$unwatch(function(stream) {
+            vm.stream = stream;
+          }, function(error) {
+            console.error(error);
+          });
         };
+
+        vm.cast = function() {
+          ChromecastService.cast(vm.stream.proxy);
+        };
+
       },
-      templateUrl: '/src/twitch/stream/stream.component.html'
+      template: function($templateCache) {
+        return $templateCache.get(
+          'src/twitch/stream/stream.component.html');
+      }
     });
 })();

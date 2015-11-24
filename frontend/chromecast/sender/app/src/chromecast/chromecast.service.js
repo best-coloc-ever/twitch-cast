@@ -6,6 +6,7 @@
     var currentProxy = null;
     var loadSuccessful = false;
     var deferred;
+    var currentMedia;
 
     function getLoaded() {
       deferred = $q.defer();
@@ -29,7 +30,7 @@
 
     function play() {
       var mediaInfo = new chrome.cast.media.MediaInfo(
-        currentProxy.url,
+        currentProxy.indexUrl,
         'application/vnd.apple.mpegurl'
       );
       var request = new chrome.cast.media.LoadRequest(mediaInfo);
@@ -101,11 +102,17 @@
       currentProxy = proxy;
     }
 
+    function castProxy(proxy) {
+      setProxy(proxy);
+      cast();
+    }
+
     $window.__onGCastApiAvailable = initialize;
 
     return {
       setProxy: setProxy,
-      onLoad: getLoaded
+      onLoad: getLoaded,
+      cast: castProxy
     };
   }
 

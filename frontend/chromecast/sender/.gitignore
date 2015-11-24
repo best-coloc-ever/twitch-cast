@@ -3,3 +3,6 @@ logs/*
 node_modules/
 bower_components/
 tmp
+dist/
+app/**/*.css
+app/src/templates.js

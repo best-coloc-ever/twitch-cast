@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function TwitchController(ChromecastService, TwitchCastStreamsService, TwitchCastProxiesService) {
+  function TwitchController(ChromecastService, TwitchCastStreamsService) {
     var vm = this;
 
     vm.qualities = [{
@@ -21,17 +21,28 @@
       quality: 'worst'
     }];
 
-    vm.streams = [{
-      name: 'day9tv',
-      quality: 'best'
-    }];
+    vm.streams = [];
 
-    vm.newStream = {};
+    vm.newStream = {
+      quality: vm.qualities[0].quality
+    };
 
     vm.apiLoaded = false;
     ChromecastService.onLoad().then(function() {
       vm.apiLoaded = true;
     });
+
+
+    TwitchCastStreamsService.query (null,
+      function(streams) {
+        angular.forEach(streams, function(stream) {
+          vm.streams.push(stream);
+        });
+      },
+      function(error) {
+        console.log(error);
+      }
+    );
 
     vm.monitor = function() {
       // Call the service
@@ -40,11 +51,11 @@
 
       vm.streams.push(angular.copy(vm.newStream));
       // cleaning up for next stream
-      // for (var prop in vm.newStream) {
-      //   if (obj.hasOwnProperty(prop)) {
-      //     delete obj[prop];
-      //   }
-      // }
+      vm.newStreamForm.$setPristine();
+      vm.newStreamForm.$setUntouched();
+      vm.newStream = {
+        quality: vm.qualities[0].quality
+      };
     };
 
     vm.discard = function(stream) {
