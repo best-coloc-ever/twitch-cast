@@ -1,0 +1,43 @@
+<h1>Streams</h1>
+
+<form name="twitchCtrl.newStreamForm" ng-submit="twitchCtrl.monitor()">
+  <div layout layout-sm="column">
+    <md-input-container flex>
+      <label>Stream name</label>
+      <input name="streamName" required ng-model="twitchCtrl.newStream.channel">
+      <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
+        <div ng-message="required" class="my-message">You must supply the stream name.</div>
+      </div>
+    </md-input-container>
+    <md-input-container flex>
+      <label>Quality</label>
+      <md-select ng-model="twitchCtrl.newStream.quality" required="true">
+        <md-option ng-repeat="quality in twitchCtrl.qualities" ng-value="quality.quality">
+          {{quality.name}}
+        </md-option>
+      </md-select>
+    </md-input-container>
+    <div layout="row" layout-align="center center">
+      <md-button class="md-raised md-primary" type="submit">Monitor</md-button>
+    </div>
+  </div>
+</form>
+
+<div class="md-padding" >
+
+  <!-- <md-grid-list md-cols="3" md-cols="3" md-cols-sm="2" md-cols-lg="6" md-row-height="1:1" > -->
+    <!-- <md-grid-tile md-rowspan="1" md-colspan="1" ng-repeat="stream in twitchCtrl.streams"> -->
+    <!-- </md-grid-tile> -->
+      <!-- <bce-stream stream="stream"/> -->
+  <!-- </md-grid-list> -->
+<!-- </div> -->
+
+
+
+<div class="md-padding" layout="row" flex>
+   <div layout="row" flex>
+      <div class="parent" layout="column" ng-repeat="stream in twitchCtrl.streams" flex="25">
+        <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
+      </div>
+   </div>
+</div>
