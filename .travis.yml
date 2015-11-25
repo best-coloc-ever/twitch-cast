@@ -1,0 +1,16 @@
+sudo: required
+dist: trusty
+
+before_install:
+  - curl -L https://get.docker.com/builds/`uname -s`/`uname -m`/docker-latest > docker
+  - chmod +x docker
+  - sudo mv docker /usr/local/bin
+  - curl -L https://github.com/docker/compose/releases/download/1.5.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+script:
+  - docker --version
+  - docker-compose --version
+  - sudo docker daemon &
+  - sudo ./deploy.sh
