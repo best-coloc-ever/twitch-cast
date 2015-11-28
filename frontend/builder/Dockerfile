@@ -4,6 +4,6 @@ RUN npm install -g bower
 RUN npm install -g live-server
 RUN npm install -g gulp
 
-WORKDIR /src
+WORKDIR "/src"
 
-CMD ["/bin/bash"]
+CMD ["gulp", "watch"]
