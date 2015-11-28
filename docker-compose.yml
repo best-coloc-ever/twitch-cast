@@ -3,17 +3,38 @@ frontend:
     ports:
         - '80:80'
     volumes:
-        - './frontend/chromecast:/chromecast'
-        - './frontend/nginx.conf:/etc/nginx/nginx.conf'
-        - 'twitch-cast-data:/data'
+        # Nginx configuration
+        - './frontend/server/nginx.conf:/etc/nginx/nginx.conf'
+        - './frontend/server/cors.conf:/etc/nginx/cors.conf'
+        # Video content
+        - 'twitch-cast-data:/data/'
+        # Sender app
+        - 'twitch-cast-sender-dist:/sender/dist/'
+        - 'twitch-cast-sender-dev:/sender/dev/'
+        # Receiver app
+        - './frontend/src/receiver:/receiver/'
     restart: always
     container_name: frontend
+
+frontend-builder:
+    build: frontend/builder
+    volumes:
+        # Sources
+        - './frontend/src/sender/:/src/'
+        # Node-specific
+        - 'twitch-cast-node-modules:/src/node_modules/'
+        # Sender app
+        - 'twitch-cast-sender-dist:/src/dist/'
+        - 'twitch-cast-sender-dev:/src/dev/'
+    container_name: frontend-builder
 
 streamer:
     build: streamer
     volumes:
+        # Sources
         - './streamer:/streamer'
-        - 'twitch-cast-data:/data'
+        # Video content
+        - 'twitch-cast-data:/data/'
     environment:
         SERVER_HOSTNAME: '${SERVER_NAME}'
         STREAMER_HOSTNAME: 'streamer'
