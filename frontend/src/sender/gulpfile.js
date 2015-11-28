@@ -69,8 +69,8 @@ gulp.task('styles', ['sass'], function() {
     .pipe(gulp.dest('dist/styles/'));
 });
 
-gulp.task('scripts', function() {
-  return gulp.src('dev/src/**/*.js')
+gulp.task('scripts', ['dev-scripts'], function() {
+  return gulp.src(['dev/src/**/*.js', 'dev/src/templates.js'])
     .pipe(angularFilesort())
     .pipe(concat('main.js'))
     .pipe(uglify({
@@ -80,7 +80,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('dev-scripts', function() {
-  return gulp.src(['app/src/**/*.js', 'app/src/templates.js'])
+  return gulp.src('app/src/**/*.js')
     .pipe(plumber({
       errorHandler: function(error) {
         console.log(error.message);
@@ -107,7 +107,6 @@ gulp.task('html', function() {
 gulp.task('dist', [
     'html',
     'templates',
-    'dev-scripts',
     'scripts',
     'styles',
     'vendor-scripts',
