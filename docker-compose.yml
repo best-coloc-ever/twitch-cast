@@ -1,5 +1,5 @@
 frontend:
-    build: frontend/
+    build: frontend/server
     ports:
         - '80:80'
     volumes:
