@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 
-if ! docker inspect twitch-cast-frontend-builder &> /dev/null; then
-  docker build -t twitch-cast-frontend-builder frontend/chromecast/sender/
-  docker run --rm \
-    -v $PWD/frontend/chromecast/sender/:/src \
-    twitch-cast-frontend-builder \
-    bash -c "npm install && bower install --allow-root"
-fi
+set -eu
 
-docker run --rm -v $PWD/frontend/chromecast/sender/:/src twitch-cast-frontend-builder gulp dist
+dc() {
+    docker-compose --x-networking "$@"
+}
 
-if ! docker volume inspect twitch-cast-data &> /dev/null; then
-    docker volume create --name twitch-cast-data
-fi
+# Data volumes
+docker volume create --name "twitch-cast-data"         # Video storage
+docker volume create --name "twitch-cast-sender-dist"  # Prod website storage
+docker volume create --name "twitch-cast-sender-dev"   # Dev website storage
+docker volume create --name "twitch-cast-node-modules" # Node package cache
 
-docker-compose --x-networking up -d
+# Asset pipeline
+dc run --rm frontend-builder npm install
+dc run --rm frontend-builder bower install --allow-root
+dc run --rm frontend-builder gulp dist
+
+# Magic
+dc up -d
