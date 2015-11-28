@@ -34,7 +34,7 @@ gulp.task('vendor-css', function() {
 });
 
 gulp.task('vendor-fonts', function() {
-  return gulp.src('app//**/*.woff2')
+  return gulp.src('./**/*.woff2')
     .pipe(flatten())
     .pipe(gulp.dest('dist/fonts'));
 
@@ -50,11 +50,11 @@ gulp.task('sass', function() {
     }))
     .pipe(sass())
     .pipe(autoprefixer('last 2 versions'))
-    .pipe(gulp.dest('app/assets/'));
+    .pipe(gulp.dest('dev/assets/'));
 });
 
 gulp.task('styles', ['sass'], function() {
-  return gulp.src(['app/assets/**/*.css'])
+  return gulp.src(['dev/assets/**/*.css'])
     .pipe(plumber({
       errorHandler: function(error) {
         console.log(error.message);
@@ -70,24 +70,24 @@ gulp.task('styles', ['sass'], function() {
 });
 
 gulp.task('scripts', function() {
-  return gulp.src('app/src/**/*.js')
+  return gulp.src('dev/src/**/*.js')
+    .pipe(angularFilesort())
+    .pipe(concat('main.js'))
+    .pipe(uglify({
+      mangle: false
+    }))
+    .pipe(gulp.dest('dist/scripts/'));
+});
+
+gulp.task('dev-scripts', function() {
+  return gulp.src(['app/src/**/*.js', 'app/src/templates.js'])
     .pipe(plumber({
       errorHandler: function(error) {
         console.log(error.message);
         this.emit('end');
       }
     }))
-    // .pipe(ngmin({dynamic: true}))
-    .pipe(angularFilesort())
-    .pipe(concat('main.js'))
-    .pipe(gulp.dest('dist/scripts/'))
-    // .pipe(rename({
-    // suffix: '.min'
-    // }))
-    .pipe(uglify({
-      mangle: false
-    }))
-    .pipe(gulp.dest('dist/scripts/'));
+    .pipe(gulp.dest('dev/src/'))
 });
 
 gulp.task('templates', function() {
@@ -95,12 +95,19 @@ gulp.task('templates', function() {
     .pipe(templateCache('templates.js', {
       module: 'TwitchCaster'
     }))
-    .pipe(gulp.dest('app/src/'));
+    .pipe(gulp.dest('dev/src/'));
+});
+
+gulp.task('html', function() {
+  return gulp.src('app/*.html')
+    .pipe(gulp.dest('dev/'))
 });
 
 
 gulp.task('dist', [
+    'html',
     'templates',
+    'dev-scripts',
     'scripts',
     'styles',
     'vendor-scripts',
@@ -154,30 +161,9 @@ gulp.task('dist', [
   });
 
 
-gulp.task('serve', ['templates', 'sass'], function() {
-  // var server = gls.static('app', 3000);
-  // server.start();
-  // console.log('Listening on port 3000');
-  // gulp.watch('scripts/**/*', function(file) {
-  // server.notify.apply(server, [file]);
-  // });
-  console.log('lol');
-  gulp.watch(['./app/src/**/*', '!./app/src/templates.js', '!./**/*.css'], {
+gulp.task('watch', function() {
+  gulp.watch(['./app/**/*'], {
     interval: 1000,
     mode: 'poll'
   }, ['dist']);
-
-  // exec('(cd app/ ; live-server --port=3000)', function(err, stdout, stderr) {
-  //   console.log(stdout);
-  //   console.log(stderr);
-  //   cb(err);
-  // });
 });
-
-gulp.task('serve-dist', ['dist'], function() {
-  exec('(cd dist/ ; live-server --port=3000)', function(err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
-})
