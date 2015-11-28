@@ -1,3 +1,4 @@
 {
-  "directory": "app/bower_components"
+  "directory": "/dev/bower_components",
+  "interactive": false
 }
