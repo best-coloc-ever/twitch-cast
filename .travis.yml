@@ -12,5 +12,5 @@ before_install:
 script:
   - docker --version
   - docker-compose --version
-  - sudo docker daemon &
+  - sudo docker daemon & sleep 5
   - sudo ./deploy.sh
