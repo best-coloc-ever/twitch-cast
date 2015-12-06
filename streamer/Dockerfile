@@ -10,7 +10,8 @@ RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
 RUN pip3 install \
     Flask \
-    jsonschema
+    jsonschema \
+    websockets
 
 # Install my fork of Livestreamer
 ENV branch fix-crash-on-httpserver-sigpipe
