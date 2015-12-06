@@ -3,7 +3,7 @@ import sys
 import shutil
 import subprocess
 
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 SERVER_HOSTNAME         = os.environ['SERVER_HOSTNAME']
 STREAMER_HOSTNAME       = os.environ['STREAMER_HOSTNAME']
