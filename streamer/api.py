@@ -115,7 +115,25 @@ def monitor(payload):
                 errors=['Channel is not available']
             ), 404
 
+import asyncio, threading
+import websockets
+
+@asyncio.coroutine
+def hello(socket, path):
+    yield from socket.send('Hello')
+
+def run_ws_server():
+    ws_server = websockets.serve(hello, None, 4242)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(ws_server)
+    loop.run_forever()
+
 if __name__ == '__main__':
+    t = threading.Thread(target=run_ws_server)
+    t.start()
+
     app.run(
         host='0.0.0.0',
         port=80,
