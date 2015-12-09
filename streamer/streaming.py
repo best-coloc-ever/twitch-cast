@@ -42,7 +42,7 @@ class Stream:
 
     def is_available(self):
         streams = livestreamer.streams(self.url)
-        return streams.has_key(self.quality)
+        return self.quality in streams
 
     def monitor(self):
         command = LIVESTREAMER_COMMAND(
