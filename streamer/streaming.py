@@ -57,6 +57,12 @@ class Stream:
             stderr=sys.stderr.fileno(),
         )
 
+        # Waiting for livestreamer's http server to accept requests
+        subprocess.call([
+            './scripts/wait_for_host.sh',
+            '{}'.format(self.port)
+        ])
+
     def watch(self):
         self.proxy = Proxy(self)
         self.proxy.start()
