@@ -1,17 +1,18 @@
 <md-card>
- <!-- <img src="" class="md-card-image" alt="image caption"> -->
- <md-card-content>
-   <h2>{{bceStream.stream.channel | uppercase}}</h2>
-   <p>{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</p>
+  <md-card-content>
+    <h2>{{bceStream.stream.channel | uppercase}}</h2>
+    <p>{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</p>
 
-   <div ng-show="bceStream.working" layout="row" layout-sm="column" layout-align="space-around">
-     <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-   </div>
- </md-card-content>
- <md-card-actions layout="row" layout-align="end center">
-   <md-button ng-show="bceStream.stream.proxy" ng-click="bceStream.cast()" class="md-raised md-primary" >Cast</md-button>
-   <md-button ng-show="bceStream.stream.proxy" ng-click="bceStream.stopWatch()">Stop watching</md-button>
-   <md-button ng-show="!bceStream.stream.proxy" ng-click="bceStream.watch()">Watch</md-button>
-   <md-button ng-show="!bceStream.stream.proxy" ng-click="bceStream.unmonitor()">Stop monitoring</md-button>
- </md-card-actions>
+    <div ng-show="bceStream.working" layout="row" layout-sm="column" layout-align="space-around">
+      <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+  </md-card-content>
+
+  <md-card-actions layout="row" layout-align="end center">
+    <md-progress-circular ng-show="bceStream.readying()" md-mode="indeterminate"></md-progress-circular>
+    <md-button ng-show="bceStream.castable()" ng-click="bceStream.cast()" class="md-raised md-primary" >Cast</md-button>
+    <md-button ng-show="bceStream.unwatchable()" ng-click="bceStream.stopWatch()">Stop watching</md-button>
+    <md-button ng-show="bceStream.watchable()" ng-click="bceStream.watch()">Watch</md-button>
+    <md-button ng-show="bceStream.unmonitorable()" ng-click="bceStream.unmonitor()">Stop monitoring</md-button>
+  </md-card-actions>
 </md-card>

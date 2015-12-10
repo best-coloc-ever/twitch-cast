@@ -7,7 +7,7 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, ChromecastService) {
+      controller: function(TwitchCastStreamsService, ChromecastService, $timeout) {
         var vm = this;
 
         if (!vm.stream.id) {
@@ -15,7 +15,7 @@
             channel: vm.stream.channel,
             quality: vm.stream.quality
           }, function(stream) {
-            vm.stream = stream;
+            vm.updateStream(stream);
           }, function(error) {
             vm.unmonitor(vm.stream);
           });
@@ -29,7 +29,8 @@
           // remove from display
           vm.discard(vm.stream);
           // do stuff on the server
-          vm.stream.$delete();
+          if (vm.stream.id)
+            vm.stream.$delete();
         };
 
         vm.watch = function() {
@@ -37,7 +38,9 @@
           vm.stream.$watch(
             function(stream) {
               vm.working = false;
-              vm.stream = stream;
+              vm.updateStream(stream);
+              // TODO: use websockets instead of polling
+              $timeout(vm.poll, 10000);
             },
             function(error) {
               vm.working = false;
@@ -46,7 +49,7 @@
 
         vm.stopWatch = function() {
           vm.stream.$unwatch(function(stream) {
-            vm.stream = stream;
+            vm.updateStream(stream);
           }, function(error) {
             console.error(error);
           });
@@ -55,6 +58,43 @@
         vm.cast = function() {
           ChromecastService.cast(vm.stream.proxy);
         };
+
+        vm.poll = function() {
+          vm.stream.$get(function(stream) {
+            vm.updateStream(stream);
+            if (vm.stream.proxy && !vm.stream.proxy.ready)
+              $timeout(vm.poll, 2000);
+          });
+        }
+
+        // Only way I found to noy mess up the stream collection of the
+        // TwitchController
+        vm.updateStream = function(newStream) {
+          for (var key in newStream)
+            vm.stream[key] = newStream[key];
+        }
+
+        // States
+        vm.readying = function() {
+          return (
+            !vm.stream.id ||
+            (vm.stream.proxy && !vm.stream.proxy.ready)
+          );
+        }
+
+        vm.castable = function() {
+          return (vm.stream.proxy && vm.stream.proxy.ready);
+        }
+
+        vm.watchable = function() {
+          return (vm.stream.id && !vm.stream.proxy);
+        }
+
+        vm.unwatchable = function() {
+          return (vm.stream.id && vm.stream.proxy);;
+        }
+
+        vm.unmonitorable = vm.watchable;
 
       },
       template: function($templateCache) {

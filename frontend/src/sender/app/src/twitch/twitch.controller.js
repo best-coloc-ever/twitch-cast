@@ -21,7 +21,7 @@
       quality: 'worst'
     }];
 
-    vm.streams = [];
+    vm.streams = {};
 
     vm.newStream = {
       quality: vm.qualities[0].quality
@@ -35,9 +35,7 @@
 
     TwitchCastStreamsService.query (null,
       function(streams) {
-        angular.forEach(streams, function(stream) {
-          vm.streams.push(stream);
-        });
+        angular.forEach(streams, vm.addStream);
       },
       function(error) {
         console.log(error);
@@ -49,7 +47,7 @@
 
       // Get the things
 
-      vm.streams.push(angular.copy(vm.newStream));
+      vm.addStream(angular.copy(vm.newStream));
       // cleaning up for next stream
       vm.newStreamForm.$setPristine();
       vm.newStreamForm.$setUntouched();
@@ -60,10 +58,17 @@
 
     vm.discard = function(stream) {
       // remove from display
-      vm.streams.splice(vm.streams.indexOf(stream), 1);
-
+      var key = [stream.channel, stream.quality];
+      delete vm.streams[key];
       // stuff on the server is done by the component
     };
+
+    vm.addStream = function(stream) {
+      var key = [stream.channel, stream.quality];
+      if (!(key in vm.streams))
+        vm.streams[key] = stream;
+    }
+
   }
 
   angular.module('twitch')
