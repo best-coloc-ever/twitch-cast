@@ -73,6 +73,29 @@
           for (var key in newStream)
             vm.stream[key] = newStream[key];
         }
+
+        // States
+        vm.readying = function() {
+          return (
+            !vm.stream.id ||
+            (vm.stream.proxy && !vm.stream.proxy.ready)
+          );
+        }
+
+        vm.castable = function() {
+          return (vm.stream.proxy && vm.stream.proxy.ready);
+        }
+
+        vm.watchable = function() {
+          return (vm.stream.id && !vm.stream.proxy);
+        }
+
+        vm.unwatchable = function() {
+          return (vm.stream.id && vm.stream.proxy);;
+        }
+
+        vm.unmonitorable = vm.watchable;
+
       },
       template: function($templateCache) {
         return $templateCache.get(
