@@ -29,7 +29,8 @@
           // remove from display
           vm.discard(vm.stream);
           // do stuff on the server
-          vm.stream.$delete();
+          if (vm.stream.id)
+            vm.stream.$delete();
         };
 
         vm.watch = function() {
