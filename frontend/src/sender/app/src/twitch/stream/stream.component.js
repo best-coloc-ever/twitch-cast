@@ -7,7 +7,7 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, ChromecastService) {
+      controller: function(TwitchCastStreamsService, ChromecastService, $timeout) {
         var vm = this;
 
         if (!vm.stream.id) {
@@ -38,6 +38,8 @@
             function(stream) {
               vm.working = false;
               vm.updateStream(stream);
+              // TODO: use websockets instead of polling
+              $timeout(vm.poll, 10000);
             },
             function(error) {
               vm.working = false;
@@ -56,6 +58,13 @@
           ChromecastService.cast(vm.stream.proxy);
         };
 
+        vm.poll = function() {
+          vm.stream.$get(function(stream) {
+            vm.updateStream(stream);
+            if (vm.stream.proxy && !vm.stream.proxy.ready)
+              $timeout(vm.poll, 2000);
+          });
+        }
 
         // Only way I found to noy mess up the stream collection of the
         // TwitchController
