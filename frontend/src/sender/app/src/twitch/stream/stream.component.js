@@ -15,7 +15,7 @@
             channel: vm.stream.channel,
             quality: vm.stream.quality
           }, function(stream) {
-            vm.stream = stream;
+            vm.updateStream(stream);
           }, function(error) {
             vm.unmonitor(vm.stream);
           });
@@ -37,7 +37,7 @@
           vm.stream.$watch(
             function(stream) {
               vm.working = false;
-              vm.stream = stream;
+              vm.updateStream(stream);
             },
             function(error) {
               vm.working = false;
@@ -46,7 +46,7 @@
 
         vm.stopWatch = function() {
           vm.stream.$unwatch(function(stream) {
-            vm.stream = stream;
+            vm.updateStream(stream);
           }, function(error) {
             console.error(error);
           });
@@ -56,6 +56,13 @@
           ChromecastService.cast(vm.stream.proxy);
         };
 
+
+        // Only way I found to noy mess up the stream collection of the
+        // TwitchController
+        vm.updateStream = function(newStream) {
+          for (var key in newStream)
+            vm.stream[key] = newStream[key];
+        }
       },
       template: function($templateCache) {
         return $templateCache.get(
