@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 from streaming import Stream
-from functools import wraps
+from events import Event, EventNotifier
 
-streams_by_id = dict()
+streams_by_id = {}
+notifier = EventNotifier()
 
 def poll_streams():
     dead_streams = [
@@ -13,6 +14,14 @@ def poll_streams():
 
     for id in dead_streams:
         del streams_by_id[id]
+
+from flask import Flask, request, jsonify, Response
+
+app = Flask(__name__)
+
+from functools import wraps
+from utils import validate_json_request, preprocess
+from json import dumps
 
 def with_stream(fn):
     @wraps(fn)
@@ -27,13 +36,6 @@ def with_stream(fn):
             ), 404
 
     return wrapped
-
-from flask import Flask, request, jsonify, Response
-
-app = Flask(__name__)
-
-from utils import validate_json_request, preprocess
-from json import dumps
 
 @app.route('/streams', methods=['GET'])
 @preprocess(poll_streams)
@@ -115,24 +117,11 @@ def monitor(payload):
                 errors=['Channel is not available']
             ), 404
 
-import asyncio, threading
-import websockets
-
-@asyncio.coroutine
-def hello(socket, path):
-    yield from socket.send('Hello')
-
-def run_ws_server():
-    ws_server = websockets.serve(hello, None, 4242)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(ws_server)
-    loop.run_forever()
+from ws import WebSocketsServer
 
 if __name__ == '__main__':
-    t = threading.Thread(target=run_ws_server)
-    t.start()
+    ws_server = WebSocketsServer(4242, notifier)
+    ws_server.start_detached()
 
     app.run(
         host='0.0.0.0',
