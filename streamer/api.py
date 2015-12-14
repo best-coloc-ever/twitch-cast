@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from streaming import Stream
-from functools import wraps
+from events import Event, EventNotifier
 
-streams_by_id = dict()
+streams_by_id = {}
+notifier = EventNotifier()
 
 def poll_streams():
     dead_streams = [
@@ -13,6 +14,14 @@ def poll_streams():
 
     for id in dead_streams:
         del streams_by_id[id]
+
+from flask import Flask, request, jsonify, Response
+
+app = Flask(__name__)
+
+from functools import wraps
+from utils import validate_json_request, preprocess
+from json import dumps
 
 def with_stream(fn):
     @wraps(fn)
@@ -27,13 +36,6 @@ def with_stream(fn):
             ), 404
 
     return wrapped
-
-from flask import Flask, request, jsonify, Response
-
-app = Flask(__name__)
-
-from utils import validate_json_request, preprocess
-from json import dumps
 
 @app.route('/streams', methods=['GET'])
 @preprocess(poll_streams)
@@ -62,6 +64,10 @@ def unmonitor(stream):
     stream.unwatch()
     del streams_by_id[stream.id]
 
+    notifier.send_event(
+        Event.UNMONITORED,
+        stream_id=stream.id
+    )
     return jsonify(
         status='OK'
     )
@@ -72,6 +78,10 @@ def unmonitor(stream):
 def watch(stream):
     stream.watch()
 
+    notifier.send_event(
+        Event.WATCHED,
+        stream=stream.to_json()
+    )
     return Response(
         dumps(stream.to_json()),
         mimetype='application/json'
@@ -83,6 +93,10 @@ def watch(stream):
 def unwatch(stream):
     stream.unwatch()
 
+    notifier.send_event(
+        Event.UNWATCHED,
+        stream=stream.to_json()
+    )
     return Response(
         dumps(stream.to_json()),
         mimetype='application/json'
@@ -106,6 +120,10 @@ def monitor(payload):
         if available:
             stream.monitor()
             streams_by_id[stream.id] = stream
+            notifier.send_event(
+                Event.MONITORED,
+                stream=stream.to_json()
+            )
             return Response(
                 dumps(stream.to_json()),
                 mimetype='application/json'
@@ -115,9 +133,13 @@ def monitor(payload):
                 errors=['Channel is not available']
             ), 404
 
+from ws import WebSocketsServer
+
 if __name__ == '__main__':
+    ws_server = WebSocketsServer(4242, notifier)
+    ws_server.start_detached()
+
     app.run(
         host='0.0.0.0',
         port=80,
-        debug=True
     )
