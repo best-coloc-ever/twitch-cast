@@ -64,6 +64,10 @@ def unmonitor(stream):
     stream.unwatch()
     del streams_by_id[stream.id]
 
+    notifier.send_event(
+        Event.UNMONITORED,
+        stream_id=stream.id
+    )
     return jsonify(
         status='OK'
     )
@@ -74,6 +78,10 @@ def unmonitor(stream):
 def watch(stream):
     stream.watch()
 
+    notifier.send_event(
+        Event.WATCHED,
+        stream=stream.to_json()
+    )
     return Response(
         dumps(stream.to_json()),
         mimetype='application/json'
@@ -85,6 +93,10 @@ def watch(stream):
 def unwatch(stream):
     stream.unwatch()
 
+    notifier.send_event(
+        Event.UNWATCHED,
+        stream=stream.to_json()
+    )
     return Response(
         dumps(stream.to_json()),
         mimetype='application/json'
@@ -108,6 +120,10 @@ def monitor(payload):
         if available:
             stream.monitor()
             streams_by_id[stream.id] = stream
+            notifier.send_event(
+                Event.MONITORED,
+                stream=stream.to_json()
+            )
             return Response(
                 dumps(stream.to_json()),
                 mimetype='application/json'
