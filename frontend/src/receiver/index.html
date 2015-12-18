@@ -1,5 +1,8 @@
 <body>
-<video id='vid' />
+<h1>Nothing to see here</h1>
+<video id='vid' autoplay controls>
+  <source />
+</video>
 <script type="text/javascript"
     src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js">
 </script>
@@ -23,6 +26,10 @@ video {
   margin: auto auto;
   overflow: hidden !important;
 }
+h1 {
+  color: white;
+  text-align: center;
+}
 </style>
 
 <script type="text/javascript">
@@ -32,6 +39,7 @@ if (window.location.href.indexOf('Debug=true') != -1) {
   cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
   cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
 }
+var notice = $('h1');
 
 var mediaElement = document.getElementById('vid');
 
