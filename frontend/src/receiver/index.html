@@ -33,78 +33,81 @@ h1 {
 </style>
 
 <script type="text/javascript">
-// If you set ?Debug=true in the URL, such as a different App ID in the
-// developer console, include debugging information.
-if (window.location.href.indexOf('Debug=true') != -1) {
-  cast.receiver.logger.setLevelValue(cast.receiver.LoggerLevel.DEBUG);
-  cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG);
-}
+var host;
 var notice = $('h1');
 
 var mediaElement = document.getElementById('vid');
 
-// Create the media manager. This will handle all media messages by default.
+cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG)
+// The mediaManager handles media messages
 window.mediaManager = new cast.receiver.MediaManager(mediaElement);
 
-// Remember the default value for the Receiver onLoad, so this sample can Play
-// non-adaptive media as well.
-window.defaultOnLoad = mediaManager.onLoad;
-mediaManager.onLoad = function (event) {
-// The Media Player Library requires that you call player unload between
-// different invocations.
+mediaManager.onLoad = function(event) {
+  // The Media Player Library requires that you call player unload between
+  // different invocations
   if (window.player !== null) {
-    player.unload();    // Must unload before starting again.
+    player.unload();
     window.player = null;
   }
-// This trivial parser is by no means best practice, it shows how to access
-// event data, and uses the a string search of the suffix, rather than looking
-// at the MIME type which would be better.  In practice, you will know what
-// content you are serving while writing your player.
+
   if (event.data['media'] && event.data['media']['contentId']) {
-    console.log('Starting media application');
     var url = event.data['media']['contentId'];
-// Create the Host - much of your interaction with the library uses the Host and
-// methods you provide to it.
-    window.host = new cast.player.api.Host(
-      {'mediaElement':mediaElement, 'url':url});
-    var ext = url.substring(url.lastIndexOf('.'), url.length);
-    var initStart = event.data['media']['currentTime'] || 0;
-    var autoplay = event.data['autoplay'] || true;
-    var protocol = null;
-    mediaElement.autoplay = autoplay;  // Make sure autoplay get's set
-    if (url.lastIndexOf('.m3u8') >= 0) {
-// HTTP Live Streaming
-      protocol = cast.player.api.CreateHlsStreamingProtocol(host);
-    } else if (url.lastIndexOf('.mpd') >= 0) {
-// MPEG-DASH
-      protocol = cast.player.api.CreateDashStreamingProtocol(host);
-    } else if (url.indexOf('.ism/') >= 0) {
-// Smooth Streaming
-      protocol = cast.player.api.CreateSmoothStreamingProtocol(host);
-    }
-// How to override a method in Host. I know that it's safe to just provide this
-// method.
-    host.onError = function(errorCode) {
-      console.error("Fatal Error - " + errorCode);
+
+    host = new cast.player.api.Host({
+      mediaElement: mediaElement,
+      url: url
+    });
+
+    host.autoPauseDuration = 3; // At least 3 seconds of data in the buffer
+                                // before auto pausing
+    host.autoResumeDuration = 3; // At least 3 seconds of data in the buffer
+                                 // before resuming after an autopause
+    host.autoResumeNumberOfSegments = 1; // At least 1 complete segment in the
+                                         // buffer before resuming after an
+                                         // autopause
+    host.segmentRequestRetryLimit = 10;
+
+    var protocol = cast.player.api.CreateHlsStreamingProtocol(host);
+
+    host.onError = function(errorCode, request) {
+      errorString = 'Fatal Error: ' + errorCode +
+                    ' (' + request.errorCode + ', ' + request.status + ')';
+      console.error(errorString);
       if (window.player) {
         window.player.unload();
         window.player = null;
       }
+      notice.text(errorString);
+      notice.show();
     };
 
-    console.log("we have protocol " + ext);
-    if (protocol !== null) {
-      console.log("Starting Media Player Library");
-      window.player = new cast.player.api.Player(host);
-      window.player.load(protocol, initStart);
+    host.onAutoPause = function(paused) {
+      if (paused) {
+        notice.text("Auto paused");
+        notice.show();
+      }
+      else {
+        notice.hide();
+      }
     }
-    else {
-      window.defaultOnLoad(event);    // do the default process
+
+    host.onMediaDownloadedEnded = function() {
+      console.log('Media download ended')
     }
+
+    host.onManifestReady = function() {
+      console.log('Manifest ready')
+    }
+
+    window.player = new cast.player.api.Player(host);
+    window.player.load(protocol, 0);
+    notice.hide();
   }
 }
+
 window.player = null;
 console.log('Application is ready, starting system');
+
 window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
 castReceiverManager.start();
 </script>
