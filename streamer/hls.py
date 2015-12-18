@@ -1,9 +1,11 @@
 import os
-import sys
 import shutil
-import subprocess
 
 from urllib.parse import urljoin
+from time import sleep
+
+from process import start_process
+from threading import Thread
 
 SERVER_HOSTNAME         = os.environ['SERVER_HOSTNAME']
 STREAMER_HOSTNAME       = os.environ['STREAMER_HOSTNAME']
@@ -53,7 +55,9 @@ class Proxy:
         self.index_path = os.path.join(self.local_root, OUTPUT_INDEX_FILE_NAME)
         self.index_url = os.path.join(self.server_root, OUTPUT_INDEX_FILE_NAME)
 
-    def start(self):
+        self.ready = False
+
+    def start(self, on_ready, on_exit):
         self.cleanup_local_data()
         os.makedirs(self.local_root)
 
@@ -62,11 +66,8 @@ class Proxy:
             self.sout_config()
         )
 
-        self.process = subprocess.Popen(
-            command,
-            stdout=sys.stderr.fileno(),
-            stderr=sys.stderr.fileno(),
-        )
+        self.process = start_process(command, on_exit)
+        self.poll_until_ready(on_ready)
 
     def sout_config(self):
         raw = SOUT_CONFIG_TEMPLATE.format(
@@ -78,17 +79,9 @@ class Proxy:
         # Removing whitespaces because of VLC's weird parsing rules
         return ''.join(raw.split())
 
-    def alive(self):
-        if self.process is None:
-            return False
-        return self.process.poll() is None
-
-    def ready(self):
-        return os.path.exists(self.index_path)
-
     def to_json(self):
         return {
-            'ready': self.ready(),
+            'ready': self.ready,
             'indexUrl': self.index_url,
         }
 
@@ -96,7 +89,18 @@ class Proxy:
         if os.path.exists(self.local_root):
             shutil.rmtree(self.local_root)
 
+    def poll_until_ready(self, on_ready):
+
+        def run():
+            while not os.path.exists(self.index_path):
+                sleep(0.25)
+            self.ready = True
+            on_ready()
+
+        thread = Thread(target=run)
+        thread.start()
+
     def __del__(self):
-        if self.alive():
+        if self.process:
             self.process.kill()
         self.cleanup_local_data()
