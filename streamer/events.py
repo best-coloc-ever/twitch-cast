@@ -8,6 +8,7 @@ class Event:
     UNMONITORED = 'unmonitored'
     WATCHED     = 'watched'
     UNWATCHED   = 'unwatched'
+    READY       = 'ready'
 
     def __init__(self, type, data):
         self.data = data
