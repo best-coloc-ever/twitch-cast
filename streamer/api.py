@@ -6,14 +6,7 @@ from events import Event, EventNotifier
 streams_by_id = {}
 notifier = EventNotifier()
 
-def poll_streams():
-    dead_streams = [
-        id for id, stream in streams_by_id.items()
-        if not stream.alive()
-    ]
 
-    for id in dead_streams:
-        del streams_by_id[id]
 
 from flask import Flask, request, jsonify, Response
 
@@ -38,7 +31,6 @@ def with_stream(fn):
     return wrapped
 
 @app.route('/streams', methods=['GET'])
-@preprocess(poll_streams)
 def streams():
     return Response(
         dumps([
@@ -49,7 +41,6 @@ def streams():
     )
 
 @app.route('/streams/<int:stream_id>', methods=['GET'])
-@preprocess(poll_streams)
 @with_stream
 def stream(stream):
     return Response(
@@ -58,7 +49,6 @@ def stream(stream):
     )
 
 @app.route('/streams/<int:stream_id>', methods=['DELETE'])
-@preprocess(poll_streams)
 @with_stream
 def unmonitor(stream):
     stream.unwatch()
@@ -73,7 +63,6 @@ def unmonitor(stream):
     )
 
 @app.route('/streams/<int:stream_id>/watch', methods=['POST'])
-@preprocess(poll_streams)
 @with_stream
 def watch(stream):
     stream.watch()
@@ -88,7 +77,6 @@ def watch(stream):
     )
 
 @app.route('/streams/<int:stream_id>/unwatch', methods=['POST'])
-@preprocess(poll_streams)
 @with_stream
 def unwatch(stream):
     stream.unwatch()
@@ -104,7 +92,6 @@ def unwatch(stream):
 
 @app.route('/streams', methods=['POST'])
 @validate_json_request('monitor')
-@preprocess(poll_streams)
 def monitor(payload):
     stream = Stream(
         payload['channel'],

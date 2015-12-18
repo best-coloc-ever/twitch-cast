@@ -39,16 +39,3 @@ def validate_json_request(schema_name):
         return wrapped
 
     return decorate
-
-def preprocess(action):
-
-    def decorate(fn):
-        @wraps(fn)
-
-        def wrapped(*args, **kwargs):
-            action()
-            return fn(*args, **kwargs)
-
-        return wrapped
-
-    return decorate
