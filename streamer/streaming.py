@@ -1,9 +1,9 @@
-import sys
 import subprocess
 import socket
 import livestreamer
 
 from hls import Proxy
+from process import start_process
 
 LIVESTREAMER_COMMAND = lambda url, quality, port: [
     'livestreamer',
@@ -39,23 +39,24 @@ class Stream:
         self.port = bindable_port()
         self.process = None
         self.proxy = None
+        self.on_exit = None
 
     def is_available(self):
         streams = livestreamer.streams(self.url)
         return self.quality in streams
 
-    def monitor(self):
+    def monitor(self, on_exit):
         command = LIVESTREAMER_COMMAND(
             self.url,
             self.quality,
             self.port
         )
 
-        self.process = subprocess.Popen(
-            command,
-            stdout=sys.stderr.fileno(),
-            stderr=sys.stderr.fileno(),
-        )
+        def on_process_exit():
+            self.process = None
+            on_exit()
+
+        self.process = start_process(command, on_process_exit)
 
         # Waiting for livestreamer's http server to accept requests
         subprocess.call([
@@ -63,21 +64,19 @@ class Stream:
             '{}'.format(self.port)
         ])
 
-    def watch(self):
+    def watch(self, on_ready, on_exit):
         self.proxy = Proxy(self)
-        self.proxy.start()
+
+        def on_proxy_exit():
+            self.unwatch()
+            on_exit()
+
+        self.proxy.start(on_ready, on_proxy_exit)
 
     def unwatch(self):
         if self.proxy:
             del self.proxy
             self.proxy = None
-
-    def alive(self):
-        if self.proxy and not self.proxy.alive():
-            self.unwatch()
-        if self.process is None:
-            return False
-        return self.process.poll() is None
 
     def to_json(self):
         proxy = self.proxy.to_json() if self.proxy else None
@@ -92,7 +91,7 @@ class Stream:
 
     def __del__(self):
         self.unwatch()
-        if self.alive():
+        if self.process:
             self.process.kill()
 
     def __hash__(self):

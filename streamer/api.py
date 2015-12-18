@@ -1,26 +1,16 @@
 #!/usr/bin/env python3
 
 from streaming import Stream
-from events import Event, EventNotifier
-
 streams_by_id = {}
+
+from events import Event, EventNotifier
 notifier = EventNotifier()
 
-def poll_streams():
-    dead_streams = [
-        id for id, stream in streams_by_id.items()
-        if not stream.alive()
-    ]
-
-    for id in dead_streams:
-        del streams_by_id[id]
-
 from flask import Flask, request, jsonify, Response
-
 app = Flask(__name__)
 
 from functools import wraps
-from utils import validate_json_request, preprocess
+from utils import validate_json_request
 from json import dumps
 
 def with_stream(fn):
@@ -37,8 +27,15 @@ def with_stream(fn):
 
     return wrapped
 
+def remove_stream(stream_id):
+    del streams_by_id[stream_id]
+
+    notifier.send_event(
+        Event.UNMONITORED,
+        stream_id=stream_id
+    )
+
 @app.route('/streams', methods=['GET'])
-@preprocess(poll_streams)
 def streams():
     return Response(
         dumps([
@@ -49,7 +46,6 @@ def streams():
     )
 
 @app.route('/streams/<int:stream_id>', methods=['GET'])
-@preprocess(poll_streams)
 @with_stream
 def stream(stream):
     return Response(
@@ -58,7 +54,6 @@ def stream(stream):
     )
 
 @app.route('/streams/<int:stream_id>', methods=['DELETE'])
-@preprocess(poll_streams)
 @with_stream
 def unmonitor(stream):
     stream.unwatch()
@@ -73,10 +68,18 @@ def unmonitor(stream):
     )
 
 @app.route('/streams/<int:stream_id>/watch', methods=['POST'])
-@preprocess(poll_streams)
 @with_stream
 def watch(stream):
-    stream.watch()
+    stream.watch(
+        on_ready=lambda: notifier.send_event(
+            Event.READY,
+            stream=stream.to_json()
+        ),
+        on_exit=lambda: notifier.send_event(
+            Event.UNWATCHED,
+            stream=stream.to_json()
+        ),
+    )
 
     notifier.send_event(
         Event.WATCHED,
@@ -88,7 +91,6 @@ def watch(stream):
     )
 
 @app.route('/streams/<int:stream_id>/unwatch', methods=['POST'])
-@preprocess(poll_streams)
 @with_stream
 def unwatch(stream):
     stream.unwatch()
@@ -104,7 +106,6 @@ def unwatch(stream):
 
 @app.route('/streams', methods=['POST'])
 @validate_json_request('monitor')
-@preprocess(poll_streams)
 def monitor(payload):
     stream = Stream(
         payload['channel'],
@@ -118,7 +119,7 @@ def monitor(payload):
     else:
         available = stream.is_available()
         if available:
-            stream.monitor()
+            stream.monitor(on_exit=lambda: remove_stream(stream.id))
             streams_by_id[stream.id] = stream
             notifier.send_event(
                 Event.MONITORED,

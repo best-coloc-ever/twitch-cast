@@ -25,7 +25,7 @@ class WebSocketsServer:
     def run(self):
         server = websockets.serve(
             self.socket_handler,
-            port=4242
+            port=self.port
         )
 
         loop = asyncio.new_event_loop()
