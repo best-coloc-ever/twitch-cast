@@ -1,114 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Chromecast imports -->
+  <script
+    src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
+  <script
+    src="//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js"></script>
+  <!-- JQuery import -->
+  <script
+    src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+
+  <!-- Main css -->
+  <link rel="stylesheet" href="receiver.css">
+</head>
+
 <body>
-<h1>Nothing to see here</h1>
-<video id='vid' autoplay controls>
-  <source />
-</video>
-<script type="text/javascript"
-    src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js">
-</script>
-<script type="text/javascript"
-    src="//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js">
-</script>
-<script type="text/javascript"
-    src="//code.jquery.com/jquery-1.11.3.min.js">
-</script>
-<style type="text/css">
-body {
-  border: 0px;
-  margin: 0px;
-  width: 100%;
-  height: 100%;
-  overflow: hidden !important;
-}
-video {
-  width: 100%;
-  height: 100%;
-  margin: auto auto;
-  overflow: hidden !important;
-}
-h1 {
-  color: white;
-  text-align: center;
-}
-</style>
+  <div class="row">
+    <h1 id="debug-notice"></h1>
 
-<script type="text/javascript">
-var host;
-var notice = $('h1');
+    <div class="flex">
+      <video id='video-player' autoplay controls />
+    </div>
 
-var mediaElement = document.getElementById('vid');
+    <div class="chat">
+      <h1>Not implemented</h1>
+    </div>
+  </div>
 
-cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG)
-// The mediaManager handles media messages
-window.mediaManager = new cast.receiver.MediaManager(mediaElement);
-
-mediaManager.onLoad = function(event) {
-  // The Media Player Library requires that you call player unload between
-  // different invocations
-  if (window.player !== null) {
-    player.unload();
-    window.player = null;
-  }
-
-  if (event.data['media'] && event.data['media']['contentId']) {
-    var url = event.data['media']['contentId'];
-
-    host = new cast.player.api.Host({
-      mediaElement: mediaElement,
-      url: url
-    });
-
-    host.autoPauseDuration = 3; // At least 3 seconds of data in the buffer
-                                // before auto pausing
-    host.autoResumeDuration = 3; // At least 3 seconds of data in the buffer
-                                 // before resuming after an autopause
-    host.autoResumeNumberOfSegments = 1; // At least 1 complete segment in the
-                                         // buffer before resuming after an
-                                         // autopause
-    host.segmentRequestRetryLimit = 10;
-
-    var protocol = cast.player.api.CreateHlsStreamingProtocol(host);
-
-    host.onError = function(errorCode, request) {
-      errorString = 'Fatal Error: ' + errorCode +
-                    ' (' + request.errorCode + ', ' + request.status + ')';
-      console.error(errorString);
-      if (window.player) {
-        window.player.unload();
-        window.player = null;
-      }
-      notice.text(errorString);
-      notice.show();
-    };
-
-    host.onAutoPause = function(paused) {
-      if (paused) {
-        notice.text("Auto paused");
-        notice.show();
-      }
-      else {
-        notice.hide();
-      }
-    }
-
-    host.onMediaDownloadedEnded = function() {
-      console.log('Media download ended')
-    }
-
-    host.onManifestReady = function() {
-      console.log('Manifest ready')
-    }
-
-    window.player = new cast.player.api.Player(host);
-    window.player.load(protocol, 0);
-    notice.hide();
-  }
-}
-
-window.player = null;
-console.log('Application is ready, starting system');
-
-window.castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
-castReceiverManager.start();
-</script>
+  <script src="receiver.js"></script>
+  <script> initalizeReceiver(); </script>
 </body>
+</html>
