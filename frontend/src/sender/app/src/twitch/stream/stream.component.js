@@ -7,49 +7,59 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, ChromecastService, $timeout) {
+      controller: function(TwitchCastStreamsService, ChromecastService, TwitchCastWebsocketService) {
         var vm = this;
 
-        if (!vm.stream.id) {
+        // Initialize state
+        vm.present = (vm.stream.id != null);
+        vm.watchable = (vm.present && !vm.stream.proxy);
+        vm.castable = (vm.stream.proxy && vm.stream.proxy.ready);
+        vm.readying = (vm.stream.proxy && !vm.stream.proxy.ready);
+
+        if (!vm.present) {
           TwitchCastStreamsService.save(null, {
             channel: vm.stream.channel,
             quality: vm.stream.quality
           }, function(stream) {
+            console.log(stream);
             vm.updateStream(stream);
+            vm.present = true;
+            vm.watchable = true;
           }, function(error) {
             vm.unmonitor(vm.stream);
           });
         }
 
-        vm.doStuff = function() {
-          console.log('stuff is done');
-        };
-
         vm.unmonitor = function() {
           // remove from display
           vm.discard(vm.stream);
           // do stuff on the server
-          if (vm.stream.id)
+          if (vm.present)
             vm.stream.$delete();
         };
 
         vm.watch = function() {
-          vm.working = true;
+          vm.watchable = false;
+          vm.readying = true;
+
           vm.stream.$watch(
             function(stream) {
-              vm.working = false;
               vm.updateStream(stream);
-              // TODO: use websockets instead of polling
-              $timeout(vm.poll, 10000);
+              // Castablity will be set thanks to the websocket
             },
             function(error) {
-              vm.working = false;
+              console.error(error);
+              vm.watchable = true;
+              vm.readying = false;
             });
         };
 
-        vm.stopWatch = function() {
+        vm.unwatch = function() {
           vm.stream.$unwatch(function(stream) {
             vm.updateStream(stream);
+            vm.watchable = true;
+            vm.readying = false;
+            vm.castable = false;
           }, function(error) {
             console.error(error);
           });
@@ -59,42 +69,38 @@
           ChromecastService.cast(vm.stream.proxy);
         };
 
-        vm.poll = function() {
-          vm.stream.$get(function(stream) {
-            vm.updateStream(stream);
-            if (vm.stream.proxy && !vm.stream.proxy.ready)
-              $timeout(vm.poll, 2000);
-          });
-        }
-
-        // Only way I found to noy mess up the stream collection of the
+        // Only way I found to not mess up the stream collection of the
         // TwitchController
         vm.updateStream = function(newStream) {
           for (var key in newStream)
             vm.stream[key] = newStream[key];
         }
 
-        // States
-        vm.readying = function() {
-          return (
-            !vm.stream.id ||
-            (vm.stream.proxy && !vm.stream.proxy.ready)
-          );
-        }
+        TwitchCastWebsocketService.on('watched', function(streamData) {
+          if (streamData.id == vm.stream.id) {
+            vm.stream.proxy = streamData.proxy;
+            vm.watchable = false;
+            vm.readying = true;
+          }
+        });
 
-        vm.castable = function() {
-          return (vm.stream.proxy && vm.stream.proxy.ready);
-        }
+        TwitchCastWebsocketService.on('unwatched', function(streamData) {
+          if (streamData.id == vm.stream.id) {
+            vm.stream.proxy = null;
+            vm.watchable = true;
+            vm.readying = false;
+            vm.castable = false;
+          }
+        });
 
-        vm.watchable = function() {
-          return (vm.stream.id && !vm.stream.proxy);
-        }
-
-        vm.unwatchable = function() {
-          return (vm.stream.id && vm.stream.proxy);;
-        }
-
-        vm.unmonitorable = vm.watchable;
+        TwitchCastWebsocketService.on('ready', function(streamData) {
+          if (streamData.id == vm.stream.id) {
+            vm.stream.proxy = streamData.proxy;
+            vm.watchable = false;
+            vm.readying = false;
+            vm.castable = true;
+          }
+        });
 
       },
       template: function($templateCache) {

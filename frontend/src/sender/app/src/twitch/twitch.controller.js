@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function TwitchController(ChromecastService, TwitchCastStreamsService) {
+  function TwitchController(ChromecastService, TwitchCastStreamsService, TwitchCastWebsocketService) {
     var vm = this;
 
     vm.qualities = [{
@@ -33,21 +33,17 @@
     });
 
 
-    TwitchCastStreamsService.query (null,
+    TwitchCastStreamsService.query(null,
       function(streams) {
         angular.forEach(streams, vm.addStream);
       },
       function(error) {
-        console.log(error);
+        console.error(error);
       }
     );
 
     vm.monitor = function() {
-      // Call the service
-
-      // Get the things
-
-      vm.addStream(angular.copy(vm.newStream));
+      vm.addStream(new TwitchCastStreamsService(angular.copy(vm.newStream)));
       // cleaning up for next stream
       vm.newStreamForm.$setPristine();
       vm.newStreamForm.$setUntouched();
@@ -60,7 +56,6 @@
       // remove from display
       var key = [stream.channel, stream.quality];
       delete vm.streams[key];
-      // stuff on the server is done by the component
     };
 
     vm.addStream = function(stream) {
@@ -69,6 +64,11 @@
         vm.streams[key] = stream;
     }
 
+    TwitchCastWebsocketService.on('monitored', function(streamData) {
+      vm.addStream(new TwitchCastStreamsService(streamData));
+    });
+
+    TwitchCastWebsocketService.on('unmonitored', vm.discard);
   }
 
   angular.module('twitch')
