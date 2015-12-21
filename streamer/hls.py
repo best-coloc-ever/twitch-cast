@@ -13,14 +13,15 @@ OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
 SERVER_PATH             = os.environ['SERVER_PATH']
 OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
 OUTPUT_TS_FILE_PATTERN  = os.environ['OUTPUT_TS_FILE_PATTERN']
-SEGMENT_LEN             = 12 # Seconds
+SEGMENT_LEN             = 5 # Seconds
+SEGMENT_COUNT           = 5
 
 SOUT_CONFIG_TEMPLATE = '\
 #std {{\
     access = livehttp {{\
         seglen = {seg_len},\
         delsegs = true,\
-        numsegs = 10,\
+        numsegs = {seg_count},\
         index = {index_path},\
         index-url = {ts_url}\
     }},\
@@ -72,6 +73,7 @@ class Proxy:
     def sout_config(self):
         raw = SOUT_CONFIG_TEMPLATE.format(
             seg_len=SEGMENT_LEN,
+            seg_count=SEGMENT_COUNT,
             index_path=self.index_path,
             ts_url=urljoin(self.server_root, OUTPUT_TS_FILE_PATTERN),
             ts_path=os.path.join(self.local_root, OUTPUT_TS_FILE_PATTERN)

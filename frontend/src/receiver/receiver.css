@@ -1,0 +1,39 @@
+/* Full screen */
+html {
+  height: 100%;
+}
+
+body {
+  border: 0px;
+  margin: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  margin: auto auto;
+  overflow: hidden !important;
+}
+
+.box {
+  display: flex;
+  height: 100%;
+}
+
+.flex {
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.chat {
+  flex: 0 1 200px;
+  min-width: 200px;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+}
