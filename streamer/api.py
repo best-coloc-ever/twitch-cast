@@ -27,13 +27,15 @@ def with_stream(fn):
 
     return wrapped
 
-def remove_stream(stream_id):
-    del streams_by_id[stream_id]
+def remove_stream(stream):
+    stream.unwatch()
 
     notifier.send_event(
         Event.UNMONITORED,
-        stream_id=stream_id
+        stream=stream.to_json()
     )
+
+    del streams_by_id[stream.id]
 
 @app.route('/streams', methods=['GET'])
 def streams():
@@ -56,13 +58,8 @@ def stream(stream):
 @app.route('/streams/<int:stream_id>', methods=['DELETE'])
 @with_stream
 def unmonitor(stream):
-    stream.unwatch()
-    del streams_by_id[stream.id]
+    remove_stream(stream)
 
-    notifier.send_event(
-        Event.UNMONITORED,
-        stream_id=stream.id
-    )
     return jsonify(
         status='OK'
     )
