@@ -73,7 +73,7 @@ class Proxy:
     def sout_config(self):
         raw = SOUT_CONFIG_TEMPLATE.format(
             seg_len=SEGMENT_LEN,
-            seg_count=SEGMENT_COUNT
+            seg_count=SEGMENT_COUNT,
             index_path=self.index_path,
             ts_url=urljoin(self.server_root, OUTPUT_TS_FILE_PATTERN),
             ts_path=os.path.join(self.local_root, OUTPUT_TS_FILE_PATTERN)
