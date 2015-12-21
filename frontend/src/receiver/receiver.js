@@ -50,8 +50,9 @@ function setupHost(url) {
 function onHostError(errorCode, request) {
   unloadPlayer();
 
-  var errorString = 'Fatal Error: ' + errorCode +
-                    ' (' + request.errorCode + ', ' + request.status + ')';
+  var errorString = 'Fatal Error: ' + errorCode;
+  if (request)
+    errorString += ' (' + request.errorCode + ', ' + request.status + ')';
   console.error(errorString);
   notice.text(errorString);
   notice.show();
