@@ -66,6 +66,7 @@
         };
 
         vm.cast = function() {
+          ChromecastService.setChannel(vm.stream.channel);
           ChromecastService.cast(vm.stream.proxy);
         };
 
