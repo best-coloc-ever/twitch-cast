@@ -138,7 +138,7 @@
       };
       session.sendMessage(
         CHROMECAST_CUSTOM_MESSAGE_BUS,
-        JSON.stringify(data)
+        JSON.stringify(data),
         function() { chatShown = true; }
       );
     }

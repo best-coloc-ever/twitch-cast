@@ -2,7 +2,7 @@ var BadgeStore = function(channel) {
   var self = this;
 
   $.ajax({
-    url: 'https://api.twitch.tv/kraken/chat/lirik/badges',
+    url: 'https://api.twitch.tv/kraken/chat/' + channel + '/badges',
     success: function(data) {
       self.globalMod = data.global_mod.image
       self.admin = data.admin.image
