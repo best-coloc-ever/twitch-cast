@@ -43,3 +43,9 @@ streamer:
         OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
         OUTPUT_TS_FILE_PATTERN: 'stream-#####.ts'
     container_name: streamer
+
+irc-relay:
+    image: globidocker/twitch-irc
+    command: none 'twitch-irc-websocket'
+    restart: always
+    container_name: irc-relay
