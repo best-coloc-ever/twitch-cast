@@ -29,8 +29,12 @@ video {
 }
 
 #chat {
-  flex: 0 1 200px;
-  min-width: 200px;
+  flex: 0 1 250px;
+  min-width: 250px;
+  background: #19191f;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  word-wrap: break-word;
 }
 
 h1 {
