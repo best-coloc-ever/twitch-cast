@@ -118,6 +118,19 @@
       currentChannel = channel;
     }
 
+    function toggleChat() {
+      var data = {
+        type: 'toggleChat',
+        visible: !chatShown
+      };
+      session.sendMessage(
+        CHROMECAST_CUSTOM_MESSAGE_BUS,
+        JSON.stringify(data),
+        function() { chatShown = !chatShown; },
+        function(error) { console.log(error); }
+      );
+    }
+
     function sendCurrentChannel() {
       var data = {
         type: 'currentChannel',
@@ -137,6 +150,7 @@
       onLoad: getLoaded,
       cast: castProxy,
       setChannel: setChannel,
+      toggleChat: toggleChat
     };
   }
 

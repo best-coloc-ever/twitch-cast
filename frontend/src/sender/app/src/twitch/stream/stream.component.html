@@ -9,6 +9,9 @@
   </md-card-content>
 
   <md-card-actions layout="row" layout-align="end center">
+    <md-button ng-show="bceStream.castable" ng-click="bceStream.toggleChat()">Chat</md-button>
+  </md-card-actions>
+  <md-card-actions layout="row" layout-align="end center">
     <md-progress-circular ng-show="bceStream.readying" md-mode="indeterminate"></md-progress-circular>
     <md-button ng-show="bceStream.castable" ng-click="bceStream.cast()" class="md-raised md-primary" >Cast</md-button>
     <md-button ng-show="bceStream.present && !bceStream.watchable" ng-click="bceStream.unwatch()">Stop watching</md-button>
