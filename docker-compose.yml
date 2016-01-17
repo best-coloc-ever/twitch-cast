@@ -26,6 +26,7 @@ frontend-builder:
         # Sender app
         - 'twitch-cast-sender-dist:/src/dist/'
         - 'twitch-cast-sender-dev:/src/dev/'
+    restart: always
     container_name: frontend-builder
 
 streamer:
