@@ -45,3 +45,20 @@ h1 {
 #chat-lines {
   padding-left: 10px;
 }
+
+.chat-line {
+  font-family: Helvetica Neue,Helvetica,sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  color: #8c8c9c;
+  list-style-type: none;
+}
+
+.chat-line-sender {
+  font-weight: bold;
+}
+
+
+img {
+  vertical-align: middle;
+}
