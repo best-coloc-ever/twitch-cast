@@ -4,13 +4,8 @@ var BadgeStore = function(channel) {
   $.ajax({
     url: 'https://api.twitch.tv/kraken/chat/' + channel + '/badges',
     success: function(data) {
-      self.globalMod = data.global_mod.image
-      self.admin = data.admin.image
-      self.broadcaster = data.broadcaster.image
-      self.mod = data.mod.image
-      self.staff = data.staff.image
-      self.turbo = data.turbo.image
-      self.subscriber = data.subscriber.image
+      for (var key in data)
+        self[key] = data[key].image;
     }
   })
 }
@@ -120,7 +115,6 @@ function connectToChat(channel) {
 
 function displayPrivateMessage(message) {
   var color = message.tags ? message.tags.color : 'blue';
-  var subscriber = message.tags ? (message.tags.subscriber == '1') : false;
 
   var line = $('<li>')
     .addClass('chat-line');
@@ -130,6 +124,7 @@ function displayPrivateMessage(message) {
     .css('color', color);
   var contentSpan = makeContentSpan(message.content);
 
+  prependBadges(message.tags, line);
   line.append(nameSpan);
   line.append(contentSpan);
   chatLines.append(line);
@@ -145,4 +140,32 @@ function makeContentSpan(content) {
     return word;
   });
   return $('<span>').html(': ' + htmlParts.join(' '));
+}
+
+function prependBadges(tags, line) {
+  if (tags) {
+    var specialAttributes = ['mod', 'subscriber', 'turbo']
+      .filter(function(attribute) {
+        return (tags[attribute] == '1');
+      });
+
+    if (tags['user-type'])
+      specialAttributes.push(tags['user-type']);
+
+    if (specialAttributes.length > 0) {
+      var badgeWrapper = $('<span>')
+        .addClass('badge-wrapper');
+      var badgeContainer = $('<div>');
+
+      $.unique(specialAttributes).forEach(function(attribute) {
+        var badge = $('<img>')
+          .attr('src', chatAssetStore.badges[currentChannel][attribute]);
+        badgeContainer.append(badge);
+      })
+
+      badgeWrapper.wrapInner(badgeContainer);
+      line.append(badgeWrapper);
+    }
+
+  }
 }

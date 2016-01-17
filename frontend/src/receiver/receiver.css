@@ -58,6 +58,11 @@ h1 {
   font-weight: bold;
 }
 
+.badge-wrapper {
+  float: left;
+  min-width: 20px;
+  vertical-align: middle;
+}
 
 img {
   vertical-align: middle;
