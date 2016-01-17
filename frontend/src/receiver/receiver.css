@@ -28,7 +28,7 @@ video {
   height: 100%;
 }
 
-.chat {
+#chat {
   flex: 0 1 200px;
   min-width: 200px;
 }
@@ -36,4 +36,8 @@ video {
 h1 {
   color: white;
   text-align: center;
+}
+
+#chat-lines {
+  padding-left: 10px;
 }
