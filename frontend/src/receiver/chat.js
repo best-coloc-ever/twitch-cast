@@ -1,3 +1,9 @@
+
+var chatContainer = $('#chat');
+var chatLines = $('#chat-lines');
+
+var chatAssetStore = new ChatAssetStore();
+
 var BadgeStore = function(channel) {
   var self = this;
 
@@ -68,4 +74,12 @@ var ChatAssetStore = function() {
       }
     }
   });
+}
+
+function toggleChat(visible) {
+  chatContainer.toggle(visible);
+}
+
+function connectToChat(channel) {
+
 }

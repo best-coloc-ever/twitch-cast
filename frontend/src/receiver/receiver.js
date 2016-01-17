@@ -1,22 +1,19 @@
 var CUSTOM_MESSAGE_BUS_NAME = 'urn:x-cast:twitch.cast.message';
-var player = null;
-var currentChannel = null;
 
-var chatAssetStore = new ChatAssetStore();
+var player = null;
+
 var notice = $('#debug-notice');
 var mediaElement = $('#video-player').get(0);
-var chatContainer = $('#chat');
-
 
 function setCurrentChannel(channel) {
-  currentChannel = channel;
+  connectToChat(channel);
 }
 
 function handleCustomMessages(event) {
   var message = JSON.parse(event.data);
 
   switch (message.type) {
-    case 'toggleChat'     : chatContainer.toggle(message.visible);
+    case 'toggleChat'     : toggleChat(message.visible);
                             break;
     case 'currentChannel' : setCurrentChannel(message.channel);
                             break;
