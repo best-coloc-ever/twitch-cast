@@ -1,9 +1,3 @@
-
-var chatContainer = $('#chat');
-var chatLines = $('#chat-lines');
-
-var chatAssetStore = new ChatAssetStore();
-
 var BadgeStore = function(channel) {
   var self = this;
 
@@ -76,10 +70,79 @@ var ChatAssetStore = function() {
   });
 }
 
+var CHAT_DELAY = 0; // seconds
+
+var currentChannel = null;
+var chatSocket = null;
+
+var chatContainer = $('#chat');
+var chatLines = $('#chat-lines');
+
+var chatAssetStore = new ChatAssetStore();
+
 function toggleChat(visible) {
   chatContainer.toggle(visible);
 }
 
-function connectToChat(channel) {
+function displayChatRaw(text) {
+  var line = $('<li>').text(text);
+  chatLines.append(line);
+}
 
+function connectToChat(channel) {
+  chatAssetStore.fetchBadges(channel);
+
+  // Close any previous connection
+  if (chatSocket)
+    chatSocket.close();
+
+  // Clear chat's content
+  chatLines.empty();
+  // Attempt to connect to the new channel
+  displayChatRaw('Joining chat: ' + channel + ' ...');
+  chatSocket = new WebSocket('ws://datcoloc.com/chat/' + channel);
+
+  chatSocket.onopen = function(e) {
+    currentChannel = channel;
+    displayChatRaw('Successfully joined the channel!');
+    displayChatRaw('Delaying chat for: ' + CHAT_DELAY + ' seconds')
+  };
+
+  chatSocket.onerror = function(e) {
+    displayChatRaw('Error: ' + e.reason);
+  };
+
+  chatSocket.onmessage = function(e) {
+    var message = JSON.parse(e.data);
+    setTimeout(displayPrivateMessage.bind(null, message), CHAT_DELAY * 1000);
+  };
+}
+
+function displayPrivateMessage(message) {
+  var color = message.tags ? message.tags.color : 'blue';
+  var subscriber = message.tags ? (message.tags.subscriber == '1') : false;
+
+  var line = $('<li>')
+    .addClass('chat-line');
+  var nameSpan = $('<span>')
+    .addClass('chat-line-sender')
+    .text(message.sender)
+    .css('color', color);
+  var contentSpan = makeContentSpan(message.content);
+
+  line.append(nameSpan);
+  line.append(contentSpan);
+  chatLines.append(line);
+
+  chatContainer.scrollTop(chatContainer[0].scrollHeight);
+}
+
+function makeContentSpan(content) {
+  var htmlParts = content.split(' ').map(function(word) {
+    if (word in chatAssetStore.emotes)
+      return '<img src="' + chatAssetStore.emotes[word] + '">';
+
+    return word;
+  });
+  return $('<span>').html(': ' + htmlParts.join(' '));
 }
