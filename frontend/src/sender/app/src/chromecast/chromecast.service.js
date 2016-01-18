@@ -27,10 +27,14 @@
       return deferred.promise;
     }
 
+    function onSessionUpdate(alive) {
+      if (session.status != chrome.cast.SessionStatus.CONNECTED)
+        session = null;
+    }
+
     function sessionListener(e) {
       session = e;
-      if (session.media.length)
-        console.log('Session discovered: ' + session.media[0]);
+      session.addUpdateListener(onSessionUpdate);
     }
 
     function play() {
@@ -54,9 +58,8 @@
     }
 
     function onRequestSessionSuccess(e) {
-      console.log('Session success:');
       session = e;
-
+      session.addUpdateListener(onSessionUpdate);
       play();
     }
 
