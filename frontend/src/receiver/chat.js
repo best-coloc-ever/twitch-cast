@@ -72,6 +72,7 @@ var chatSocket = null;
 
 var chatContainer = $('#chat');
 var chatLines = $('#chat-lines');
+var chatLinesCount = 0;
 
 var chatAssetStore = new ChatAssetStore();
 
@@ -129,6 +130,13 @@ function displayPrivateMessage(message) {
   line.append(nameSpan);
   line.append(contentSpan);
   chatLines.append(line);
+
+  // Keeping the chat relatively small
+  chatLinesCount++;
+  while (chatLinesCount > 100) {
+    chatLines.find('li:first').remove();
+    chatLinesCount--;
+  }
 
   chatContainer.scrollTop(chatContainer[0].scrollHeight);
 }
