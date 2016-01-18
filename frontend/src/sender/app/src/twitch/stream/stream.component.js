@@ -66,8 +66,13 @@
         };
 
         vm.cast = function() {
+          ChromecastService.setChannel(vm.stream.channel);
           ChromecastService.cast(vm.stream.proxy);
         };
+
+        vm.toggleChat = function() {
+          ChromecastService.toggleChat();
+        }
 
         // Only way I found to not mess up the stream collection of the
         // TwitchController

@@ -1,7 +1,25 @@
+var CUSTOM_MESSAGE_BUS_NAME = 'urn:x-cast:twitch.cast.message';
+
 var player = null;
 
 var notice = $('#debug-notice');
 var mediaElement = $('#video-player').get(0);
+
+function setCurrentChannel(channel) {
+  connectToChat(channel);
+}
+
+function handleCustomMessages(event) {
+  var message = JSON.parse(event.data);
+
+  switch (message.type) {
+    case 'toggleChat'     : toggleChat(message.visible);
+                            break;
+    case 'currentChannel' : setCurrentChannel(message.channel);
+                            break;
+    default               : break;
+  }
+}
 
 function initalizeReceiver() {
   cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.DEBUG)
@@ -12,6 +30,11 @@ function initalizeReceiver() {
 
   // The castReceiverManager allows communication with the sender application
   var castReceiverManager = cast.receiver.CastReceiverManager.getInstance();
+
+  // Setting up a custom message bus to communicate with the sender application
+  var customMessageBus = castReceiverManager.getCastMessageBus(CUSTOM_MESSAGE_BUS_NAME);
+  customMessageBus.onMessage = handleCustomMessages;
+
   castReceiverManager.start();
 }
 

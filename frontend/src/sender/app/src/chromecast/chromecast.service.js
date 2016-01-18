@@ -1,12 +1,17 @@
 (function() {
   'use strict';
 
-  function ChromecastService($window, CHROMECAST_APP_ID, $q, $timeout) {
+  function ChromecastService(
+    $window, $q, $timeout,
+    CHROMECAST_APP_ID, CHROMECAST_CUSTOM_MESSAGE_BUS
+  ) {
     var session = null;
     var currentProxy = null;
     var loadSuccessful = false;
     var deferred;
     var currentMedia;
+    var currentChannel;
+    var chatShown = true;
 
     function getLoaded() {
       deferred = $q.defer();
@@ -22,13 +27,19 @@
       return deferred.promise;
     }
 
+    function onSessionUpdate(alive) {
+      if (session.status != chrome.cast.SessionStatus.CONNECTED)
+        session = null;
+    }
+
     function sessionListener(e) {
       session = e;
-      if (session.media.length)
-        console.log('Session discovered: ' + session.media[0]);
+      session.addUpdateListener(onSessionUpdate);
     }
 
     function play() {
+      sendCurrentChannel();
+
       var mediaInfo = new chrome.cast.media.MediaInfo(
         currentProxy.indexUrl,
         'application/vnd.apple.mpegurl'
@@ -47,9 +58,8 @@
     }
 
     function onRequestSessionSuccess(e) {
-      console.log('Session success:');
       session = e;
-
+      session.addUpdateListener(onSessionUpdate);
       play();
     }
 
@@ -107,12 +117,43 @@
       cast();
     }
 
+    function setChannel(channel) {
+      currentChannel = channel;
+    }
+
+    function toggleChat() {
+      var data = {
+        type: 'toggleChat',
+        visible: !chatShown
+      };
+      session.sendMessage(
+        CHROMECAST_CUSTOM_MESSAGE_BUS,
+        JSON.stringify(data),
+        function() { chatShown = !chatShown; },
+        function(error) { console.log(error); }
+      );
+    }
+
+    function sendCurrentChannel() {
+      var data = {
+        type: 'currentChannel',
+        channel: currentChannel
+      };
+      session.sendMessage(
+        CHROMECAST_CUSTOM_MESSAGE_BUS,
+        JSON.stringify(data),
+        function() { chatShown = true; }
+      );
+    }
+
     $window.__onGCastApiAvailable = initialize;
 
     return {
       setProxy: setProxy,
       onLoad: getLoaded,
-      cast: castProxy
+      cast: castProxy,
+      setChannel: setChannel,
+      toggleChat: toggleChat
     };
   }
 
