@@ -95,7 +95,8 @@ function connectToChat(channel) {
   chatLines.empty();
   // Attempt to connect to the new channel
   displayChatRaw('Joining chat: ' + channel + ' ...');
-  chatSocket = new WebSocket('ws://datcoloc.com/chat/' + channel);
+
+  chatSocket = new WebSocket('ws://' + window.location.host + '/chat/' + channel);
 
   chatSocket.onopen = function(e) {
     currentChannel = channel;
