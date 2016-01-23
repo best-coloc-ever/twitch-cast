@@ -13,8 +13,8 @@ OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
 SERVER_PATH             = os.environ['SERVER_PATH']
 OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
 OUTPUT_TS_FILE_PATTERN  = os.environ['OUTPUT_TS_FILE_PATTERN']
-SEGMENT_LEN             = 5 # Seconds
-SEGMENT_COUNT           = 5
+SEGMENT_LEN             = 7 # Seconds
+SEGMENT_COUNT           = 7
 
 SOUT_CONFIG_TEMPLATE = '\
 #std {{\
