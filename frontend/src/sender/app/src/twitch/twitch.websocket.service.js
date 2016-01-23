@@ -2,14 +2,13 @@
   'use strict';
 
   angular.module('twitch')
-    .factory('TwitchCastWebsocketService', function($websocket, $location) {
+    .factory('TwitchCastWebsocketService', function($websocket, $location, $interval) {
       var dataStream = $websocket('ws://' + $location.host() + '/streamer/events');
 
       var triggers = {};
 
       dataStream.onMessage(function(message) {
         var data = JSON.parse(message.data);
-        // console.log(data.event);
 
         if (data.event in triggers) {
           var callbacks = triggers[data.event];
@@ -17,6 +16,16 @@
             callback(data.stream);
           });
         }
+      });
+
+      dataStream.onOpen(function() {
+        $interval(function() {
+          dataStream.send('ping');
+        }, 30000);
+      });
+
+      dataStream.onClose(function() {
+        console.log('closed');
       });
 
       return {
