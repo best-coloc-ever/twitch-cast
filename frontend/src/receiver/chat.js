@@ -87,6 +87,7 @@ function displayChatRaw(text) {
 
 function connectToChat(channel) {
   chatAssetStore.fetchBadges(channel);
+  chatLinesCount = 0;
 
   // Close any previous connection
   if (chatSocket)
