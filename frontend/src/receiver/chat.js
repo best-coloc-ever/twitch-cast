@@ -61,6 +61,19 @@ var ChatAssetStore = function() {
         self.emotes[code] = template.replace('{{id}}', emote.id)
                                     .replace('{{image}}', '1x');
       }
+
+      // Some more
+      $.ajax({
+        url: 'https://raw.githubusercontent.com/Jiiks/BetterDiscordApp/master/data/emotedata_bttv.json',
+        success: function(data) {
+          data = JSON.parse(data); // Not parsed for some reason. I guess headers
+
+          for (var code in data) {
+            self.emotes[code] = template.replace('{{id}}', data[code])
+                                        .replace('{{image}}', '1x');
+          }
+        }
+      })
     }
   });
 }
