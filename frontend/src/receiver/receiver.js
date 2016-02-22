@@ -14,6 +14,7 @@ function handleCustomMessages(event) {
 
   switch (message.type) {
     case 'toggleChat'     : toggleChat(message.visible);
+                            toggleStreamInfo(message.visible);
                             break;
     case 'currentChannel' : setCurrentChannel(message.channel);
                             break;

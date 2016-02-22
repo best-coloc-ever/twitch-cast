@@ -1,6 +1,7 @@
 /* Full screen */
 html {
   height: 100%;
+  background: black;
 }
 
 body {
@@ -66,4 +67,11 @@ h1 {
 
 img {
   vertical-align: middle;
+}
+
+#stream-info {
+  position: relative;
+  bottom: 5%;
+  left: 70%;
+  color: white;
 }
