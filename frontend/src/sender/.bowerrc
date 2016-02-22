@@ -1,4 +1,4 @@
 {
-  "directory": "/dev/bower_components",
+  "directory": "./dev/bower_components",
   "interactive": false
 }
