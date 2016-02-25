@@ -2,15 +2,13 @@ sudo: required
 dist: trusty
 
 before_install:
-  - curl -L https://get.docker.com/builds/`uname -s`/`uname -m`/docker-latest > docker
-  - chmod +x docker
-  - sudo mv docker /usr/local/bin
+  - sudo apt-get update
+  - sudo apt-get install -y docker-engine
   - curl -L https://github.com/docker/compose/releases/download/1.5.0/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
 script:
-  - docker --version
+  - docker version
   - docker-compose --version
-  - sudo docker daemon & sleep 5
   - sudo ./deploy.sh
