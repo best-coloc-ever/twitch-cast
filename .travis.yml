@@ -10,6 +10,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 script:
+  - sudo service docker stop
   - docker --version
   - docker-compose --version
   - sudo docker daemon & sleep 5
