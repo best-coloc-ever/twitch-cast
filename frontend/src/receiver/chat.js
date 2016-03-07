@@ -86,7 +86,7 @@ var currentChannel = null;
 var chatSocket = null;
 
 var chatMessagesQueue = [];
-var chatDisplayId = setInterval(displayMessages, CHAT_DISPLAY_INTERVAL * 1000);
+var chatDisplayId = setTimeout(displayMessages, CHAT_DISPLAY_INTERVAL * 1000);
 var chatClearId = setInterval(clearChat, CHAT_CLEAR_INTERVAL * 1000);
 
 var chatContainer = $('#chat');
@@ -150,6 +150,8 @@ function displayMessages() {
   chatMessagesQueue = chatMessagesQueue.slice(i, chatMessagesQueue.length);
 
   chatContainer.scrollTop(chatContainer[0].scrollHeight);
+
+  setTimeout(displayMessages, CHAT_DISPLAY_INTERVAL * 1000);
 }
 
 function clearChat() {
