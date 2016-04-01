@@ -1,52 +1,56 @@
-frontend:
+version: '2'
+
+volumes:
+  video-data: {}
+  sender-dist: {}
+  sender-dev: {}
+  sender-node-modules: {}
+
+services:
+  web:
     build: frontend/server
     ports:
-        - '80:80'
+      - '80:80'
     volumes:
-        # Nginx configuration
-        - './frontend/server/nginx.conf:/etc/nginx/nginx.conf'
-        - './frontend/server/cors.conf:/etc/nginx/cors.conf'
-        # Video content
-        - 'twitch-cast-data:/data/'
-        # Sender app
-        - 'twitch-cast-sender-dist:/sender/dist/'
-        - 'twitch-cast-sender-dev:/sender/dev/'
-        # Receiver app
-        - './frontend/src/receiver:/receiver/'
+      # Nginx configuration (ease reloading)
+      - './frontend/server/nginx.conf:/etc/nginx/nginx.conf:ro'
+      # Video content
+      - 'video-data:/data/:ro'
+      # Sender app
+      - 'sender-dist:/sender/dist/:ro'
+      - 'sender-dev:/sender/dev/:ro'
+      # Receiver app
+      - './frontend/receiver:/receiver/:ro'
     restart: always
-    container_name: frontend
 
-frontend-builder:
-    build: frontend/builder
+  sender-builder:
+    build: frontend/sender
     volumes:
-        # Sources
-        - './frontend/src/sender/:/src/'
-        # Node-specific
-        - 'twitch-cast-node-modules:/src/node_modules/'
-        # Sender app
-        - 'twitch-cast-sender-dist:/src/dist/'
-        - 'twitch-cast-sender-dev:/src/dev/'
+      # Sources
+      - './frontend/sender/:/src/'
+      # Node-specific
+      - 'sender-node-modules:/src/node_modules'
+      # Sender app
+      - 'sender-dist:/src/dist/'
+      - 'sender-dev:/src/dev/'
     restart: always
-    container_name: frontend-builder
 
-streamer:
+  streamer:
     build: streamer
     volumes:
-        # Sources
-        - './streamer:/streamer'
-        # Video content
-        - 'twitch-cast-data:/data/'
+      # Sources
+      - './streamer:/streamer:ro'
+      # Video content
+      - 'video-data:/data/'
     environment:
-        SERVER_HOSTNAME: '${SERVER_NAME}'
-        STREAMER_HOSTNAME: 'streamer'
-        OUTPUT_DIRECTORY: '/data/video'
-        SERVER_PATH: '/video'
-        OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
-        OUTPUT_TS_FILE_PATTERN: 'stream-#####.ts'
-    container_name: streamer
+      SERVER_HOSTNAME: '${SERVER_NAME}'
+      STREAMER_HOSTNAME: 'streamer'
+      OUTPUT_DIRECTORY: '/data/video'
+      SERVER_PATH: '/video'
+      OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
+      OUTPUT_TS_FILE_PATTERN: 'stream-#####.ts'
 
-irc-relay:
+  irc-relay:
     image: globidocker/twitch-irc
     command: none 'twitch-irc-websocket'
     restart: always
-    container_name: irc-relay
