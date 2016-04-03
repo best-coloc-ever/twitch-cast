@@ -123,7 +123,7 @@
 
     function toggleChat() {
       var data = {
-        type: 'toggleChat',
+        type: 'chatToggle',
         visible: !chatShown
       };
       session.sendMessage(
@@ -134,9 +134,21 @@
       );
     }
 
+    function positionChat() {
+      var data = {
+        type: 'chatPosition',
+      };
+      session.sendMessage(
+        CHROMECAST_CUSTOM_MESSAGE_BUS,
+        JSON.stringify(data),
+        function() { },
+        function(error) { console.log(error); }
+      );
+    }
+
     function sendCurrentChannel() {
       var data = {
-        type: 'currentChannel',
+        type: 'channel',
         channel: currentChannel
       };
       session.sendMessage(
@@ -153,7 +165,8 @@
       onLoad: getLoaded,
       cast: castProxy,
       setChannel: setChannel,
-      toggleChat: toggleChat
+      toggleChat: toggleChat,
+      positionChat: positionChat
     };
   }
 
