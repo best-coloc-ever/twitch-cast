@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+
 <html>
 <head>
+  <title>Chromecast receiver</title>
+
   <!-- Chromecast imports -->
   <script
     src="//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js"></script>
@@ -8,29 +11,31 @@
     src="//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js"></script>
   <!-- JQuery import -->
   <script
-    src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+    src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 
   <!-- Main css -->
   <link rel="stylesheet" href="receiver.css">
 </head>
 
 <body>
-  <div class="box">
-    <h1 id="debug-notice"></h1>
+  <app></app>
 
-    <div class="flex">
-      <video id='video-player' autoplay></video>
-      <div id="stream-info"></div>
-    </div>
+  <script src="src/receiver.js"></script>
+  <script src="src/chat_assets.js"></script>
 
-    <div id="chat">
-      <ul id="chat-lines"></ul>
-    </div>
-  </div>
+  <script src="tags/app.tag" type="riot/tag"></script>
+  <script src="tags/notice.tag" type="riot/tag"></script>
+  <script src="tags/chat.tag" type="riot/tag"></script>
+  <script src="tags/chat-line.tag" type="riot/tag"></script>
+  <script src="tags/stream.tag" type="riot/tag"></script>
+  <script src="tags/stream-info.tag" type="riot/tag"></script>
 
-  <script src="chat.js"></script>
-  <script src="stream.js"></script>
-  <script src="receiver.js"></script>
-  <script> initalizeReceiver(); </script>
+  <script
+    src="https://cdn.jsdelivr.net/riot/2.3.17/riot+compiler.min.js"></script>
+
+  <script>
+    riot.mount('app');
+  </script>
+
 </body>
 </html>

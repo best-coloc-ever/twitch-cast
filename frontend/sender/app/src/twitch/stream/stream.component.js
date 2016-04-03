@@ -74,6 +74,10 @@
           ChromecastService.toggleChat();
         }
 
+        vm.positionChat = function() {
+          ChromecastService.positionChat();
+        }
+
         // Only way I found to not mess up the stream collection of the
         // TwitchController
         vm.updateStream = function(newStream) {
