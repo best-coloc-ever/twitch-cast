@@ -91,8 +91,8 @@
 
       messageQueue = messageQueue.slice(i, messageQueue.length);
 
-      self.root.scrollTop = self.root.scrollHeight;
       self.update();
+      self.root.scrollTop = self.root.scrollHeight;
 
       setTimeout(processMessageQueue, CHAT_DISPLAY_INTERVAL * 1000);
     }
