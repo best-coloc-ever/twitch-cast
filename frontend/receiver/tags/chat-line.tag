@@ -47,6 +47,7 @@
 
     var self = this;
 
+    this.store = opts.store;
     this.sender = opts.message.sender;
     this.tags = (opts.message.tags || {});
     this.assetStore = this.parent.assetStore;

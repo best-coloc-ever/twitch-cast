@@ -3,7 +3,7 @@
   <!-- Layout -->
   <ul>
     <li each={ notice in notices }>{ notice }</li>
-    <chat-line each={ message in messages } message={ message }>
+    <chat-line each={ message in messages } message={ message } store={ parent.store }>
     </chat-line>
   </ul>
 
@@ -112,7 +112,7 @@
       this.notices = [];
       this.update();
 
-      this.assetStore = new ChatAssetStore(channel);
+      this.store = new ChatAssetStore(channel);
       connectToChat(channel);
     }
 
