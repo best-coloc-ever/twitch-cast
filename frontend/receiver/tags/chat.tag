@@ -107,6 +107,7 @@
     }
 
     setChannel(channel) {
+      messageQueue = [];
       this.messages = [];
       this.notices = [];
       this.update();
