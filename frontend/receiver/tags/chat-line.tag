@@ -1,3 +1,10 @@
+<!-- lol trick -->
+<if>
+  <virtual each={ opts.cond ? [1] : [] }>
+    <yield/>
+  </virtual>
+</if>
+
 <chat-line>
 
   <li>
@@ -9,7 +16,12 @@
     <span class="sender" style="color: { color }">{ sender }</span>
     :
     <span class="message">
-      <!-- How do I even generate the html I need here ? -->
+      <virtual each={ part in content }>
+        <if cond={ part.type == 'word' }>{ part.word }</if>
+        <if cond={ part.type == 'img' }>
+          <img src={ part.src }>
+        </if>
+      </virtual>
     </span>
   </li>
 
@@ -50,29 +62,26 @@
     this.store = opts.store;
     this.sender = opts.message.sender;
     this.tags = (opts.message.tags || {});
-    this.assetStore = this.parent.assetStore;
+    this.color = (this.tags.color || defaultColor(this.sender));
+    this.content = opts.message.content.split(' ').map(messagePart)
     this.badges = $.unique(BADGES_TYPES.filter(function(type) {
       return (self.tags[type] == '1');
     }));
-    this.color = (this.tags.color || defaultColor(this.sender));
-
-    // :'(
-    var content = opts.message.content.split(' ').map(function(word) {
-      if (word in self.assetStore.emotes)
-        return '<img src="' + self.assetStore.emotes[word] + '">'
-      return word;
-    }).join(' ');
-
-    this.on('mount', function() {
-      $(this.root).find('.message').html(content);
-    })
-    //
 
     // https://discuss.dev.twitch.tv/t/default-user-color-in-chat/385
     function defaultColor(name) {
       var n = name.charCodeAt(0) + name.charCodeAt(name.length - 1);
 
       return DEFAULT_COLORS[n % DEFAULT_COLORS.length];
+    }
+
+    function messagePart(word) {
+      var url = self.store.emotes[word];
+
+      if (url)
+        return { type: 'img', src: url };
+
+      return { type: 'word', word: word };
     }
   </script>
 
