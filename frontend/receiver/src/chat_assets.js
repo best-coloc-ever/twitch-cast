@@ -9,7 +9,8 @@ var ChatAssetStore = function(channel) {
     url: 'https://api.twitch.tv/kraken/chat/' + channel + '/badges',
     success: function(data) {
       for (var key in data)
-        self.badges[key] = data[key].image;
+        if (data[key])
+          self.badges[key] = data[key].image;
     }
   })
 
