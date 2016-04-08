@@ -3,7 +3,7 @@
   <!-- Layout -->
   <ul>
     <li each={ notice in notices }>{ notice }</li>
-    <chat-line each={ message in messages } message={ message }>
+    <chat-line each={ message in messages } message={ message } store={ parent.store }>
     </chat-line>
   </ul>
 
@@ -31,7 +31,7 @@
   <script>
     var CHAT_MESSAGE_MAX_COUNT = 50;
     var CHAT_DISPLAY_INTERVAL = 0.25; // seconds
-    var CHAT_CLEAR_INTERVAL = 30 // seconds
+    var CHAT_CLEAR_INTERVAL = 10; // seconds
     var CHAT_DELAY = 0; // seconds
 
     var self = this;
@@ -91,8 +91,8 @@
 
       messageQueue = messageQueue.slice(i, messageQueue.length);
 
-      self.root.scrollTop = self.root.scrollHeight;
       self.update();
+      self.root.scrollTop = self.root.scrollHeight;
 
       setTimeout(processMessageQueue, CHAT_DISPLAY_INTERVAL * 1000);
     }
@@ -107,11 +107,12 @@
     }
 
     setChannel(channel) {
+      messageQueue = [];
       this.messages = [];
       this.notices = [];
       this.update();
 
-      this.assetStore = new ChatAssetStore(channel);
+      this.store = new ChatAssetStore(channel);
       connectToChat(channel);
     }
 

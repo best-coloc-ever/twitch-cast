@@ -26,6 +26,7 @@
             self.viewers = data.stream.viewers.toLocaleString();
             self.views = data.stream.channel.views.toLocaleString();
             self.followers = data.stream.channel.followers.toLocaleString();
+            self.update();
           }
         })
     }
