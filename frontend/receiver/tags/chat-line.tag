@@ -9,8 +9,8 @@
 
   <li>
     <span class="badge-wrapper" if={ badges.length > 0 }>
-      <div each={ badge in badges }>
-        <img src={ store.badges[badge] }>
+      <div>
+        <img each={ badge in badges } src={ store.badges[badge] }>
       </div>
     </span>
     <span class="sender" style="color: { color }">{ sender }</span>

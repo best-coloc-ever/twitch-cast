@@ -33,6 +33,7 @@
 
     setChannel(channel) {
       this.channel = channel;
+      fetchStreamInfos();
     }
 
     setInterval(fetchStreamInfos, REFRESH_INFO_INTERVAL * 1000);
