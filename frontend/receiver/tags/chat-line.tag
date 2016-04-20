@@ -1,7 +1,6 @@
-<!-- lol trick -->
 <chat-line>
 
-  <li>
+  <li class={ cls }>
     <span class="badge-wrapper" if={ badges.length > 0 }>
       <div>
         <img each={ badge in badges } src={ store.badges[badge] }>
@@ -24,6 +23,9 @@
       line-height: 20px;
       color: #8c8c9c;
       list-style-type: none;
+      /* Animation */
+      transition: all 0.4s ease-out;
+      opacity: 0;
     }
 
     .sender {
@@ -38,6 +40,10 @@
 
     img {
       vertical-align: middle;
+    }
+
+    li.show {
+      opacity: 1;
     }
   </style>
 
@@ -75,6 +81,14 @@
 
       return { type: 'word', word: word };
     }
+
+    self.cls = '';
+    this.on('mount', function() {
+      setTimeout(function() {
+        self.cls = 'show';
+        self.update();
+      }, 10)
+    })
   </script>
 
 </chat-line>
