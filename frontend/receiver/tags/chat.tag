@@ -62,7 +62,7 @@
 
       ws.onclose = function(e) {
         if (e.code != 1000)
-          setTimeout(connectToChat, 2000);
+          setTimeout(function() { connectToChat(channel); }, 2000);
       }
 
       ws.onerror = function(e) {
