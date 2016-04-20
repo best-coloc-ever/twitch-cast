@@ -1,10 +1,4 @@
 <!-- lol trick -->
-<if>
-  <virtual each={ opts.cond ? [1] : [] }>
-    <yield/>
-  </virtual>
-</if>
-
 <chat-line>
 
   <li>
@@ -17,10 +11,8 @@
     :
     <span class="message">
       <virtual each={ part in content }>
-        <if cond={ part.type == 'word' }>{ part.word }</if>
-        <if cond={ part.type == 'img' }>
-          <img src={ part.src }>
-        </if>
+        <virtual if={ part.type == 'word' }>{ part.word }</virtual>
+        <img if={ part.type == 'img' } src={ part.src }>
       </virtual>
     </span>
   </li>
