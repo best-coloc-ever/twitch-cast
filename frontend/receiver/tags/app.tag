@@ -20,6 +20,7 @@
     .flex {
       flex: 1 1 auto;
       height: 100%;
+      position: relative;
     }
 
   </style>
