@@ -3,6 +3,7 @@
   <!-- Layout -->
   <video autoplay></video>
 
+  <clock if={ showStreamInfos }></clock>
   <stream-info if={ showStreamInfos }></stream-info>
 
   <!-- Style -->
@@ -19,6 +20,14 @@
       bottom: 2%;
       right: 2%;
       text-align: right;
+      color: white;
+    }
+
+    clock {
+      position: absolute;
+      bottom: 2%;
+      left: 2%;
+      text-align: left;
       color: white;
     }
   </style>
