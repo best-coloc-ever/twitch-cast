@@ -15,9 +15,11 @@
     }
 
     stream-info {
-      position: relative;
-      bottom: 5%;
-      left: 70%;
+      position: absolute;
+      bottom: 2%;
+      right: 2%;
+      text-align: right;
+      color: white;
     }
   </style>
 
