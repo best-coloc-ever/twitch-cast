@@ -14,6 +14,9 @@ var ChatAssetStore = function(channel) {
     }
   })
 
+  self.badges['alliance'] = 'https://static-cdn.jtvnw.net/badges/v1/c4816339-bad4-4645-ae69-d1ab2076a6b0/1';
+  self.badges['horde'] = 'https://static-cdn.jtvnw.net/badges/v1/de8b26b6-fd28-4e6c-bc89-3d597343800d/1';
+
   // Global emotes
   $.ajax({
     url: 'https://twitchemotes.com/api_cache/v2/global.json',

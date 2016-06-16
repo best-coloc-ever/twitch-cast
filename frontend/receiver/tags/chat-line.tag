@@ -75,6 +75,8 @@
     });
     if (badgeMap.moderator) // I noticed this inconsistency...
        this.badges.push('mod');
+    if (badgeMap.warcraft)
+       this.badges.push(badgeMap.warcraft);
 
     // https://discuss.dev.twitch.tv/t/default-user-color-in-chat/385
     function defaultColor(name) {
