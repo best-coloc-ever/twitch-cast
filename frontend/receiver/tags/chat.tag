@@ -2,7 +2,6 @@
 
   <!-- Layout -->
   <ul>
-    <li each={ notice in notices }>{ notice }</li>
     <chat-line each={ message in messages } message={ message } store={ parent.store }>
     </chat-line>
   </ul>
@@ -30,27 +29,44 @@
   <!-- Logic -->
   <script>
     var CHAT_MESSAGE_MAX_COUNT = 50;
-    var CHAT_DISPLAY_INTERVAL = 0.25; // seconds
-    var CHAT_CLEAR_INTERVAL = 10; // seconds
+    var CHAT_DISPLAY_INTERVAL = 0.5; // seconds
+    var CHAT_CLEAR_INTERVAL = 30; // seconds
     var CHAT_DELAY = 42; // seconds
 
     var self = this;
     var messageQueue = [];
     var ws = null;
+    var retryTimeout = null;
 
-    this.notices = [];
     this.messages = [];
 
     notify(text) {
-      self.notices.push(text);
+      self.messages.push({ sender: 'SYSTEM', content: text });
       self.update();
     }
 
-    function connectToChat(channel) {
-      self.notify('Joining channel: ' + channel);
+    onmessage(e) {
+      var message = JSON.parse(e.data);
+      message.stamp = new Date().getTime();
+      messageQueue.push(message);
+    }
 
+    pause() {
+      self.notify('Pausing chat');
+      ws.onmessage = null;
+    }
+
+    resume() {
+      self.notify('Resuming chat');
+      ws.onmessage = self.onmessage;
+    }
+
+    function connectToChat(channel) {
+      clearTimeout(retryTimeout);
       if (ws)
         ws.close();
+
+      self.notify('Joining channel: ' + channel);
 
       var url = 'ws://' + window.location.host + '/chat/' + channel;
       ws = new WebSocket(url);
@@ -62,18 +78,14 @@
 
       ws.onclose = function(e) {
         if (e.code != 1000)
-          setTimeout(function() { connectToChat(channel); }, 2000);
+          retryTimeout = setTimeout(function() { connectToChat(channel); }, 2000);
       }
 
       ws.onerror = function(e) {
         self.notify('Error: ' + e.reason);
       };
 
-      ws.onmessage = function(e) {
-        var message = JSON.parse(e.data);
-        message.stamp = new Date().getTime();
-        messageQueue.push(message);
-      };
+      ws.onmessage = self.onmessage;
     }
 
     function processMessageQueue() {
@@ -109,7 +121,6 @@
     setChannel(channel) {
       messageQueue = [];
       this.messages = [];
-      this.notices = [];
       this.update();
 
       this.store = new ChatAssetStore(channel);
