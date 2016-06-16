@@ -50,18 +50,31 @@
       '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E',
       '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'
     ];
-    var BADGES_TYPES = ['mod', 'subscriber', 'turbo'];
+
+    var BADGE_TYPES = ['global_mod', 'admin', 'broadcaster', 'mod', 'staff', 'turbo', 'subscriber']
 
     var self = this;
 
     this.store = opts.store;
     this.sender = opts.message.sender;
-    this.tags = (opts.message.tags || {});
+    this.mTags = (opts.message.tags || {});
     this.color = (this.tags.color || defaultColor(this.sender));
     this.content = opts.message.content.split(' ').map(messagePart)
-    this.badges = $.unique(BADGES_TYPES.filter(function(type) {
-      return (self.tags[type] == '1');
-    }));
+    this.badges = [];
+
+    var badgeMap = {};
+    if (this.mTags.badges)
+      this.mTags.badges.split(',').forEach(function(badge) {
+        var splitted = badge.split('/');
+        badgeMap[splitted[0]] = splitted[1];
+      });
+
+    BADGE_TYPES.forEach(function(type) {
+      if (badgeMap[type] == '1')
+        self.badges.push(type);
+    });
+    if (badgeMap.moderator) // I noticed this inconsistency...
+       this.badges.push('mod');
 
     // https://discuss.dev.twitch.tv/t/default-user-color-in-chat/385
     function defaultColor(name) {
