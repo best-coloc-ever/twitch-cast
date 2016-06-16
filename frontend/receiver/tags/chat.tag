@@ -2,7 +2,6 @@
 
   <!-- Layout -->
   <ul>
-    <li each={ notice in notices }>{ notice }</li>
     <chat-line each={ message in messages } message={ message } store={ parent.store }>
     </chat-line>
   </ul>
@@ -38,11 +37,10 @@
     var messageQueue = [];
     var ws = null;
 
-    this.notices = [];
     this.messages = [];
 
     notify(text) {
-      self.notices.push(text);
+      self.messages.push({ sender: 'SYSTEM', content: text });
       self.update();
     }
 
@@ -119,7 +117,6 @@
     setChannel(channel) {
       messageQueue = [];
       this.messages = [];
-      this.notices = [];
       this.update();
 
       this.store = new ChatAssetStore(channel);
