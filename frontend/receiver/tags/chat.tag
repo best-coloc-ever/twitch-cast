@@ -30,8 +30,8 @@
   <!-- Logic -->
   <script>
     var CHAT_MESSAGE_MAX_COUNT = 50;
-    var CHAT_DISPLAY_INTERVAL = 0.25; // seconds
-    var CHAT_CLEAR_INTERVAL = 10; // seconds
+    var CHAT_DISPLAY_INTERVAL = 0.5; // seconds
+    var CHAT_CLEAR_INTERVAL = 30; // seconds
     var CHAT_DELAY = 42; // seconds
 
     var self = this;
