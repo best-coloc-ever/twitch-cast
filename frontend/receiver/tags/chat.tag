@@ -36,6 +36,7 @@
     var self = this;
     var messageQueue = [];
     var ws = null;
+    var retryTimeout = null;
 
     this.messages = [];
 
@@ -49,8 +50,6 @@
       message.stamp = new Date().getTime();
       messageQueue.push(message);
     }
-    function connectToChat(channel) {
-      self.notify('Joining channel: ' + channel);
 
     pause() {
       self.notify('Pausing chat');
@@ -61,8 +60,13 @@
       self.notify('Resuming chat');
       ws.onmessage = self.onmessage;
     }
+
+    function connectToChat(channel) {
+      clearTimeout(retryTimeout);
       if (ws)
         ws.close();
+
+      self.notify('Joining channel: ' + channel);
 
       var url = 'ws://' + window.location.host + '/chat/' + channel;
       ws = new WebSocket(url);
@@ -74,7 +78,7 @@
 
       ws.onclose = function(e) {
         if (e.code != 1000)
-          setTimeout(function() { connectToChat(channel); }, 2000);
+          retryTimeout = setTimeout(function() { connectToChat(channel); }, 2000);
       }
 
       ws.onerror = function(e) {
