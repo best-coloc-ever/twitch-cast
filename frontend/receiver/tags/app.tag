@@ -47,6 +47,12 @@
       receiver.on('chatToggle', function(e) {
         self.chatVisible = e.visible;
         stream.fullScreen(!e.visible);
+
+        if (e.visible)
+          chat.resume();
+        else
+          chat.pause();
+
         self.update();
       });
 

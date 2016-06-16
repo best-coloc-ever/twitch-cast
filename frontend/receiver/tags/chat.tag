@@ -46,9 +46,23 @@
       self.update();
     }
 
+    onmessage(e) {
+      var message = JSON.parse(e.data);
+      message.stamp = new Date().getTime();
+      messageQueue.push(message);
+    }
     function connectToChat(channel) {
       self.notify('Joining channel: ' + channel);
 
+    pause() {
+      self.notify('Pausing chat');
+      ws.onmessage = null;
+    }
+
+    resume() {
+      self.notify('Resuming chat');
+      ws.onmessage = self.onmessage;
+    }
       if (ws)
         ws.close();
 
@@ -69,11 +83,7 @@
         self.notify('Error: ' + e.reason);
       };
 
-      ws.onmessage = function(e) {
-        var message = JSON.parse(e.data);
-        message.stamp = new Date().getTime();
-        messageQueue.push(message);
-      };
+      ws.onmessage = self.onmessage;
     }
 
     function processMessageQueue() {
