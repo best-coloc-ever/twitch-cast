@@ -7,7 +7,7 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, ChromecastService, TwitchCastWebsocketService) {
+      controller: function(TwitchCastStreamsService, ChromecastService, TwitchCastWebsocketService, TwitchAPIService) {
         var vm = this;
 
         // Initialize state
@@ -15,6 +15,24 @@
         vm.watchable = (vm.present && !vm.stream.proxy);
         vm.castable = (vm.stream.proxy && vm.stream.proxy.ready);
         vm.readying = (vm.stream.proxy && !vm.stream.proxy.ready);
+        vm.viewers = '?';
+        vm.views = '?';
+        vm.follows = '?';
+
+        function fetchInfos() {
+          TwitchAPIService.channel(vm.stream.channel, function(response) {
+            vm.thumbnail = response.data.logo;
+            vm.views = response.data.views.toLocaleString();
+            vm.follows = response.data.followers.toLocaleString();
+            vm.game = response.data.game;
+          })
+
+          TwitchAPIService.stream(vm.stream.channel, function(response) {
+            vm.viewers = response.data.stream.viewers.toLocaleString();
+          });
+        }
+
+        fetchInfos();
 
         if (!vm.present) {
           TwitchCastStreamsService.save(null, {
@@ -45,6 +63,7 @@
           vm.stream.$watch(
             function(stream) {
               vm.updateStream(stream);
+              fetchInfos();
               // Castablity will be set thanks to the websocket
             },
             function(error) {

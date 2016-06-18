@@ -40,6 +40,11 @@ gulp.task('vendor-fonts', function() {
 
 });
 
+gulp.task('img', function() {
+  return gulp.src('app/assets/img/icons/*')
+    .pipe(gulp.dest('dist/img/icons/'))
+})
+
 gulp.task('sass', function() {
   return gulp.src(['app/assets/**/*.sass'])
     .pipe(plumber({
@@ -109,6 +114,7 @@ gulp.task('dist', [
     'templates',
     'scripts',
     'styles',
+    'img',
     'vendor-scripts',
     'vendor-css',
     'vendor-fonts'
