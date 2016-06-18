@@ -1,22 +1,72 @@
 <md-card>
-  <md-card-content>
-    <h2>{{bceStream.stream.channel | uppercase}}</h2>
-    <p>{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</p>
+  <div layout="row" layout-align="end center">
+    <md-button ng-click="bceStream.unmonitor()" class="md-icon-button">
+      <md-tooltip>Stop monitoring</md-tooltip>
+      <md-icon md-svg-icon="img/icons/quit.svg"></md-icon>
+    </md-button>
+  </div>
 
-    <div ng-show="!bceStream.present" layout="row" layout-sm="column" layout-align="space-around">
+  <md-card-title>
+    <md-card-title-text>
+      <span class="md-headline">{{bceStream.stream.channel | uppercase}}</span>
+      <span class="md-subhead">{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</span>
+    </md-card-title-text>
+
+    <md-card-title-media>
+      <img class="md-media-md card-media" src="{{bceStream.thumbnail}}">
+    </md-card-title-media>
+
+  </md-card-title>
+
+  <md-card-content ng-show="!bceStream.present">
+    <div layout="row" layout-sm="column" layout-align="space-around">
       <md-progress-circular md-mode="indeterminate"></md-progress-circular>
     </div>
   </md-card-content>
 
-  <md-card-actions layout="row" layout-align="end center">
-    <md-button ng-show="bceStream.castable" ng-click="bceStream.toggleChat()">Chat</md-button>
-    <md-button ng-show="bceStream.castable" ng-click="bceStream.positionChat()">Postion</md-button>
-  </md-card-actions>
-  <md-card-actions layout="row" layout-align="end center">
-    <md-progress-circular ng-show="bceStream.readying" md-mode="indeterminate"></md-progress-circular>
-    <md-button ng-show="bceStream.castable" ng-click="bceStream.cast()" class="md-raised md-primary" >Cast</md-button>
-    <md-button ng-show="bceStream.present && !bceStream.watchable" ng-click="bceStream.unwatch()">Stop watching</md-button>
-    <md-button ng-show="bceStream.watchable" ng-click="bceStream.watch()">Watch</md-button>
-    <md-button ng-click="bceStream.unmonitor()">Stop monitoring</md-button>
-  </md-card-actions>
+  <!-- <md-button ng-show="bceStream.castable" ng-click="bceStream.positionChat()">Postion</md-button> -->
+
+  <div layout="row" ng-show="bceStream.castable">
+    <div layout="row" layout-align="start center" style="margin-left:20px;">
+      <md-icon md-svg-icon="img/icons/joystick.svg" style="margin-right:10px;"></md-icon> {{bceStream.game}}
+    </div>
+  </div>
+
+  <div layout="row">
+    <div layout="row" layout-align="start center" hide-xs>
+      <div style="margin-left:20px;" ng-show="bceStream.castable">
+      <md-icon md-svg-icon="img/icons/viewers.svg"></md-icon> {{bceStream.viewers}}
+      </div>
+      <div style="margin-left:20px;">
+      <md-icon md-svg-icon="img/icons/views.svg"></md-icon> {{bceStream.views}}
+      </div>
+      <div style="margin-left:20px;">
+      <md-icon md-svg-icon="img/icons/follows.svg"></md-icon> {{bceStream.follows}}
+      </div>
+    </div>
+
+    <md-card-actions layout="row" layout-align="end center" flex>
+      <md-progress-circular ng-show="bceStream.readying" md-mode="indeterminate"></md-progress-circular>
+
+      <md-button ng-show="bceStream.castable" ng-click="bceStream.cast()" class="md-raised md-primary md-icon-button">
+        <md-tooltip>Cast to device</md-tooltip>
+        <md-icon md-svg-icon="img/icons/chromecast.svg"></md-icon>
+      </md-button>
+
+      <md-button ng-show="bceStream.castable" ng-click="bceStream.toggleChat()" class="md-primary md-icon-button">
+        <md-tooltip>Toggle chat</md-tooltip>
+        <md-icon md-svg-icon="img/icons/chatroom.svg"></md-icon>
+      </md-button>
+
+      <md-button ng-show="bceStream.present && !bceStream.watchable" ng-click="bceStream.unwatch()" class="md-icon-button md-warn">
+        <md-tooltip>Stop watching</md-tooltip>
+        <md-icon md-svg-icon="img/icons/poweroff.svg"></md-icon>
+      </md-button>
+
+      <md-button ng-show="bceStream.watchable" ng-click="bceStream.watch()" class="md-primary md-icon-button">
+        <md-tooltip>Watch</md-tooltip>
+        <md-icon md-svg-icon="img/icons/download.svg">
+      </md-button>
+    </md-card-actions>
+  </div>
 </md-card>

@@ -1,7 +1,7 @@
 <h1>Streams</h1>
 
 <form name="twitchCtrl.newStreamForm" ng-submit="twitchCtrl.monitor()">
-  <div layout layout-sm="column">
+  <div layout layout-xs="column">
     <md-input-container flex>
       <label>Stream name</label>
       <input name="streamName" required ng-model="twitchCtrl.newStream.channel">
@@ -23,21 +23,10 @@
   </div>
 </form>
 
-<div class="md-padding" >
-
-  <!-- <md-grid-list md-cols="3" md-cols="3" md-cols-sm="2" md-cols-lg="6" md-row-height="1:1" > -->
-    <!-- <md-grid-tile md-rowspan="1" md-colspan="1" ng-repeat="stream in twitchCtrl.streams"> -->
-    <!-- </md-grid-tile> -->
-      <!-- <bce-stream stream="stream"/> -->
-  <!-- </md-grid-list> -->
-<!-- </div> -->
-
-
-
-<div class="md-padding" layout="row" flex>
-   <div layout="row" flex>
-      <div class="parent" layout="column" ng-repeat="stream in twitchCtrl.streams" flex="25">
-        <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
-      </div>
-   </div>
+<div layout="column">
+  <div ng-repeat="stream in twitchCtrl.streams" layout="row" layout-align="center">
+    <div flex-gt-sm="50" flex-sm="75" flex-xs>
+      <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
+    </div>
+  </div>
 </div>
