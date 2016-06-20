@@ -4,9 +4,9 @@
   <span class="game">{ game }</span>
   <br>
   <div>
-    <img class="icon viewers"> { viewers } |
-    <img class="icon views" style="margin-bottom: -2px"> { views } |
-    <img class="icon follows" style="margin-bottom: -4px"> { followers }
+    <img class="icon viewers"> { viewers }
+    <img class="icon views"> { views }
+    <img class="icon follows"> { followers }
   </div>
 
   <style scoped>
@@ -26,19 +26,24 @@
     }
 
     .joystick {
-      content:url("https://discordapp.com/assets/536c2c45ade326ef4197eb48c75cff6a.svg");
+      content:url("/twitch-cast/img/icons/joystick.svg");
     }
 
     .viewers {
-      content:url("https://discordapp.com/assets/5c2bef02d6ffc10c89f544c32c04ed46.svg")
+      content:url("/twitch-cast/img/icons/viewers.svg");
+      margin-bottom: -2px;
     }
 
     .views {
-      content:url("https://discordapp.com/assets/ccf4c733929efd9762ab02cd65175377.svg")
+      content:url("/twitch-cast/img/icons/views.svg");
+      margin-bottom: -3px;
+      margin-left: 10px;
     }
 
     .follows {
-      content:url("https://discordapp.com/assets/dcbf6274f0ce0f393d064a72db2c8913.svg")
+      content:url("/twitch-cast/img/icons/follows.svg");
+      margin-bottom: -4px;
+      margin-left: 10px;
     }
   </style>
 
