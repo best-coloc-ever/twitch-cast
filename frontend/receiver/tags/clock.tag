@@ -1,9 +1,11 @@
 <clock>
 
-  <div>{ hours }:{ minutes }</div>
+  <div>{ hours }{ blinker ? ':' : ' ' }{ minutes }</div>
 
   <script>
     var self = this;
+
+    this.blinker = true;
 
     function zpad(what, n) {
       what = what + ''; // Make it a string
@@ -19,6 +21,7 @@
 
       self.hours = zpad(now.getHours(), 2);
       self.minutes = zpad(now.getMinutes(), 2);
+      self.blinker = !self.blinker;
 
       self.update();
     }

@@ -7,8 +7,16 @@
         stream: '=',
         discard: '&onDiscard'
       },
-      controller: function(TwitchCastStreamsService, ChromecastService, TwitchCastWebsocketService, TwitchAPIService) {
+      controller: function(
+        TwitchCastStreamsService,
+        ChromecastService,
+        TwitchCastWebsocketService,
+        TwitchAPIService,
+        $interval
+      ) {
         var vm = this;
+
+        var REFRESH_INFO_INTERVAL = 30;
 
         // Initialize state
         vm.present = (vm.stream.id != null);
@@ -20,18 +28,25 @@
         vm.follows = '?';
 
         function fetchInfos() {
-          TwitchAPIService.channel(vm.stream.channel, function(response) {
-            vm.thumbnail = response.data.logo;
-            vm.views = response.data.views.toLocaleString();
-            vm.follows = response.data.followers.toLocaleString();
-            vm.game = response.data.game;
+          TwitchAPIService.channel(vm.stream.channel, function(channel) {
+            vm.thumbnail = channel.logo;
+            vm.views = channel.views.toLocaleString();
+            vm.follows = channel.followers.toLocaleString();
+            vm.game = channel.game;
           })
 
-          TwitchAPIService.stream(vm.stream.channel, function(response) {
-            vm.viewers = response.data.stream.viewers.toLocaleString();
+          TwitchAPIService.stream(vm.stream.channel, function(stream) {
+            if (stream) {
+              vm.viewers = stream.viewers.toLocaleString();
+              vm.preview = stream.preview.large;
+              vm.live = true;
+            }
+            else
+              vm.live = false;
           });
         }
 
+        $interval(fetchInfos, REFRESH_INFO_INTERVAL * 1000);
         fetchInfos();
 
         if (!vm.present) {
