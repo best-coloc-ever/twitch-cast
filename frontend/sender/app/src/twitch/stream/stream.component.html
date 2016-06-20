@@ -1,14 +1,24 @@
 <md-card>
-  <div layout="row" layout-align="end center">
-    <md-button ng-click="bceStream.unmonitor()" class="md-icon-button">
-      <md-tooltip>Stop monitoring</md-tooltip>
-      <md-icon md-svg-icon="img/icons/quit.svg"></md-icon>
-    </md-button>
+  <div layout="row">
+    <div layout="row" layout-align="start center" layout-margin ng-show="bceStream.live">
+      <md-icon md-svg-icon="img/icons/live.svg" class="md-primary">
+        <md-tooltip>live</md-tooltip>
+      </md-icon>
+    </div>
+    <div layout="row" layout-align="end center" flex>
+      <md-button ng-click="bceStream.unmonitor()" class="md-icon-button">
+        <md-tooltip>Stop monitoring</md-tooltip>
+        <md-icon md-svg-icon="img/icons/quit.svg"></md-icon>
+      </md-button>
+    </div>
   </div>
 
   <md-card-title>
     <md-card-title-text>
-      <span class="md-headline">{{bceStream.stream.channel | uppercase}}</span>
+      <span class="md-headline">
+        {{bceStream.stream.channel | uppercase}}
+        <span class="md-raised md-primary" ng-show="bceStream.live">live</span>
+      </span>
       <span class="md-subhead">{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</span>
     </md-card-title-text>
 
@@ -34,7 +44,7 @@
 
   <div layout="row">
     <div layout="row" layout-align="start center" hide-xs>
-      <div style="margin-left:20px;" ng-show="bceStream.castable">
+      <div style="margin-left:20px;" ng-show="bceStream.live">
       <md-icon md-svg-icon="img/icons/viewers.svg"></md-icon> {{bceStream.viewers}}
       </div>
       <div style="margin-left:20px;">
@@ -63,10 +73,14 @@
         <md-icon md-svg-icon="img/icons/poweroff.svg"></md-icon>
       </md-button>
 
-      <md-button ng-show="bceStream.watchable" ng-click="bceStream.watch()" class="md-primary md-icon-button">
-        <md-tooltip>Watch</md-tooltip>
+      <md-button ng-show="bceStream.watchable" ng-click="bceStream.watch()" class="md-icon-button" ng-class="{'md-primary': bceStream.live, 'md-warn': !bceStream.live}">
+        <md-tooltip>
+          Watch
+          <span ng-show="!bceStream.live">⚠ Stream appears to be offline</span>
+        </md-tooltip>
         <md-icon md-svg-icon="img/icons/download.svg">
       </md-button>
     </md-card-actions>
   </div>
+
 </md-card>
