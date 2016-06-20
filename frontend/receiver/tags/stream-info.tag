@@ -44,6 +44,7 @@
 
   <script>
     var REFRESH_INFO_INTERVAL = 30; // seconds
+    var CLIENT_ID = '5sdczsrlv5d4mnx9j8ejrargx34oev4';
 
     var self = this;
 
@@ -56,6 +57,9 @@
       if (self.channel)
         $.ajax({
           url: 'https://api.twitch.tv/kraken/streams/' + self.channel,
+          headers: {
+            'Client-ID': CLIENT_ID
+          },
           success: function(data) {
             var stream = data.stream;
             var channel = stream.channel;
