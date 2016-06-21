@@ -31,18 +31,15 @@
 
     .viewers {
       content:url("/twitch-cast/img/icons/viewers.svg");
-      margin-bottom: -2px;
     }
 
     .views {
       content:url("/twitch-cast/img/icons/views.svg");
-      margin-bottom: -3px;
       margin-left: 10px;
     }
 
     .follows {
       content:url("/twitch-cast/img/icons/follows.svg");
-      margin-bottom: -4px;
       margin-left: 10px;
     }
   </style>
