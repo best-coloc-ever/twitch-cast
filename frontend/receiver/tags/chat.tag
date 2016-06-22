@@ -1,9 +1,9 @@
 <chat>
 
   <!-- Layout -->
-  <ul>
-    <chat-line each={ message in messages } message={ message } store={ parent.store }>
-    </chat-line>
+  <ul id="chat">
+    <!-- <chat-line each={ message in messages } message={ message } store={ parent.store }>
+    </chat-line> -->
   </ul>
 
   <!-- Style -->
@@ -29,7 +29,7 @@
   <!-- Logic -->
   <script>
     var CHAT_MESSAGE_MAX_COUNT = 50;
-    var CHAT_DISPLAY_INTERVAL = 0.5; // seconds
+    var CHAT_DISPLAY_INTERVAL = 0.3; // seconds
     var CHAT_CLEAR_INTERVAL = 30; // seconds
     var CHAT_DELAY = 42; // seconds
 
@@ -41,7 +41,7 @@
     this.messages = [];
 
     notify(text) {
-      self.messages.push({ sender: 'SYSTEM', content: text });
+      self.addMessage({ sender: 'SYSTEM', content: text });
       self.update();
     }
 
@@ -98,7 +98,7 @@
         if (now - message.stamp < CHAT_DELAY * 1000)
           break ;
 
-        self.messages.push(message);
+        self.addMessage(message);
       }
 
       messageQueue = messageQueue.slice(i, messageQueue.length);
@@ -109,16 +109,18 @@
       setTimeout(processMessageQueue, CHAT_DISPLAY_INTERVAL * 1000);
     }
 
-    function limitLines() {
-      var toSlice = Math.max(0, self.messages.length - CHAT_MESSAGE_MAX_COUNT);
-      self.messages = self.messages.slice(toSlice);
+    // function limitLines() {
+    //   var toSlice = Math.max(0, self.messages.length - CHAT_MESSAGE_MAX_COUNT);
+    //   self.messages = self.messages.slice(toSlice);
 
-      self.update();
+    //   self.update();
 
-      setTimeout(limitLines, CHAT_CLEAR_INTERVAL * 1000);
-    }
+    //   setTimeout(limitLines, CHAT_CLEAR_INTERVAL * 1000);
+    // }
 
     setChannel(channel) {
+      self.ul = $(this.root).find('#chat');
+
       messageQueue = [];
       this.messages = [];
       this.update();
@@ -127,8 +129,24 @@
       connectToChat(channel);
     }
 
-    processMessageQueue();
-    limitLines();
+    addMessage(message) {
+      self.messages.push(message);
+
+      // JQuery
+      var chatLine = buildChatLine(message, self.store);
+      self.ul.append(chatLine);
+
+      var toSlice = Math.max(0, self.messages.length - CHAT_MESSAGE_MAX_COUNT);
+      self.messages = self.messages.slice(toSlice);
+
+      self.ul.find('li:lt(' + toSlice + ')').remove();
+    }
+
+    this.on('mount', function() {
+      self.ul = $(this.root).find('#chat');
+
+      processMessageQueue();
+    })
 
   </script>
 

@@ -58,7 +58,7 @@
     this.store = opts.store;
     this.sender = opts.message.sender;
     this.mTags = (opts.message.tags || {});
-    this.color = (this.tags.color || defaultColor(this.sender));
+    this.color = (this.mTags.color || defaultColor(this.sender));
     this.content = opts.message.content.split(' ').map(messagePart)
     this.badges = [];
 

@@ -17,7 +17,6 @@
     <md-card-title-text>
       <span class="md-headline">
         {{bceStream.stream.channel | uppercase}}
-        <span class="md-raised md-primary" ng-show="bceStream.live">live</span>
       </span>
       <span class="md-subhead">{{bceStream.stream.quality}} @ {{bceStream.stream.id}}</span>
     </md-card-title-text>
@@ -36,7 +35,7 @@
 
   <!-- <md-button ng-show="bceStream.castable" ng-click="bceStream.positionChat()">Postion</md-button> -->
 
-  <div layout="row" ng-show="bceStream.castable">
+  <div layout="row" ng-show="bceStream.live">
     <div layout="row" layout-align="start center" style="margin-left:20px;">
       <md-icon md-svg-icon="img/icons/joystick.svg" style="margin-right:10px;"></md-icon> {{bceStream.game}}
     </div>
