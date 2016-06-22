@@ -14,7 +14,7 @@
     "angular-messages": "1.5.0-beta.2",
     "angular-websocket": "1.0.14",
     "font-awesome": "~4.4.0",
-    "angular-material": "~1.0.1"
+    "angular-material": "~1.1.0-rc.5"
   },
   "overrides": {
     "font-awesome": {
