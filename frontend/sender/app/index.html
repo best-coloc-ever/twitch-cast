@@ -45,6 +45,7 @@
 
   <script src="./src/twitch/twitch.module.js"></script>
   <script src="./src/twitch/twitch.controller.js"></script>
+  <script src="./src/twitch/twitch.query.controller.js"></script>
   <script src="./src/twitch/twitch.streams.service.js"></script>
 
   <script src="./src/twitch/stream/stream.component.js"></script>
@@ -58,15 +59,8 @@
         <h1>Twitch Caster</h1>
       </div>
     </md-toolbar>
-    <div layout-padding layout="column" role="main" class="main" >
-      <div layout-padding flex="25" id="chromecast">
-        <div layout="row" layout-align="center center">
-          <md-button class="md-raised md-primary" id="cast-button" ng-disabled="!twitchCtrl.apiLoaded" ng-click="twitchCtrl.cast()">
-            <i class="fa fa-twitch fa-5x "></i>  <span class="md-display-3">&nbsp; Start Casting</span>
-          </md-button>
-        </div>
-      </div>
-      <div layout-padding flex="75" id="streams">
+    <div layout-padding layout-fill layout="column" role="main" class="main">
+      <div layout-padding id="streams">
         <ng-include src="'src/twitch/view/streams.html'"  onload=""  autoscroll=""></ng-include>
       </div>
     </div>
