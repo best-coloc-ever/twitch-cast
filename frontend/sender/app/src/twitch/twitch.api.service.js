@@ -28,6 +28,23 @@
           ).then(function(response) {
             callback(response.data.stream);
           });
+        },
+        streams: function(query, callback) {
+          var params = {
+            params: {
+              query: query,
+              limit: 50
+            }
+          };
+          angular.merge(params, config);
+          console.log(params);
+
+          $http.get(
+            BASE_URL + 'search/streams',
+            params
+          ).then(function(response) {
+            callback(response.data.streams);
+          })
         }
       }
     })

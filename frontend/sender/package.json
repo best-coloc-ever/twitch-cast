@@ -25,6 +25,8 @@
     "prestart": "npm update"
   },
   "dependencies": {
-    "gulp-flatten": "^0.2.0"
+    "gulp-angular-templatecache": "^1.9.1",
+    "gulp-flatten": "^0.2.0",
+    "gulp-sass": "^2.3.2"
   }
 }

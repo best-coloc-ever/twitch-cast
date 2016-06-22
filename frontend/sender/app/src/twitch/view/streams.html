@@ -1,31 +1,48 @@
 <h1>Streams</h1>
+<md-divider></md-divider>
 
-<form name="twitchCtrl.newStreamForm" ng-submit="twitchCtrl.monitor()">
-  <div layout layout-xs="column">
-    <md-input-container flex>
-      <label>Stream name</label>
-      <input name="streamName" required ng-model="twitchCtrl.newStream.channel">
-      <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
-        <div ng-message="required" class="my-message">You must supply the stream name.</div>
+<div ng-controller="TwitchQueryController as ctrl" layout="column" ng-cloak>
+  <md-content class="md-padding">
+    <form name="twitchCtrl.newStreamForm" ng-submit="twitchCtrl.monitor()">
+      <div layout-gt-xs="row" layout-align="center">
+          <md-autocomplete required
+            md-input-name="streamName"
+            md-search-text="twitchCtrl.newStream.channel"
+            md-items="item in ctrl.querySearch(twitchCtrl.newStream.channel)"
+            md-item-text="item.channel.name"
+            md-min-length="2"
+            md-floating-label="Stream name">
+            <md-item-template>
+              <div layout="row" layout-align="space-between center">
+                <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.channel.name}}</span>
+                <img src="{{item.channel.logo}}" width="30" height="30">
+              </div>
+            </md-item-template>
+            <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
+              <div ng-message="required">You must supply the stream name.</div>
+            </div>
+          </md-autocomplete>
+
+          <md-input-container>
+            <label>Quality</label>
+            <md-select ng-model="twitchCtrl.newStream.quality" required="true">
+              <md-option ng-repeat="quality in twitchCtrl.qualities" ng-value="quality.quality">
+                {{quality.name}}
+              </md-option>
+            </md-select>
+          </md-input-container>
+
+          <div layout="column" layout-align="center">
+            <md-button class="md-raised md-primary" type="submit">Monitor</md-button>
+          </div>
       </div>
-    </md-input-container>
-    <md-input-container flex>
-      <label>Quality</label>
-      <md-select ng-model="twitchCtrl.newStream.quality" required="true">
-        <md-option ng-repeat="quality in twitchCtrl.qualities" ng-value="quality.quality">
-          {{quality.name}}
-        </md-option>
-      </md-select>
-    </md-input-container>
-    <div layout="row" layout-align="center center">
-      <md-button class="md-raised md-primary" type="submit">Monitor</md-button>
-    </div>
-  </div>
-</form>
+    </form>
+  </md-content>
+</div>
 
 <div layout="column">
   <div ng-repeat="stream in twitchCtrl.streams" layout="row" layout-align="center">
-    <div flex-gt-sm="50" flex-sm="75" flex-xs>
+    <div flex>
       <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
     </div>
   </div>
