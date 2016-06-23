@@ -15,7 +15,7 @@
             <md-item-template>
               <div layout="row" layout-align="space-between center">
                 <span md-highlight-text="ctrl.searchText" md-highlight-flags="^i">{{item.channel.name}}</span>
-                <img src="{{item.channel.logo}}" width="30" height="30">
+                <img ng-src="{{item.channel.logo}}" width="30" height="30">
               </div>
             </md-item-template>
             <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
