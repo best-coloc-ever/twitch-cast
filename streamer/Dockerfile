@@ -1,7 +1,7 @@
 FROM python:3
 
 # Install vlc
-RUN apt-get update && apt-get install -y vlc
+RUN apt-get update && apt-get install --fix-missing -y vlc
 # Hackish but simplest way I found to allow VLC to run as root
 RUN sed -i 's/geteuid/getppid/' /usr/bin/vlc
 
