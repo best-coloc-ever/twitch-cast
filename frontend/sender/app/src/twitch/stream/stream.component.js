@@ -7,6 +7,7 @@
         stream: '=',
         onDiscard: '&',
         onUpdate: '&',
+        onPropertyUpdate: '&'
       },
       controller: function(
         TwitchCastStreamsService,
@@ -25,6 +26,12 @@
         vm.castable = (vm.stream.proxy && vm.stream.proxy.ready);
         vm.readying = (vm.stream.proxy && !vm.stream.proxy.ready);
 
+        vm.onPropertyUpdate({
+          stream: vm.stream,
+          property: 'castable',
+          value: vm.castable
+        });
+
         function fetchInfos() {
           TwitchAPIService.channel(vm.stream.channel, function(channel) {
             vm.thumbnail = channel.logo;
@@ -38,9 +45,21 @@
               vm.viewers = stream.viewers;
               vm.preview = stream.preview.large;
               vm.live = true;
+
+              vm.onPropertyUpdate({
+                stream: vm.stream,
+                property: 'viewers',
+                value: vm.viewers
+              });
             }
             else
               vm.live = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'live',
+              value: vm.live
+            });
           });
         }
 
@@ -91,6 +110,12 @@
             vm.watchable = true;
             vm.readying = false;
             vm.castable = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: false
+            });
           }, function(error) {
             console.error(error);
           });
@@ -123,6 +148,12 @@
             vm.watchable = true;
             vm.readying = false;
             vm.castable = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: false
+            });
           }
         });
 
@@ -132,6 +163,12 @@
             vm.watchable = false;
             vm.readying = false;
             vm.castable = true;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: true
+            });
           }
         });
 

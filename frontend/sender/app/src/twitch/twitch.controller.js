@@ -22,6 +22,7 @@
     }];
 
     vm.streams = {};
+    vm.streamProperties = {};
 
     vm.newStream = {
       quality: vm.qualities[0].quality
@@ -32,6 +33,9 @@
       vm.apiLoaded = true;
     });
 
+    function streamHash(stream) {
+      return [stream.channel, stream.quality];
+    }
 
     TwitchCastStreamsService.query(null,
       function(streams) {
@@ -54,12 +58,11 @@
 
     vm.discard = function(stream) {
       // remove from display
-      var key = [stream.channel, stream.quality];
-      delete vm.streams[key];
+      delete vm.streams[streamHash(stream)];
     };
 
     vm.addStream = function(stream) {
-      var key = [stream.channel, stream.quality];
+      var key = streamHash(stream);
       if (!(key in vm.streams))
         vm.streams[key] = stream;
     }
@@ -67,6 +70,16 @@
     vm.updateStream = function(newStream) {
       vm.streams[streamHash(newStream)] = newStream;
     }
+
+    vm.streamPropertyUpdate = function(stream, property, value) {
+      var key = streamHash(stream);
+
+      if (!(key in vm.streamProperties))
+        vm.streamProperties[key] = {};
+
+      vm.streamProperties[key][property] = value;
+    }
+
     TwitchCastWebsocketService.on('monitored', function(streamData) {
       vm.addStream(new TwitchCastStreamsService(streamData));
     });

@@ -42,6 +42,7 @@
       <bce-stream stream="stream"
         on-discard="twitchCtrl.discard(stream)"
         on-update="twitchCtrl.updateStream(newStream)"
+        on-property-update="twitchCtrl.streamPropertyUpdate(stream, property, value)">
     </div>
   </div>
 </div>
