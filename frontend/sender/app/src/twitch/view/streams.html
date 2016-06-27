@@ -39,7 +39,9 @@
 <div layout="column">
   <div ng-repeat="stream in twitchCtrl.streams" layout="row" layout-align="center">
     <div flex>
-      <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
+      <bce-stream stream="stream"
+        on-discard="twitchCtrl.discard(stream)"
+        on-update="twitchCtrl.updateStream(newStream)"
     </div>
   </div>
 </div>

@@ -64,6 +64,9 @@
         vm.streams[key] = stream;
     }
 
+    vm.updateStream = function(newStream) {
+      vm.streams[streamHash(newStream)] = newStream;
+    }
     TwitchCastWebsocketService.on('monitored', function(streamData) {
       vm.addStream(new TwitchCastStreamsService(streamData));
     });

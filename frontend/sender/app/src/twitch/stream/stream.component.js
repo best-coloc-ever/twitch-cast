@@ -5,7 +5,8 @@
     .component('bceStream', {
       bindings: {
         stream: '=',
-        discard: '&onDiscard'
+        onDiscard: '&',
+        onUpdate: '&',
       },
       controller: function(
         TwitchCastStreamsService,
@@ -54,8 +55,7 @@
             channel: vm.stream.channel,
             quality: vm.stream.quality
           }, function(stream) {
-            console.log(stream);
-            vm.updateStream(stream);
+            vm.onUpdate({ newStream: stream });
             vm.present = true;
             vm.watchable = true;
           }, function(error) {
@@ -65,7 +65,7 @@
 
         vm.unmonitor = function() {
           // remove from display
-          vm.discard(vm.stream);
+          vm.onDiscard(vm.stream);
           // do stuff on the server
           if (vm.present)
             vm.stream.$delete();
@@ -77,7 +77,7 @@
 
           vm.stream.$watch(
             function(stream) {
-              vm.updateStream(stream);
+              vm.onUpdate({ newStream: stream });
               fetchInfos();
               // Castablity will be set thanks to the websocket
             },
@@ -90,7 +90,7 @@
 
         vm.unwatch = function() {
           vm.stream.$unwatch(function(stream) {
-            vm.updateStream(stream);
+            vm.onUpdate({ newStream: stream });
             vm.watchable = true;
             vm.readying = false;
             vm.castable = false;
@@ -110,13 +110,6 @@
 
         vm.positionChat = function() {
           ChromecastService.positionChat();
-        }
-
-        // Only way I found to not mess up the stream collection of the
-        // TwitchController
-        vm.updateStream = function(newStream) {
-          for (var key in newStream)
-            vm.stream[key] = newStream[key];
         }
 
         TwitchCastWebsocketService.on('watched', function(streamData) {
