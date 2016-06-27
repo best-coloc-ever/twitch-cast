@@ -18,11 +18,7 @@
                 <img ng-src="{{item.channel.logo}}" width="30" height="30">
               </div>
             </md-item-template>
-            <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
-              <div ng-message="required">You must supply the stream name.</div>
-            </div>
           </md-autocomplete>
-
           <md-input-container>
             <label>Quality</label>
             <md-select ng-model="twitchCtrl.newStream.quality" required="true">
@@ -41,9 +37,12 @@
 </div>
 
 <div layout="column">
-  <div ng-repeat="stream in twitchCtrl.streams" layout="row" layout-align="center">
+  <div ng-repeat="stream in twitchCtrl.sortedStreams()" layout="row" layout-align="center">
     <div flex>
-      <bce-stream stream="stream" on-discard="twitchCtrl.discard(stream)"/>
+      <bce-stream stream="stream"
+        on-discard="twitchCtrl.discard(stream)"
+        on-update="twitchCtrl.updateStream(newStream)"
+        on-property-update="twitchCtrl.streamPropertyUpdate(stream, property, value)">
     </div>
   </div>
 </div>

@@ -22,6 +22,7 @@
     }];
 
     vm.streams = {};
+    vm.streamProperties = {};
 
     vm.newStream = {
       quality: vm.qualities[0].quality
@@ -32,6 +33,9 @@
       vm.apiLoaded = true;
     });
 
+    function streamHash(stream) {
+      return [stream.channel, stream.quality];
+    }
 
     TwitchCastStreamsService.query(null,
       function(streams) {
@@ -54,14 +58,53 @@
 
     vm.discard = function(stream) {
       // remove from display
-      var key = [stream.channel, stream.quality];
-      delete vm.streams[key];
+      delete vm.streams[streamHash(stream)];
     };
 
     vm.addStream = function(stream) {
-      var key = [stream.channel, stream.quality];
+      var key = streamHash(stream);
       if (!(key in vm.streams))
         vm.streams[key] = stream;
+    }
+
+    vm.updateStream = function(newStream) {
+      vm.streams[streamHash(newStream)] = newStream;
+    }
+
+    vm.streamPropertyUpdate = function(stream, property, value) {
+      var key = streamHash(stream);
+
+      if (!(key in vm.streamProperties))
+        vm.streamProperties[key] = {};
+
+      vm.streamProperties[key][property] = value;
+    }
+
+    function streamWeight(stream) {
+      var properties = vm.streamProperties[streamHash(stream)];
+
+      if (properties)
+        return (
+          (properties.live || 0) +
+          (properties.castable || 0) +
+          Math.min((properties.viewers || 0) / 1000000, 1)
+        );
+
+      return 0;
+    }
+
+    vm.sortedStreams = function() {
+      var streams = Object.keys(vm.streams).map(function(k) {
+        return vm.streams[k];
+      });
+
+      return streams.sort(function(s1, s2) {
+        var s1Weight = streamWeight(s1),
+            s2Weight = streamWeight(s2);
+
+        return s2Weight - s1Weight;
+        // return isStreamLive(s1) - isStreamLive(s2);
+      })
     }
 
     TwitchCastWebsocketService.on('monitored', function(streamData) {

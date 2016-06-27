@@ -37,7 +37,6 @@
             }
           };
           angular.merge(params, config);
-          console.log(params);
 
           $http.get(
             BASE_URL + 'search/streams',

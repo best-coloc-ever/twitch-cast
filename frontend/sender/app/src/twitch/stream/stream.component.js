@@ -5,7 +5,9 @@
     .component('bceStream', {
       bindings: {
         stream: '=',
-        discard: '&onDiscard'
+        onDiscard: '&',
+        onUpdate: '&',
+        onPropertyUpdate: '&'
       },
       controller: function(
         TwitchCastStreamsService,
@@ -23,26 +25,41 @@
         vm.watchable = (vm.present && !vm.stream.proxy);
         vm.castable = (vm.stream.proxy && vm.stream.proxy.ready);
         vm.readying = (vm.stream.proxy && !vm.stream.proxy.ready);
-        vm.viewers = '?';
-        vm.views = '?';
-        vm.follows = '?';
+
+        vm.onPropertyUpdate({
+          stream: vm.stream,
+          property: 'castable',
+          value: vm.castable
+        });
 
         function fetchInfos() {
           TwitchAPIService.channel(vm.stream.channel, function(channel) {
             vm.thumbnail = channel.logo;
-            vm.views = channel.views.toLocaleString();
-            vm.follows = channel.followers.toLocaleString();
+            vm.views = channel.views;
+            vm.follows = channel.followers;
             vm.game = channel.game;
           })
 
           TwitchAPIService.stream(vm.stream.channel, function(stream) {
             if (stream) {
-              vm.viewers = stream.viewers.toLocaleString();
+              vm.viewers = stream.viewers;
               vm.preview = stream.preview.large;
               vm.live = true;
+
+              vm.onPropertyUpdate({
+                stream: vm.stream,
+                property: 'viewers',
+                value: vm.viewers
+              });
             }
             else
               vm.live = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'live',
+              value: vm.live
+            });
           });
         }
 
@@ -54,8 +71,7 @@
             channel: vm.stream.channel,
             quality: vm.stream.quality
           }, function(stream) {
-            console.log(stream);
-            vm.updateStream(stream);
+            vm.onUpdate({ newStream: stream });
             vm.present = true;
             vm.watchable = true;
           }, function(error) {
@@ -65,7 +81,7 @@
 
         vm.unmonitor = function() {
           // remove from display
-          vm.discard(vm.stream);
+          vm.onDiscard(vm.stream);
           // do stuff on the server
           if (vm.present)
             vm.stream.$delete();
@@ -77,7 +93,7 @@
 
           vm.stream.$watch(
             function(stream) {
-              vm.updateStream(stream);
+              vm.onUpdate({ newStream: stream });
               fetchInfos();
               // Castablity will be set thanks to the websocket
             },
@@ -90,10 +106,16 @@
 
         vm.unwatch = function() {
           vm.stream.$unwatch(function(stream) {
-            vm.updateStream(stream);
+            vm.onUpdate({ newStream: stream });
             vm.watchable = true;
             vm.readying = false;
             vm.castable = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: false
+            });
           }, function(error) {
             console.error(error);
           });
@@ -112,13 +134,6 @@
           ChromecastService.positionChat();
         }
 
-        // Only way I found to not mess up the stream collection of the
-        // TwitchController
-        vm.updateStream = function(newStream) {
-          for (var key in newStream)
-            vm.stream[key] = newStream[key];
-        }
-
         TwitchCastWebsocketService.on('watched', function(streamData) {
           if (streamData.id == vm.stream.id) {
             vm.stream.proxy = streamData.proxy;
@@ -133,6 +148,12 @@
             vm.watchable = true;
             vm.readying = false;
             vm.castable = false;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: false
+            });
           }
         });
 
@@ -142,6 +163,12 @@
             vm.watchable = false;
             vm.readying = false;
             vm.castable = true;
+
+            vm.onPropertyUpdate({
+              stream: vm.stream,
+              property: 'castable',
+              value: true
+            });
           }
         });
 

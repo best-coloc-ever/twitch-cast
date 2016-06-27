@@ -5,14 +5,12 @@
     .module('twitch')
     .controller('TwitchQueryController', TwitchQueryController);
 
-  function TwitchQueryController(TwitchAPIService, $log, $q) {
+  function TwitchQueryController(TwitchAPIService, $q) {
     var self = this;
 
     self.querySearch = querySearch;
 
     function querySearch(query) {
-      $log.info('query search');
-
       var deferred = $q.defer();
       TwitchAPIService.streams(query, function(streams) {
         var results = streams.sort(function(s1, s2) {
