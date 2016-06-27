@@ -24,21 +24,18 @@
         vm.watchable = (vm.present && !vm.stream.proxy);
         vm.castable = (vm.stream.proxy && vm.stream.proxy.ready);
         vm.readying = (vm.stream.proxy && !vm.stream.proxy.ready);
-        vm.viewers = '?';
-        vm.views = '?';
-        vm.follows = '?';
 
         function fetchInfos() {
           TwitchAPIService.channel(vm.stream.channel, function(channel) {
             vm.thumbnail = channel.logo;
-            vm.views = channel.views.toLocaleString();
-            vm.follows = channel.followers.toLocaleString();
+            vm.views = channel.views;
+            vm.follows = channel.followers;
             vm.game = channel.game;
           })
 
           TwitchAPIService.stream(vm.stream.channel, function(stream) {
             if (stream) {
-              vm.viewers = stream.viewers.toLocaleString();
+              vm.viewers = stream.viewers;
               vm.preview = stream.preview.large;
               vm.live = true;
             }
