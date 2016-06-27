@@ -20,6 +20,7 @@ var ChatAssetStore = function(channel) {
   // Global emotes
   $.ajax({
     url: 'https://twitchemotes.com/api_cache/v2/global.json',
+    cache: false,
     success: function(data) {
       var template = data.template.small;
 
@@ -32,6 +33,7 @@ var ChatAssetStore = function(channel) {
   // Subscriber emotes
   $.ajax({
     url: 'https://twitchemotes.com/api_cache/v2/subscriber.json',
+    cache: false,
     success: function(data) {
       var template = data.template.small;
 
