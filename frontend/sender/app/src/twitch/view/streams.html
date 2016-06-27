@@ -18,11 +18,7 @@
                 <img ng-src="{{item.channel.logo}}" width="30" height="30">
               </div>
             </md-item-template>
-            <div ng-messages="twitchCtrl.newStreamForm.streamName.$error" role="alert" multiple>
-              <div ng-message="required">You must supply the stream name.</div>
-            </div>
           </md-autocomplete>
-
           <md-input-container>
             <label>Quality</label>
             <md-select ng-model="twitchCtrl.newStream.quality" required="true">
