@@ -64,6 +64,11 @@
         <md-icon md-svg-icon="img/icons/chromecast.svg"></md-icon>
       </md-button>
 
+      <md-button ng-show="bceStream.castable" class="md-primary md-icon-button" ng-href="{{bceStream.stream.proxy.indexUrl}}">
+        <md-tooltip>Play stream</md-tooltip>
+        <md-icon md-svg-icon="img/icons/play.svg"></md-icon>
+      </md-button>
+
       <md-button ng-show="bceStream.castable" ng-click="bceStream.toggleChat()" class="md-primary md-icon-button">
         <md-tooltip>Toggle chat</md-tooltip>
         <md-icon md-svg-icon="img/icons/chatroom.svg"></md-icon>
