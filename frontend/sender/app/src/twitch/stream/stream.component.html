@@ -46,13 +46,13 @@
   <div layout="row">
     <div layout="row" layout-align="start center" hide-xs>
       <div style="margin-left:20px;" ng-show="bceStream.live">
-      <md-icon md-svg-icon="img/icons/viewers.svg"></md-icon> {{bceStream.viewers.toLocaleString()}}
+      <md-icon md-svg-icon="img/icons/viewers.svg"></md-icon> {{bceStream.viewers | number}}
       </div>
       <div style="margin-left:20px;">
-      <md-icon md-svg-icon="img/icons/views.svg"></md-icon> {{bceStream.views.toLocaleString()}}
+      <md-icon md-svg-icon="img/icons/views.svg"></md-icon> {{bceStream.views | number}}
       </div>
       <div style="margin-left:20px;">
-      <md-icon md-svg-icon="img/icons/follows.svg"></md-icon> {{bceStream.follows.toLocaleString()}}
+      <md-icon md-svg-icon="img/icons/follows.svg"></md-icon> {{bceStream.follows | number}}
       </div>
     </div>
 

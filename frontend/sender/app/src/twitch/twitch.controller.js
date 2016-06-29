@@ -80,33 +80,6 @@
       vm.streamProperties[key][property] = value;
     }
 
-    function streamWeight(stream) {
-      var properties = vm.streamProperties[streamHash(stream)];
-
-      if (properties)
-        return (
-          (properties.live || 0) +
-          (properties.castable || 0) +
-          Math.min((properties.viewers || 0) / 1000000, 1)
-        );
-
-      return 0;
-    }
-
-    vm.sortedStreams = function() {
-      var streams = Object.keys(vm.streams).map(function(k) {
-        return vm.streams[k];
-      });
-
-      return streams.sort(function(s1, s2) {
-        var s1Weight = streamWeight(s1),
-            s2Weight = streamWeight(s2);
-
-        return s2Weight - s1Weight;
-        // return isStreamLive(s1) - isStreamLive(s2);
-      })
-    }
-
     TwitchCastWebsocketService.on('monitored', function(streamData) {
       vm.addStream(new TwitchCastStreamsService(streamData));
     });
@@ -114,6 +87,37 @@
     TwitchCastWebsocketService.on('unmonitored', vm.discard);
   }
 
+  function sortStreams() {
+    return function(streamsMap, streamProperties) {
+      function streamWeight(stream) {
+        var key = [stream.channel, stream.quality];
+        var properties = streamProperties[key];
+
+        if (properties)
+          return (
+            (properties.live || 0) +
+            (properties.castable || 0) +
+            Math.min((properties.viewers || 0) / 1000000, 1)
+          );
+
+        return 0;
+      }
+
+      // Nice hashmaps, Javascript
+      var streams = Object.keys(streamsMap).map(function(k) {
+        return streamsMap[k];
+      });
+
+      return streams.sort(function(s1, s2) {
+        var s1Weight = streamWeight(s1),
+            s2Weight = streamWeight(s2);
+
+        return s2Weight - s1Weight;
+      })
+    }
+  }
+
   angular.module('twitch')
+    .filter('sortStreams', sortStreams)
     .controller('TwitchController', TwitchController);
 })();

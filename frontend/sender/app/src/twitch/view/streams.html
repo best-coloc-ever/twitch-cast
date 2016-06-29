@@ -37,7 +37,7 @@
 </div>
 
 <div layout="column">
-  <div ng-repeat="stream in twitchCtrl.sortedStreams()" layout="row" layout-align="center">
+  <div ng-repeat="stream in twitchCtrl.streams | sortStreams:twitchCtrl.streamProperties" layout="row" layout-align="center">
     <div flex>
       <bce-stream stream="stream"
         on-discard="twitchCtrl.discard(stream)"
