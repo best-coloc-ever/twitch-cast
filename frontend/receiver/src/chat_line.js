@@ -9,6 +9,8 @@ var BADGE_TYPES = [
   'mod', 'staff', 'turbo', 'subscriber'
 ]
 
+var CHEER_PATTERN = /^cheer(\d+)$/;
+
 // https://discuss.dev.twitch.tv/t/default-user-color-in-chat/385
 function defaultColor(name) {
   var n = name.charCodeAt(0) + name.charCodeAt(name.length - 1);
@@ -74,6 +76,12 @@ function buildChatLine(message, store) {
   var htmlParts = message.content.split(' ').map(function(word) {
     if (word in store.emotes)
       return '<img src="' + store.emotes[word] + '">';
+
+    var match = word.match(CHEER_PATTERN);
+    if (match)
+      return '<img src="' + store.cheerEmote(match[1]) + '"> ' +
+             '<span style="color: '+ store.cheerColor(match[1]) + ';">' +
+             match[1] + '</span>';
 
     return word;
   });

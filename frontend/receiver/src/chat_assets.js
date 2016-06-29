@@ -24,6 +24,29 @@ var ChatAssetStore = function(channel) {
   self.badges['bits10000'] = 'https://static-cdn.jtvnw.net/badges/v1/68af213b-a771-4124-b6e3-9bb6d98aa732/1'
   self.badges['bits100000'] = 'https://static-cdn.jtvnw.net/badges/v1/96f0540f-aa63-49e1-a8b3-259ece3bd098/1'
 
+  var CHEER_COLORS_BY_MILESTONE = [
+    [100000, 'gold'],
+    [10000,  'red'],
+    [5000,   'blue'],
+    [1000,   'green'],
+    [100,    'purple'],
+    [1,      'gray']
+  ];
+  this.cheerColor = function(cheerCount) {
+    for (var [milestone, color] of CHEER_COLORS_BY_MILESTONE)
+      if (cheerCount >= milestone)
+        return color;
+  }
+
+  var CHEER_THEME = 'dark';
+  var CHEER_TYPE = 'animated';
+  var CHEER_SIZE = '1';
+  this.cheerEmote = function(cheerCount) {
+    return 'https://static-cdn.jtvnw.net/bits/' +
+            CHEER_THEME + '/' + CHEER_TYPE + '/' +
+            self.cheerColor(cheerCount) + '/' + CHEER_SIZE;
+  }
+
   // Global emotes
   $.ajax({
     url: 'https://twitchemotes.com/api_cache/v2/global.json',
