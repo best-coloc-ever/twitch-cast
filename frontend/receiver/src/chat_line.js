@@ -68,7 +68,7 @@ function buildChatLine(message, store) {
 
   var nameSpan = $('<span>')
     .addClass('chat-line-sender')
-    .text(message.sender)
+    .text(mTags['display-name'] || message.sender)
     .css('color', color);
 
   var htmlParts = message.content.split(' ').map(function(word) {
