@@ -101,7 +101,7 @@
         self.addMessage(message);
       }
 
-      messageQueue = messageQueue.slice(i, messageQueue.length);
+      messageQueue = messageQueue.splice(0, i + 1);
 
       self.update();
       self.root.scrollTop = self.root.scrollHeight;
