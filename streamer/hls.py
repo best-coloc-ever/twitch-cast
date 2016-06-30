@@ -13,31 +13,19 @@ OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
 SERVER_PATH             = os.environ['SERVER_PATH']
 OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
 OUTPUT_TS_FILE_PATTERN  = os.environ['OUTPUT_TS_FILE_PATTERN']
+FFMPEG_DIST_DIR         = os.environ['FFMPEG_DIST_DIR']
 SEGMENT_LEN             = 7 # Seconds
 SEGMENT_COUNT           = 7
 
-SOUT_CONFIG_TEMPLATE = '\
-#std {{\
-    access = livehttp {{\
-        seglen = {seg_len},\
-        delsegs = true,\
-        numsegs = {seg_count},\
-        index = {index_path},\
-        index-url = {ts_url}\
-    }},\
-    mux = ts{{\
-        use-key-frames\
-    }},\
-    dst = {ts_path}\
-}}'
-
-VLC_COMMAND = lambda port, sout_config: [
-    'vlc',
-    '-I', 'dummy',
-    '--play-and-exit',
-    '--live-caching', '300',
-    'http://{}:{}'.format(STREAMER_HOSTNAME, port),
-    '--sout', sout_config
+FFMPEG_COMMAND = lambda port, path: [
+    '{}/bin/ffmpeg'.format(FFMPEG_DIST_DIR),
+    '-i',                   'http://localhost:{}'.format(port),
+    '-codec',               'copy',
+    '-segment_list_flags',  '+live',
+    '-hls_list_size',       str(SEGMENT_COUNT),
+    '-hls_time',            str(SEGMENT_LEN),
+    '-hls_flags',           'delete_segments',
+    path
 ]
 
 class Proxy:
@@ -62,24 +50,13 @@ class Proxy:
         self.cleanup_local_data()
         os.makedirs(self.local_root)
 
-        command = VLC_COMMAND(
+        command = FFMPEG_COMMAND(
             self.stream.port,
-            self.sout_config()
+            self.index_path,
         )
 
         self.process = start_process(command, on_exit)
         self.poll_until_ready(on_ready)
-
-    def sout_config(self):
-        raw = SOUT_CONFIG_TEMPLATE.format(
-            seg_len=SEGMENT_LEN,
-            seg_count=SEGMENT_COUNT,
-            index_path=self.index_path,
-            ts_url=urljoin(self.server_root, OUTPUT_TS_FILE_PATTERN),
-            ts_path=os.path.join(self.local_root, OUTPUT_TS_FILE_PATTERN)
-        )
-        # Removing whitespaces because of VLC's weird parsing rules
-        return ''.join(raw.split())
 
     def to_json(self):
         return {
