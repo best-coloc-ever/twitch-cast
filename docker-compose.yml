@@ -10,7 +10,7 @@ services:
   web:
     build: frontend/server
     ports:
-      - '80:80'
+      - '443:443'
     volumes:
       # Nginx configuration (ease reloading)
       - './frontend/server/nginx.conf:/etc/nginx/nginx.conf:ro'
