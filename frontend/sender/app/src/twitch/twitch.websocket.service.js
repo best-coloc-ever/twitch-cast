@@ -3,7 +3,7 @@
 
   angular.module('twitch')
     .factory('TwitchCastWebsocketService', function($websocket, $location, $interval) {
-      var dataStream = $websocket('ws://' + $location.host() + '/streamer/events');
+      var dataStream = $websocket('wss://' + $location.host() + '/streamer/events');
 
       var triggers = {};
 

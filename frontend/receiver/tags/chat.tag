@@ -68,7 +68,7 @@
 
       self.notify('Joining channel: ' + channel);
 
-      var url = 'ws://' + window.location.host + '/chat/' + channel;
+      var url = 'wss://' + window.location.host + '/chat/' + channel;
       ws = new WebSocket(url);
 
       ws.onopen = function(e) {
