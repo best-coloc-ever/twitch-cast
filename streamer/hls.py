@@ -8,11 +8,9 @@ from process import start_process
 from threading import Thread
 
 SERVER_HOSTNAME         = os.environ['SERVER_HOSTNAME']
-STREAMER_HOSTNAME       = os.environ['STREAMER_HOSTNAME']
 OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
 SERVER_PATH             = os.environ['SERVER_PATH']
 OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
-OUTPUT_TS_FILE_PATTERN  = os.environ['OUTPUT_TS_FILE_PATTERN']
 FFMPEG_DIST_DIR         = os.environ['FFMPEG_DIST_DIR']
 SEGMENT_LEN             = 7 # Seconds
 SEGMENT_COUNT           = 7
