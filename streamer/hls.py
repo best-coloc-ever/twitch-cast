@@ -37,7 +37,7 @@ class Proxy:
         subdir = '{}/{}/'.format(stream.channel, stream.quality)
         self.local_root = os.path.join(OUTPUT_DIRECTORY, subdir)
         self.server_root = urljoin(
-            'http://{}'.format(SERVER_HOSTNAME),
+            'https://{}'.format(SERVER_HOSTNAME),
             os.path.join(SERVER_PATH, subdir)
         )
 
