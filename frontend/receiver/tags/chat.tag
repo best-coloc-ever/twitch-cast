@@ -31,7 +31,7 @@
     var CHAT_MESSAGE_MAX_COUNT = 50;
     var CHAT_DISPLAY_INTERVAL = 0.3; // seconds
     var CHAT_CLEAR_INTERVAL = 30; // seconds
-    var CHAT_DELAY = 42; // seconds
+    var CHAT_DELAY = 12; // seconds
 
     var self = this;
     var messageQueue = [];
