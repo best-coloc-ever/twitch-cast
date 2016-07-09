@@ -1,7 +1,9 @@
 <stream>
 
   <!-- Layout -->
-  <video autoplay></video>
+  <div class={ center: videojsPlayer }>
+    <video autoplay></video>
+  </div>
 
   <clock if={ showStreamInfos }></clock>
   <stream-info if={ showStreamInfos }></stream-info>
@@ -13,6 +15,17 @@
       height: 100%;
       margin: auto auto;
       overflow: hidden !important;
+    }
+
+    .center {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .vjs_video_3-dimensions {
+      width: 100% !important;
+      height: 100% !important;
     }
 
     stream-info {
@@ -35,6 +48,7 @@
   <!-- Logic -->
   <script>
     this.showStreamInfos = true;
+    this.videojsPlayer = null;
 
     mediaElement() {
       return $(this.root).find('video')[0];
@@ -46,6 +60,24 @@
 
     setChannel(channel) {
       this.tags['stream-info'].setChannel(channel);
+    }
+
+    setDesktopSource(url) {
+      var source = document.createElement('source');
+      source.src = url;
+      source.type = 'application/vnd.apple.mpegurl';
+
+      var video = this.mediaElement();
+      video.appendChild(source);
+
+      var playerOptions = {
+        nativeControlsForTouch: true,
+      };
+      this.videojsPlayer = videojs(video, playerOptions, function() {
+        this.play();
+      });
+
+      this.update();
     }
   </script>
 

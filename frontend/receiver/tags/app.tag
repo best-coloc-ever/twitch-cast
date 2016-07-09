@@ -31,8 +31,9 @@
 
     this.chatVisible = true;
     this.chatPosition = true;
+    this.desktop = (navigator.userAgent.indexOf('CrKey') == -1);
 
-    this.on('mount', function() {
+    initChromecast() {
       var notice = this.tags.notice;
       var stream = this.tags.stream;
       var chat = this.tags.chat;
@@ -70,6 +71,28 @@
         else
           notice.show(e.text);
       })
+    }
+
+    initDesktop() {
+      var id = riot.route.query().id;
+
+      if (id) {
+        $.get(
+          '/streamer/streams/' + id,
+          function(data) {
+            self.tags.chat.setChannel(data.channel);
+            self.tags.stream.setChannel(data.channel);
+            self.tags.stream.setDesktopSource(data.proxy.indexUrl);
+          }
+        );
+      }
+    }
+
+    this.on('mount', function() {
+      if (this.desktop)
+        this.initDesktop();
+      else
+        this.initChromecast();
     });
 
   </script>
