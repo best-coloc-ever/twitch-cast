@@ -1,6 +1,7 @@
 <stream>
 
   <!-- Layout -->
+  <notice></notice>
   <div class={ center: videojsPlayer }>
     <video autoplay></video>
   </div>
@@ -10,6 +11,13 @@
 
   <!-- Style -->
   <style scoped>
+    notice {
+      position: absolute;
+      text-align: center;
+      color: white;
+      width: 100%;
+    }
+
     video {
       width: 100%;
       height: 100%;
@@ -78,6 +86,13 @@
       });
 
       this.update();
+    }
+
+    notice(e) {
+      if (e.hide)
+        this.tags.notice.hide();
+      else
+        this.tags.notice.show(e.text);
     }
   </script>
 
