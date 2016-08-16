@@ -81,19 +81,22 @@
     }
 
     setDesktopSource(url) {
-      var source = document.createElement('source');
-      source.src = url;
-      source.type = 'application/vnd.apple.mpegurl';
-
       var video = this.mediaElement();
-      video.appendChild(source);
 
       var playerOptions = {
         nativeControlsForTouch: true,
+        preload: true
       };
       this.videojsPlayer = videojs(video, playerOptions, function() {
         this.play();
       });
+
+      this.videojsPlayer.src({
+        src: url,
+        type: 'application/vnd.apple.mpegurl'
+      });
+
+      video.setAttribute("controls","controls");
 
       this.update();
     }
