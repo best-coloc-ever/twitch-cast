@@ -41,8 +41,8 @@ gulp.task('vendor-fonts', function() {
 });
 
 gulp.task('img', function() {
-  return gulp.src('app/assets/img/icons/*')
-    .pipe(gulp.dest('dist/img/icons/'))
+  return gulp.src('app/assets/img/**/*')
+    .pipe(gulp.dest('dist/img/'))
 })
 
 gulp.task('sass', function() {

@@ -2,6 +2,8 @@
 
   <!-- Layout -->
   <notice></notice>
+  <pause-indicator></pause-indicator>
+
   <div class={ center: videojsPlayer }>
     <video autoplay></video>
   </div>
@@ -16,6 +18,14 @@
       text-align: center;
       color: white;
       width: 100%;
+    }
+
+    pause-indicator {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
     }
 
     video {
@@ -93,7 +103,10 @@
         this.tags.notice.hide();
       else
         this.tags.notice.show(e.text);
+
+      this.tags['pause-indicator'].setVisible((e.text == 'Auto paused'));
     }
+
   </script>
 
 </stream>
