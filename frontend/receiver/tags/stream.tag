@@ -4,7 +4,7 @@
   <notice></notice>
   <pause-indicator></pause-indicator>
 
-  <div class={ center: videojsPlayer }>
+  <div class="center">
     <video autoplay></video>
   </div>
 
