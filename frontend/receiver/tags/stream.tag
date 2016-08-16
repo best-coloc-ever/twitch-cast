@@ -52,6 +52,7 @@
       right: 2%;
       text-align: right;
       color: white;
+      z-index: -1;
     }
 
     clock {
