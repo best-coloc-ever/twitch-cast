@@ -3,8 +3,6 @@
   <!-- Layout -->
   <div class="box">
 
-    <notice></notice>
-
     <stream class="flex"></stream>
 
     <chat if={ chatVisible }></chat>
@@ -34,14 +32,13 @@
     this.desktop = (navigator.userAgent.indexOf('CrKey') == -1);
 
     initChromecast() {
-      var notice = this.tags.notice;
       var stream = this.tags.stream;
       var chat = this.tags.chat;
 
       var receiver = new TwitchCastReceiver(stream.mediaElement());
 
       receiver.on('channel', function(e) {
-        chat.setChannel(e.channel)
+        chat.setChannel(e.channel);
         stream.setChannel(e.channel);
       });
 
@@ -63,14 +60,12 @@
           $(chat.root).insertAfter($(stream.root));
         else
           $(chat.root).insertBefore($(stream.root));
-      })
+      });
 
       receiver.on('notice', function(e) {
-        if (e.hide)
-          notice.hide();
-        else
-          notice.show(e.text);
-      })
+        stream.notice(e);
+      });
+
     }
 
     initDesktop() {

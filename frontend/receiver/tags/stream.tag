@@ -1,7 +1,10 @@
 <stream>
 
   <!-- Layout -->
-  <div class={ center: videojsPlayer }>
+  <notice></notice>
+  <pause-indicator></pause-indicator>
+
+  <div class="center">
     <video autoplay></video>
   </div>
 
@@ -10,6 +13,21 @@
 
   <!-- Style -->
   <style scoped>
+    notice {
+      position: absolute;
+      text-align: center;
+      color: white;
+      width: 100%;
+    }
+
+    pause-indicator {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
     video {
       width: 100%;
       height: 100%;
@@ -34,6 +52,7 @@
       right: 2%;
       text-align: right;
       color: white;
+      z-index: -1;
     }
 
     clock {
@@ -63,22 +82,35 @@
     }
 
     setDesktopSource(url) {
-      var source = document.createElement('source');
-      source.src = url;
-      source.type = 'application/vnd.apple.mpegurl';
-
       var video = this.mediaElement();
-      video.appendChild(source);
 
       var playerOptions = {
         nativeControlsForTouch: true,
+        preload: true
       };
       this.videojsPlayer = videojs(video, playerOptions, function() {
         this.play();
       });
 
+      this.videojsPlayer.src({
+        src: url,
+        type: 'application/vnd.apple.mpegurl'
+      });
+
+      video.setAttribute("controls","controls");
+
       this.update();
     }
+
+    notice(e) {
+      if (e.hide)
+        this.tags.notice.hide();
+      else
+        this.tags.notice.show(e.text);
+
+      this.tags['pause-indicator'].setVisible((e.text == 'Auto paused'));
+    }
+
   </script>
 
 </stream>
