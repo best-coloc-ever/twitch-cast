@@ -93,3 +93,5 @@ function buildChatLine(message, store) {
 
   return li
 }
+
+module.exports = buildChatLine

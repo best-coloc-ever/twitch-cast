@@ -4,7 +4,9 @@ volumes:
   video-data: {}
   sender-dist: {}
   sender-dev: {}
+  receiver-dist: {}
   sender-node-modules: {}
+  receiver-node-modules: {}
 
 services:
   web:
@@ -20,7 +22,7 @@ services:
       - 'sender-dist:/sender/dist/:ro'
       - 'sender-dev:/sender/dev/:ro'
       # Receiver app
-      - './frontend/receiver:/receiver/:ro'
+      - 'receiver-dist:/receiver/dist/:ro'
     restart: always
 
   sender-builder:
@@ -33,6 +35,20 @@ services:
       # Sender app
       - 'sender-dist:/src/dist/'
       - 'sender-dev:/src/dev/'
+    restart: always
+
+  receiver-builder:
+    build: frontend/receiver/builder
+    volumes:
+      # Source
+      - './frontend/receiver/app/:/app/'
+      # Node-specific
+      - 'receiver-node-modules:/app/node_modules'
+      # Receiver app
+      - 'receiver-dist:/dist/'
+    ports:
+      # Exposing port for browser-sync
+      - '3000:3000'
     restart: always
 
   streamer:

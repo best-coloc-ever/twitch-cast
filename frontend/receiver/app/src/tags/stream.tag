@@ -69,25 +69,26 @@
     this.showStreamInfos = true;
     this.videojsPlayer = null;
 
-    mediaElement() {
+    this.mediaElement = () => {
       return $(this.root).find('video')[0];
     }
 
-    fullScreen(on) {
+    this.fullScreen = (on) => {
       this.showStreamInfos = !on;
     }
 
-    setChannel(channel) {
+    this.setChannel = (channel) => {
       this.tags['stream-info'].setChannel(channel);
     }
 
-    setDesktopSource(url) {
+    this.setDesktopSource = (url) => {
       var video = this.mediaElement();
 
       var playerOptions = {
         nativeControlsForTouch: true,
         preload: true
       };
+
       this.videojsPlayer = videojs(video, playerOptions, function() {
         this.play();
       });
@@ -102,7 +103,7 @@
       this.update();
     }
 
-    notice(e) {
+    this.notice = (e) => {
       if (e.hide)
         this.tags.notice.hide();
       else

@@ -13,13 +13,13 @@
     this.visible = false;
     this.text = '';
 
-    show(text) {
+    this.show = (text) => {
       this.visible = true;
       this.text = text;
       this.update();
     }
 
-    hide() {
+    this.hide = () => {
       this.visible = false;
       this.update();
     }

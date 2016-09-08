@@ -30,7 +30,7 @@
   <script>
     this.visible = false;
 
-    setVisible(visible) {
+    this.setVisible = (visible) => {
       console.log('OK')
       this.visible = visible;
       this.update();
