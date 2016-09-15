@@ -47,6 +47,7 @@ services:
       OUTPUT_DIRECTORY: '/data/video'
       SERVER_PATH: '/video'
       OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
+      TWITCH_CLIENT_ID: 'Your Twitch app client id'
 
   irc-relay:
     image: globidocker/twitch-irc

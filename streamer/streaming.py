@@ -1,9 +1,13 @@
 import subprocess
 import socket
-import livestreamer
+import os
 
 from hls import Proxy
 from process import start_process
+from livestreamer import Livestreamer
+
+TWITCH_CLIENT_ID = os.environ['TWITCH_CLIENT_ID']
+TWITCH_CLIENT_HTTP_HEADER = 'Client-ID={}'.format(TWITCH_CLIENT_ID)
 
 LIVESTREAMER_COMMAND = lambda url, quality, port: [
     'livestreamer',
@@ -11,6 +15,7 @@ LIVESTREAMER_COMMAND = lambda url, quality, port: [
     quality,
     '--player-external-http',
     '--player-external-http-port', '{}'.format(port),
+    '--http-header', TWITCH_CLIENT_HTTP_HEADER,
     '--yes-run-as-root'
 ]
 
@@ -41,8 +46,11 @@ class Stream:
         self.proxy = None
         self.on_exit = None
 
+        self.session = Livestreamer()
+        self.session.set_option('http-headers', TWITCH_CLIENT_HTTP_HEADER)
+
     def is_available(self):
-        streams = livestreamer.streams(self.url)
+        streams = self.session.streams(self.url)
         return self.quality in streams
 
     def monitor(self, on_exit):
