@@ -46,5 +46,8 @@ module.exports = {
       /* chunkName= */'vendor',
       /* filename= */'vendor.bundle.js'
     ),
+    new webpack.DefinePlugin({
+      TWITCH_CLIENT_ID: JSON.stringify(process.env.TWITCH_CLIENT_ID)
+    })
   ]
 };
