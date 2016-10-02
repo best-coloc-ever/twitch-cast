@@ -5,7 +5,6 @@ RUN npm install --global \
     webpack \
     browser-sync
 
-
 ADD ./watch.sh /watch.sh
 
 WORKDIR /app
