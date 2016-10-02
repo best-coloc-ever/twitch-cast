@@ -25,6 +25,7 @@
 
   <!-- Logic -->
   <script>
+    import TwitchCastReceiver from '../receiver.js'
     var self = this;
 
     this.chatVisible = true;
