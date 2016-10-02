@@ -101,3 +101,5 @@ var TwitchCastReceiver = function(mediaElement) {
 
   castManager.start();
 }
+
+module.exports = TwitchCastReceiver

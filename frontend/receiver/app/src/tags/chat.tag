@@ -28,10 +28,13 @@
 
   <!-- Logic -->
   <script>
-    var CHAT_MESSAGE_MAX_COUNT = 50;
-    var CHAT_DISPLAY_INTERVAL = 0.3; // seconds
-    var CHAT_CLEAR_INTERVAL = 30; // seconds
-    var CHAT_DELAY = 12; // seconds
+    import ChatAssetStore from '../chat_assets.js'
+    import buildChatLine from '../chat_line.js'
+
+    const CHAT_MESSAGE_MAX_COUNT = 50;
+    const CHAT_DISPLAY_INTERVAL = 0.3; // seconds
+    const CHAT_CLEAR_INTERVAL = 30; // seconds
+    const CHAT_DELAY = 12; // seconds
 
     var self = this;
     var messageQueue = [];
@@ -40,23 +43,23 @@
 
     this.messages = [];
 
-    notify(text) {
+    this.notify = (text) => {
       self.addMessage({ sender: 'SYSTEM', content: text });
       self.update();
     }
 
-    onmessage(e) {
+    this.onmessage = (e) => {
       var message = JSON.parse(e.data);
       message.stamp = new Date().getTime();
       messageQueue.push(message);
     }
 
-    pause() {
+    this.pause = () => {
       self.notify('Pausing chat');
       ws.onmessage = null;
     }
 
-    resume() {
+    this.resume = () => {
       self.notify('Resuming chat');
       ws.onmessage = self.onmessage;
     }
@@ -118,7 +121,7 @@
     //   setTimeout(limitLines, CHAT_CLEAR_INTERVAL * 1000);
     // }
 
-    setChannel(channel) {
+    this.setChannel = (channel) => {
       self.ul = $(this.root).find('#chat');
 
       messageQueue = [];
@@ -129,7 +132,7 @@
       connectToChat(channel);
     }
 
-    addMessage(message) {
+    this.addMessage = (message) => {
       self.messages.push(message);
 
       // JQuery

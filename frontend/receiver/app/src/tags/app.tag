@@ -31,7 +31,7 @@
     this.chatPosition = true;
     this.desktop = (navigator.userAgent.indexOf('CrKey') == -1);
 
-    initChromecast() {
+    this.initChromecast = () => {
       var stream = this.tags.stream;
       var chat = this.tags.chat;
 
@@ -68,7 +68,7 @@
 
     }
 
-    initDesktop() {
+    this.initDesktop = () => {
       var id = riot.route.query().id;
 
       if (id) {

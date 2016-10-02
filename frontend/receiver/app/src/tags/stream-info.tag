@@ -77,7 +77,7 @@
         })
     }
 
-    setChannel(channel) {
+    this.setChannel = (channel) => {
       this.channel = channel;
       fetchStreamInfos();
     }

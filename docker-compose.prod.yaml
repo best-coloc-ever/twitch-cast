@@ -1,0 +1,10 @@
+version: '2'
+
+volumes:
+
+services:
+
+  web:
+    # Publishing the standard HTTPS port
+    ports:
+      - '443:443'

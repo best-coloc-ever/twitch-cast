@@ -1,38 +1,26 @@
 version: '2'
 
 volumes:
+  # HLS playlist and video segments store
   video-data: {}
+
+  # Sender application bundle volume
   sender-dist: {}
-  sender-dev: {}
-  sender-node-modules: {}
+
+  # Receiver application bundle volume
+  receiver-dist: {}
 
 services:
+
   web:
     build: frontend/server
-    ports:
-      - '443:443'
     volumes:
-      # Nginx configuration (ease reloading)
-      - './frontend/server/nginx.conf:/etc/nginx/nginx.conf:ro'
       # Video content
       - 'video-data:/data/:ro'
       # Sender app
       - 'sender-dist:/sender/dist/:ro'
-      - 'sender-dev:/sender/dev/:ro'
       # Receiver app
-      - './frontend/receiver:/receiver/:ro'
-    restart: always
-
-  sender-builder:
-    build: frontend/sender
-    volumes:
-      # Sources
-      - './frontend/sender/:/src/'
-      # Node-specific
-      - 'sender-node-modules:/src/node_modules'
-      # Sender app
-      - 'sender-dist:/src/dist/'
-      - 'sender-dev:/src/dev/'
+      - 'receiver-dist:/receiver/dist/:ro'
     restart: always
 
   streamer:
@@ -47,7 +35,7 @@ services:
       OUTPUT_DIRECTORY: '/data/video'
       SERVER_PATH: '/video'
       OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
-      TWITCH_CLIENT_ID: 'Your Twitch app client id'
+      TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
 
   irc-relay:
     image: globidocker/twitch-irc

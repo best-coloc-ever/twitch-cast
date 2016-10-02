@@ -16,7 +16,7 @@
       return new Array(n - what.length + 1).join('0') + what;
     }
 
-    refresh() {
+    this.refresh = () => {
       var now = new Date();
 
       self.hours = zpad(now.getHours(), 2);

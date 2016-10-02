@@ -106,3 +106,5 @@ var ChatAssetStore = function(channel) {
     }
   });
 }
+
+module.exports = ChatAssetStore

@@ -2,10 +2,17 @@
 
 set -e
 
-# Asset pipeline
-docker-compose run --rm sender-builder npm install
-docker-compose run --rm sender-builder bower install
-docker-compose run --rm sender-builder gulp dist
+sender-run()   { ./scripts/dev run --rm sender-builder   $@ }
+receiver-run() { ./scripts/dev run --rm receiver-builder $@ }
+
+# Bundle the sender application
+sender-run npm install
+sender-run bower install
+sender-run gulp dist
+
+# Bundle the receiver application
+receiver-run npm install
+receiver-run webpack -p
 
 # Magic
-docker-compose up -d
+./scripts/prod up -d
