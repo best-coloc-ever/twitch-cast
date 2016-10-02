@@ -12,8 +12,8 @@ OUTPUT_DIRECTORY        = os.environ['OUTPUT_DIRECTORY']
 SERVER_PATH             = os.environ['SERVER_PATH']
 OUTPUT_INDEX_FILE_NAME  = os.environ['OUTPUT_INDEX_FILE_NAME']
 FFMPEG_DIST_DIR         = os.environ['FFMPEG_DIST_DIR']
-SEGMENT_LEN             = 3 # Seconds
-SEGMENT_COUNT           = 5
+SEGMENT_LEN             = 4 # Seconds
+SEGMENT_COUNT           = 4
 
 FFMPEG_COMMAND = lambda port, path: [
     '{}/bin/ffmpeg'.format(FFMPEG_DIST_DIR),
