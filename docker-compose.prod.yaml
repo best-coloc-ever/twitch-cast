@@ -1,7 +1,5 @@
 version: '2'
 
-volumes:
-
 services:
 
   web:

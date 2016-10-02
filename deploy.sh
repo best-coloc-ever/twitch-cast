@@ -2,8 +2,13 @@
 
 set -e
 
-sender-run()   { ./scripts/dev run --rm sender-builder   $@ }
-receiver-run() { ./scripts/dev run --rm receiver-builder $@ }
+sender-run()   {
+  ./scripts/dev run --rm sender-builder   $@
+}
+
+receiver-run() {
+  ./scripts/dev run --rm receiver-builder $@
+}
 
 # Bundle the sender application
 sender-run npm install

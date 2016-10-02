@@ -5,13 +5,7 @@
       "type": "string"
     },
     "quality": {
-      "enum": [
-        "worst",
-        "low",
-        "medium",
-        "high",
-        "best"
-      ]
+      "type": "string"
     }
   },
   "required": [
