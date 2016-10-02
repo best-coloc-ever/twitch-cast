@@ -1,0 +1,43 @@
+version: '2'
+
+volumes:
+  # HLS playlist and video segments store
+  video-data: {}
+
+  # Sender application bundle volume
+  sender-dist: {}
+
+  # Receiver application bundle volume
+  receiver-dist: {}
+
+services:
+
+  web:
+    build: frontend/server
+    volumes:
+      # Video content
+      - 'video-data:/data/:ro'
+      # Sender app
+      - 'sender-dist:/sender/dist/:ro'
+      # Receiver app
+      - 'receiver-dist:/receiver/dist/:ro'
+    restart: always
+
+  streamer:
+    build: streamer
+    volumes:
+      # Sources
+      - './streamer:/streamer:ro'
+      # Video content
+      - 'video-data:/data/'
+    environment:
+      SERVER_HOSTNAME: '${SERVER_NAME}'
+      OUTPUT_DIRECTORY: '/data/video'
+      SERVER_PATH: '/video'
+      OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
+      TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
+
+  irc-relay:
+    image: globidocker/twitch-irc
+    command: none 'twitch-irc-websocket'
+    restart: always
