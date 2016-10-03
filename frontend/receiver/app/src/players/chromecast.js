@@ -5,7 +5,7 @@ const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       autoPauseDuration          = 3,
       autoResumeDuration         = 3,
       autoResumeNumberOfSegments = 1,
-      segmentRequestRetryLimit   = 10
+      segmentRequestRetryLimit   = 2
 
 cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
 
