@@ -5,11 +5,11 @@
   <pause-indicator></pause-indicator>
 
   <div class="center">
-    <video autoplay></video>
+    <video name="video" autoplay></video>
   </div>
 
-  <clock if={ showStreamInfos }></clock>
-  <stream-info if={ showStreamInfos }></stream-info>
+  <clock show={ showStreamInfo }></clock>
+  <stream-info show={ showStreamInfo }></stream-info>
 
   <!-- Style -->
   <style scoped>
@@ -66,51 +66,46 @@
 
   <!-- Logic -->
   <script>
-    this.showStreamInfos = true;
-    this.videojsPlayer = null;
+    import PlayerEvent from 'player_events.js'
+
+    this.showStreamInfo = true
 
     this.mediaElement = () => {
-      return $(this.root).find('video')[0];
+      return this.video
     }
 
-    this.fullScreen = (on) => {
-      this.showStreamInfos = !on;
-    }
+    this.on('mount', () => {
+      let self = this,
+          // helper bindings
+          player = this.parent.player,
 
-    this.setChannel = (channel) => {
-      this.tags['stream-info'].setChannel(channel);
-    }
+          notice         = this.tags['notice'],
+          streamInfo     = this.tags['stream-info'],
+          pauseIndicator = this.tags['pauseIndicator']
 
-    this.setDesktopSource = (url) => {
-      var video = this.mediaElement();
+      player.on(PlayerEvent.ChannelChanged, e => {
+        streamInfo.setChannel(e.channel)
+      })
 
-      var playerOptions = {
-        nativeControlsForTouch: true,
-        preload: true
-      };
+      player.on(PlayerEvent.ChatToggled, e => {
+        self.showStreamInfo = e.visible
+        self.update()
+      })
 
-      this.videojsPlayer = videojs(video, playerOptions, function() {
-        this.play();
-      });
+      player.on(PlayerEvent.AutoPaused, isPaused => {
+        if (isPaused)
+          notice.show('Buffering...')
+        else
+          notice.hide()
 
-      this.videojsPlayer.src({
-        src: url,
-        type: 'application/vnd.apple.mpegurl'
-      });
+        pauseIndicator.setVisible(isPaused)
+      })
 
-      video.setAttribute("controls","controls");
+      player.on(PlayerEvent.HostError, errorString => {
+        notice.show(errorString)
+      })
 
-      this.update();
-    }
-
-    this.notice = (e) => {
-      if (e.hide)
-        this.tags.notice.hide();
-      else
-        this.tags.notice.show(e.text);
-
-      this.tags['pause-indicator'].setVisible((e.text == 'Auto paused'));
-    }
+    })
 
   </script>
 

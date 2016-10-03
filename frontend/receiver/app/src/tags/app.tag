@@ -5,7 +5,8 @@
 
     <stream class="flex"></stream>
 
-    <chat if={ chatVisible }></chat>
+    <chat show={ chatVisible }></chat>
+
   </div>
 
   <!-- Style -->
@@ -25,71 +26,33 @@
 
   <!-- Logic -->
   <script>
-    import TwitchCastReceiver from '../receiver.js'
-    var self = this;
+    import ChromecastPlayer from 'players/chromecast.js'
+    import VideojsPlayer from 'players/videojs.js'
+    import PlayerEvent from 'player_events.js'
 
-    this.chatVisible = true;
-    this.chatPosition = true;
-    this.desktop = (navigator.userAgent.indexOf('CrKey') == -1);
+    this.chatVisible = true
+    this.player = null
 
-    this.initChromecast = () => {
-      var stream = this.tags.stream;
-      var chat = this.tags.chat;
+    this.on('mount', () => {
+      let self = this,
+          isChromecastDevice = (navigator.userAgent.indexOf('CrKey') != -1),
+          playerClass = (isChromecastDevice ? ChromecastPlayer : VideojsPlayer),
+          mediaElement = this.tags.stream.mediaElement()
 
-      var receiver = new TwitchCastReceiver(stream.mediaElement());
+      let player = new playerClass(mediaElement)
 
-      receiver.on('channel', function(e) {
-        chat.setChannel(e.channel);
-        stream.setChannel(e.channel);
-      });
+      player.on(PlayerEvent.ChatToggled, e => {
+        self.chatVisible = e.visible
+        self.update()
+      })
 
-      receiver.on('chatToggle', function(e) {
-        self.chatVisible = e.visible;
-        stream.fullScreen(!e.visible);
+      // TODO: move the chat in the dom (bypass riot or not ?)
+      player.on(PlayerEvent.ChatPositionChanged, e => {
 
-        if (e.visible)
-          chat.resume();
-        else
-          chat.pause();
+      })
 
-        self.update();
-      });
-
-      receiver.on('chatPosition', function(e) {
-        self.chatPosition = !self.chatPosition;
-        if (self.chatPosition)
-          $(chat.root).insertAfter($(stream.root));
-        else
-          $(chat.root).insertBefore($(stream.root));
-      });
-
-      receiver.on('notice', function(e) {
-        stream.notice(e);
-      });
-
-    }
-
-    this.initDesktop = () => {
-      var id = riot.route.query().id;
-
-      if (id) {
-        $.get(
-          '/streamer/streams/' + id,
-          function(data) {
-            self.tags.chat.setChannel(data.channel);
-            self.tags.stream.setChannel(data.channel);
-            self.tags.stream.setDesktopSource(data.proxy.indexUrl);
-          }
-        );
-      }
-    }
-
-    this.on('mount', function() {
-      if (this.desktop)
-        this.initDesktop();
-      else
-        this.initChromecast();
-    });
+      this.player = player
+    })
 
   </script>
 
