@@ -4,9 +4,9 @@
   <span class="game">{ game }</span>
   <br>
   <div>
-    <img class="icon viewers"> { viewers }
-    <img class="icon views"> { views }
-    <img class="icon follows"> { followers }
+    <img class="icon viewers"><span> { viewers }</span>
+    <img class="icon views"><span> { views }</span>
+    <img class="icon follows"><span> { followers }</span>
   </div>
 
   <style scoped>
