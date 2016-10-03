@@ -1,5 +1,6 @@
 var webpack = require('webpack')
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+var path = require('path');
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: {
@@ -10,6 +11,12 @@ module.exports = {
   output: {
     path: '/dist',
     filename: 'bundle.js'
+  },
+
+  resolve: {
+    root: [
+      path.resolve('./src')
+    ]
   },
 
   module: {
@@ -37,7 +44,9 @@ module.exports = {
   },
 
   plugins: [
-    new webpack.ProvidePlugin({ riot: 'riot' }),
+    new webpack.ProvidePlugin({
+      riot: 'riot'
+    }),
     new CopyWebpackPlugin([
       { from: 'index.html' },
       { from: 'styles.css' }
