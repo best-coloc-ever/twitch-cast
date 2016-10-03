@@ -20,14 +20,14 @@ class ChromecastPlayer {
 
     // The mediaManager handles media messages
     let mediaManager = new cast.receiver.MediaManager(mediaElement)
-    mediaManager.onLoad = this._onLoadEvent
+    mediaManager.onLoad = this._onLoadEvent.bind(this)
 
     // The castManager allows communication with the sender application
     let castManager = cast.receiver.CastReceiverManager.getInstance()
 
     // Setting up a custom message bus to communicate with the sender application
     let customMessageBus = castManager.getCastMessageBus(customMessageBusName)
-    customMessageBus.onMessage = this._handleCustomMessages
+    customMessageBus.onMessage = this._handleCustomMessages.bind(this)
 
     castManager.start()
   }
@@ -62,8 +62,8 @@ class ChromecastPlayer {
     host.autoResumeNumberOfSegments = autoResumeNumberOfSegments
     host.segmentRequestRetryLimit = segmentRequestRetryLimit
 
-    host.onError = this._onHostError
-    host.onAutoPause = this._onHostAutoPause
+    host.onError = this._onHostError.bind(this)
+    host.onAutoPause = this._onHostAutoPause.bind(this)
 
     return host
   }
