@@ -1,24 +1,13 @@
-function path(suffix) {
-  return `/streamer${suffix}`
-}
+import { jsonCall } from './helpers.js'
 
-function jsonCall(route, extra={}) {
-  let init = Object.assign(extra, {})
+function streamerJsonCall(route) {
+  let path = `/streamer${route}`
 
-  let promise =
-    fetch(path(route), init)
-      .then(response => {
-        if (response.ok)
-          return response.json()
-        else
-          throw new Error(response.status)
-      })
-
-  return promise
+  return jsonCall(path)
 }
 
 function getStream(streamId) {
-  return jsonCall(`/streams/${streamId}`)
+  return streamerJsonCall(`/streams/${streamId}`)
 }
 
 const StreamerAPI = {
