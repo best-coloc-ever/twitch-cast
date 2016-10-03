@@ -81,7 +81,7 @@
 
           notice         = this.tags['notice'],
           streamInfo     = this.tags['stream-info'],
-          pauseIndicator = this.tags['pauseIndicator']
+          pauseIndicator = this.tags['pause-indicator']
 
       player.on(PlayerEvent.ChannelChanged, e => {
         streamInfo.setChannel(e.channel)
@@ -104,7 +104,6 @@
       player.on(PlayerEvent.HostError, errorString => {
         notice.show(errorString)
       })
-
     })
 
   </script>
