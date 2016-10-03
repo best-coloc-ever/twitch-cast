@@ -28,7 +28,7 @@
 
   <!-- Logic -->
   <script>
-    import ChatAssetStore from 'chat_assets.js'
+    import ChatAssetStore from 'chat/asset_store.js'
     import buildChatLine from 'chat_line.js'
     import ReceiverEvent from 'receiver/events.js'
 
@@ -43,6 +43,7 @@
     var retryTimeout = null;
 
     this.messages = [];
+    this.store = new ChatAssetStore
 
     this.notify = (text) => {
       self.addMessage({ sender: 'SYSTEM', content: text });
@@ -127,7 +128,7 @@
       this.messages = [];
       this.update();
 
-      this.store = new ChatAssetStore(channel);
+      this.store.loadChannelBadges(channel);
       connectToChat(channel);
     }
 

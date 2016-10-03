@@ -1,3 +1,5 @@
+import { cheerColor, cheerEmote } from 'chat/cheers.js'
+
 var DEFAULT_COLORS = [
   '#FF0000', '#0000FF', '#00FF00', '#B22222', '#FF7F50',
   '#9ACD32', '#FF4500', '#2E8B57', '#DAA520', '#D2691E',
@@ -53,7 +55,7 @@ function buildChatLine(message, store) {
       .addClass('badge-container');
     for (var badge of badges) {
       var img = $('<img>')
-        .attr('src', store.badges[badge])
+        .attr('src', store.badges.get(badge))
         .addClass('badge');
 
       div.append(img);
@@ -72,13 +74,13 @@ function buildChatLine(message, store) {
     .css('color', color);
 
   var htmlParts = message.content.split(' ').map(function(word) {
-    if (word in store.emotes)
-      return '<img src="' + store.emotes[word] + '">';
+    if (store.emotes.has(word))
+      return '<img src="' + store.emotes.get(word) + '">';
 
     var match = word.match(CHEER_PATTERN);
     if (match)
-      return '<img src="' + store.cheerEmote(match[1]) + '"> ' +
-             '<span style="color: '+ store.cheerColor(match[1]) + ';">' +
+      return '<img src="' + cheerEmote(match[1]) + '"> ' +
+             '<span style="color: '+ cheerColor(match[1]) + ';">' +
              match[1] + '</span>';
 
     return word;
