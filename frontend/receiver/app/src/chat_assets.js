@@ -14,9 +14,6 @@ var ChatAssetStore = function(channel) {
     }
   })
 
-  self.badges['alliance'] = 'https://static-cdn.jtvnw.net/badges/v1/c4816339-bad4-4645-ae69-d1ab2076a6b0/1';
-  self.badges['horde'] = 'https://static-cdn.jtvnw.net/badges/v1/de8b26b6-fd28-4e6c-bc89-3d597343800d/1';
-
   self.badges['bits1'] = 'https://static-cdn.jtvnw.net/badges/v1/73b5c3fb-24f9-4a82-a852-2f475b59411c/1'
   self.badges['bits100'] = 'https://static-cdn.jtvnw.net/badges/v1/09d93036-e7ce-431c-9a9e-7044297133f2/1'
   self.badges['bits1000'] = 'https://static-cdn.jtvnw.net/badges/v1/0d85a29e-79ad-4c63-a285-3acd2c66f2ba/1'

@@ -35,8 +35,6 @@ function getBadges(message) {
   });
   if (badgeMap.moderator) // I noticed this inconsistency...
     badges.push('mod');
-  if (badgeMap.warcraft)
-    badges.push(badgeMap.warcraft);
   if (badgeMap.bits)
     badges.push('bits' + badgeMap.bits)
   return badges;
