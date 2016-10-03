@@ -26,32 +26,32 @@
 
   <!-- Logic -->
   <script>
-    import ChromecastPlayer from 'players/chromecast.js'
-    import VideojsPlayer from 'players/videojs.js'
-    import PlayerEvent from 'player_events.js'
+    import ChromecastReceiver from 'receiver/chromecast.js'
+    import VideojsReceiver from 'receiver/videojs.js'
+    import ReceiverEvent from 'receiver/events.js'
 
     this.chatVisible = true
-    this.player = null
+    this.receiver = null
 
     this.on('mount', () => {
       let self = this,
           isChromecastDevice = (navigator.userAgent.indexOf('CrKey') != -1),
-          playerClass = (isChromecastDevice ? ChromecastPlayer : VideojsPlayer),
+          receiverClass = (isChromecastDevice ? ChromecastReceiver : VideojsReceiver),
           mediaElement = this.tags.stream.mediaElement()
 
-      let player = new playerClass(mediaElement)
+      let receiver = new receiverClass(mediaElement)
 
-      player.on(PlayerEvent.ChatToggled, e => {
+      receiver.on(ReceiverEvent.ChatToggled, e => {
         self.chatVisible = e.visible
         self.update()
       })
 
       // TODO: move the chat in the dom (bypass riot or not ?)
-      player.on(PlayerEvent.ChatPositionChanged, e => {
+      receiver.on(ReceiverEvent.ChatPositionChanged, e => {
 
       })
 
-      this.player = player
+      this.receiver = receiver
     })
 
   </script>

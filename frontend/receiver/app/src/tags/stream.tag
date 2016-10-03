@@ -66,7 +66,7 @@
 
   <!-- Logic -->
   <script>
-    import PlayerEvent from 'player_events.js'
+    import ReceiverEvent from 'receiver/events.js'
 
     this.showStreamInfo = true
 
@@ -77,22 +77,22 @@
     this.on('mount', () => {
       let self = this,
           // helper bindings
-          player = this.parent.player,
+          receiver = this.parent.receiver,
 
           notice         = this.tags['notice'],
           streamInfo     = this.tags['stream-info'],
           pauseIndicator = this.tags['pause-indicator']
 
-      player.on(PlayerEvent.ChannelChanged, e => {
+      receiver.on(ReceiverEvent.ChannelChanged, e => {
         streamInfo.setChannel(e.channel)
       })
 
-      player.on(PlayerEvent.ChatToggled, e => {
+      receiver.on(ReceiverEvent.ChatToggled, e => {
         self.showStreamInfo = e.visible
         self.update()
       })
 
-      player.on(PlayerEvent.AutoPaused, isPaused => {
+      receiver.on(ReceiverEvent.AutoPaused, isPaused => {
         if (isPaused)
           notice.show('Buffering...')
         else
@@ -101,7 +101,7 @@
         pauseIndicator.setVisible(isPaused)
       })
 
-      player.on(PlayerEvent.HostError, errorString => {
+      receiver.on(ReceiverEvent.HostError, errorString => {
         notice.show(errorString)
       })
     })

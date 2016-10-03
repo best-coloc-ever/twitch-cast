@@ -54,11 +54,12 @@
           let stream = data.stream
           let channel = stream.channel
 
+          self.name = channel.display_name
+          self.game = channel.game
+
           self.viewers = stream.viewers.toLocaleString()
           self.views = channel.views.toLocaleString()
           self.followers = channel.followers.toLocaleString()
-          self.game = channel.game
-          self.name = channel.display_name
 
           self.update()
         })

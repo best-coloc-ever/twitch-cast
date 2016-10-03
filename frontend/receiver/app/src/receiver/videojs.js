@@ -1,4 +1,4 @@
-import PlayerEvent from 'player_events.js'
+import ReceiverEvent from './events.js'
 import StreamerAPI from 'api/streamer.js'
 
 const playerOptions = {
@@ -6,7 +6,7 @@ const playerOptions = {
   preload: true
 }
 
-class VideojsPlayer {
+class VideojsReceiver {
 
   constructor(mediaElement) {
     this.mediaElement = mediaElement
@@ -25,7 +25,7 @@ class VideojsPlayer {
   _fetchStream(streamId) {
     StreamerAPI.stream(streamId)
       .then(data => {
-        this.trigger(PlayerEvent.ChannelChanged, { channel: data.channel })
+        this.trigger(ReceiverEvent.ChannelChanged, { channel: data.channel })
         this._playStream(data.proxy.indexUrl)
       })
   }
@@ -47,4 +47,4 @@ class VideojsPlayer {
 
 }
 
-module.exports = VideojsPlayer
+module.exports = VideojsReceiver

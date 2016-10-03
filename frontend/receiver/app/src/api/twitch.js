@@ -7,17 +7,14 @@ const twitchInit = {
 }
 
 function twitchJsonCall(route) {
-  let url = `https://api.twitch.tv/kraken${route}`
+  let url = `//api.twitch.tv/kraken${route}`
 
   return jsonCall(url, twitchInit)
 }
 
-function getStream(channelName) {
-  return twitchJsonCall(`/streams/${channelName}`)
-}
-
 const TwitchAPI = {
-  stream: getStream
+  stream: (channelName) => twitchJsonCall(`/streams/${channelName}`),
+  badges: (channelName) => twitchJsonCall(`/chat/${channelName}/badges`)
 }
 
 module.exports = TwitchAPI

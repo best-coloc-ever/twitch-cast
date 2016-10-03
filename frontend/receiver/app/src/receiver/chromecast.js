@@ -1,4 +1,4 @@
-import PlayerEvent from 'player_events.js'
+import ReceiverEvent from './events.js'
 
 const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       // Host settings
@@ -9,7 +9,7 @@ const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
 
 cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
 
-class ChromecastPlayer {
+class ChromecastReceiver {
 
   constructor(mediaElement) {
     this.mediaElement = mediaElement
@@ -82,13 +82,13 @@ class ChromecastPlayer {
     if (request)
       errorString += ` (${request.errorCode}, ${request.status})`
 
-    this.trigger(PlayerEvent.HostError, errorString)
+    this.trigger(ReceiverEvent.HostError, errorString)
   }
 
   _onHostAutoPause(isPaused) {
-    this.trigger(PlayerEvent.AutoPaused, isPaused)
+    this.trigger(ReceiverEvent.AutoPaused, isPaused)
   }
 
 }
 
-module.exports = ChromecastPlayer
+module.exports = ChromecastReceiver

@@ -6,12 +6,8 @@ function streamerJsonCall(route) {
   return jsonCall(path)
 }
 
-function getStream(streamId) {
-  return streamerJsonCall(`/streams/${streamId}`)
-}
-
 const StreamerAPI = {
-  stream: getStream
+  stream: (streamId) => streamerJsonCall(`/streams/${streamId}`)
 }
 
 module.exports = StreamerAPI

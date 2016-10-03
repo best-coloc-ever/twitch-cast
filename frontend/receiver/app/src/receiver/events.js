@@ -1,4 +1,4 @@
-const PlayerEvent = {
+const ReceiverEvent = {
   AutoPaused: 'auto-paused',
   HostError: 'host-error',
   // TODO: change the following values here and in the sender app
@@ -7,4 +7,4 @@ const PlayerEvent = {
   ChatPositionChanged: 'chatPosition'
 }
 
-module.exports = PlayerEvent
+module.exports = ReceiverEvent

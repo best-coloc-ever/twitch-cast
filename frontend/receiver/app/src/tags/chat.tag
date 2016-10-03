@@ -30,7 +30,7 @@
   <script>
     import ChatAssetStore from 'chat_assets.js'
     import buildChatLine from 'chat_line.js'
-    import PlayerEvent from 'player_events.js'
+    import ReceiverEvent from 'receiver/events.js'
 
     const CHAT_MESSAGE_MAX_COUNT = 50;
     const CHAT_DISPLAY_INTERVAL = 0.3; // seconds
@@ -146,13 +146,13 @@
 
     this.on('mount', function() {
       let self = this,
-          player = this.parent.player
+          receiver = this.parent.receiver
 
-      player.on(PlayerEvent.ChannelChanged, e => {
+      receiver.on(ReceiverEvent.ChannelChanged, e => {
         self.setChannel(e.channel)
       })
 
-      player.on(PlayerEvent.ChatToggled, e => {
+      receiver.on(ReceiverEvent.ChatToggled, e => {
         if (e.visible)
           self.resume()
         else
