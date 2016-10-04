@@ -29,7 +29,7 @@
   <!-- Logic -->
   <script>
     import ChatAssetStore from 'chat/asset_store.js'
-    import buildChatLine from 'chat_line.js'
+    import { buildChatLine } from 'chat/message.js'
     import ReceiverEvent from 'receiver/events.js'
 
     const CHAT_MESSAGE_MAX_COUNT = 50;
