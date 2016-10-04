@@ -1,4 +1,5 @@
 import ReceiverEvent from './events.js'
+import { loadScript } from 'utils/deferred_load.js'
 
 const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       // Host settings
@@ -7,7 +8,8 @@ const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       autoResumeNumberOfSegments = 1,
       segmentRequestRetryLimit   = 2
 
-cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
+const chromecastSdkReceiverJsUrl    = '//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js',
+      chromecastSdkMediaplayerJsUrl = '//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js'
 
 class ChromecastReceiver {
 
@@ -18,8 +20,17 @@ class ChromecastReceiver {
     // Add observer support
     riot.observable(this)
 
+    // Loading the chromecast sdk dynamically
+    loadScript(chromecastSdkReceiverJsUrl)
+      .then(() => loadScript(chromecastSdkMediaplayerJsUrl))
+      .then(this._initialize.bind(this))
+  }
+
+  _initialize() {
+    cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
+
     // The mediaManager handles media messages
-    let mediaManager = new cast.receiver.MediaManager(mediaElement)
+    let mediaManager = new cast.receiver.MediaManager(this.mediaElement)
     mediaManager.onLoad = this._onLoadEvent.bind(this)
 
     // The castManager allows communication with the sender application

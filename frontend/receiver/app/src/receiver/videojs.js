@@ -1,10 +1,15 @@
 import ReceiverEvent from './events.js'
 import StreamerAPI from 'api/streamer.js'
+import { loadScript, loadLink } from 'utils/deferred_load.js'
 
 const playerOptions = {
   nativeControlsForTouch: true,
   preload: true
 }
+
+const videojsCssUrl   = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.11.3/video-js.min.css',
+      videojsJsUrl    = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.11.3/video.min.js',
+      videojsHlsJsUrl = '//cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/3.5.0/videojs-contrib-hls.min.js'
 
 class VideojsReceiver {
 
@@ -15,6 +20,14 @@ class VideojsReceiver {
     // Add observer support
     riot.observable(this)
 
+    // Loading videojs dynamically
+    loadLink(videojsCssUrl)
+    loadScript(videojsJsUrl)
+      .then(() => loadScript(videojsHlsJsUrl))
+      .then(this._initialize.bind(this))
+  }
+
+  _initialize() {
     // Fetching stream id from query parameters
     var streamId = riot.route.query().id
 
