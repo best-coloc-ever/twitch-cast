@@ -38,36 +38,6 @@ class ChatAssetStore {
   }
 
   _fetchEmotes() {
-    let emotes = this.emotes
-
-    let addTwitchemotesEmote = (code, emote, template) => {
-      let url = template.replace('{image_id}', emote.image_id.toString())
-      emotes.set(code, url)
-    }
-
-    // Global emotes
-    jsonCall('//twitchemotes.com/api_cache/v2/global.json')
-      .then(data => {
-        let template = data.template.small
-
-        Object.keys(data.emotes).forEach(code => {
-          addTwitchemotesEmote(code, data.emotes[code], template)
-        })
-      })
-    // Subscriber emotes
-    jsonCall('//twitchemotes.com/api_cache/v2/subscriber.json')
-      .then(data => {
-        let template = data.template.small
-
-        Object.keys(data.channels).forEach(key => {
-          let channel = data.channels[key]
-
-          channel.emotes.forEach(emote => {
-            addTwitchemotesEmote(emote.code, emote, template)
-          })
-        })
-
-      })
     // Global BTTV emotes
     jsonCall('//api.betterttv.net/2/emotes')
       .then(this._addBTTVEmotes.bind(this))

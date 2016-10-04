@@ -44,6 +44,10 @@ function getBadges(message) {
   return badges
 }
 
+function emoteUrl(emoteId) {
+  return `//static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`
+}
+
 function buildChatLine(message, store) {
   let li = $('<li>')
     .addClass('chat-line')
@@ -77,7 +81,20 @@ function buildChatLine(message, store) {
     .text(mTags['display-name'] || message.sender)
     .css('color', color)
 
-  let htmlParts = message.content.split(' ').map(function(word) {
+  let emotePositions = []
+  if (mTags.emotes) {
+    mTags.emotes.split('/').forEach(emoteDescriptor => {
+      let [emoteId, positions] = emoteDescriptor.split(':')
+      positions.split(',').forEach(position => {
+        let [startIdx, endIdx] = position.split('-')
+        emotePositions.push([parseInt(startIdx), parseInt(endIdx), emoteId])
+      })
+    })
+  }
+  emotePositions.sort((a, b) => a[0] - b[0])
+
+  let getNextEmoteIdx = () => (emotePositions.length ? emotePositions[0][0] : -1)
+  let makePart = (word) => {
     if (store.emotes.has(word))
       return `<img src="${store.emotes.get(word)}">`
 
@@ -89,7 +106,32 @@ function buildChatLine(message, store) {
     }
 
     return word
-  })
+  }
+
+  let htmlParts = []
+  let currentWord = ''
+  let nextEmoteIdx = getNextEmoteIdx()
+  for (let i = 0; i < message.content.length; ++i) {
+    if (i == nextEmoteIdx) {
+      let [_, emoteEndIdx, emoteId] = emotePositions[0]
+      htmlParts.push(`<img src="${emoteUrl(emoteId)}">`)
+      i = emoteEndIdx
+      emotePositions.splice(0, 1)
+      nextEmoteIdx = getNextEmoteIdx()
+    }
+    else {
+      let chr = message.content[i]
+      if (chr == ' ') {
+        htmlParts.push(makePart(currentWord))
+        currentWord = ''
+      }
+      else
+        currentWord += chr
+    }
+  }
+  // Final word
+  if (currentWord)
+    htmlParts.push(makePart(currentWord))
 
   let contentSpan = $('<span>').html(`: ${htmlParts.join(' ')}`)
 
