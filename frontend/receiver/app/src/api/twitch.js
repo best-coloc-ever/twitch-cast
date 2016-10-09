@@ -1,4 +1,4 @@
-import { jsonCall } from './helpers.js'
+import { jsonCall, jsonPCall } from './helpers.js'
 
 const twitchInit = {
   headers: {
@@ -12,9 +12,17 @@ function twitchJsonCall(route) {
   return jsonCall(url, twitchInit)
 }
 
+const betaBadgesEndpointPrefix = '//badges.twitch.tv/v1/badges'
+
 const TwitchAPI = {
+  channel: (channelName) => twitchJsonCall(`/channels/${channelName}`),
   stream: (channelName) => twitchJsonCall(`/streams/${channelName}`),
-  badges: (channelName) => twitchJsonCall(`/chat/${channelName}/badges`)
+  badges: (channelName) => twitchJsonCall(`/chat/${channelName}/badges`),
+
+  Beta: {
+    badges: () => jsonPCall(`${betaBadgesEndpointPrefix}/global/display`),
+    channelBadges: (channelId) => jsonPCall(`${betaBadgesEndpointPrefix}/channels/${channelId}/display`)
+  }
 }
 
 module.exports = TwitchAPI

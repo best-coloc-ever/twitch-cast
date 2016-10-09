@@ -6,11 +6,6 @@ const defaultColors = [
   '#5F9EA0', '#1E90FF', '#FF69B4', '#8A2BE2', '#00FF7F'
 ]
 
-const badgeTypes = [
-  'global_mod', 'admin', 'broadcaster',
-  'mod', 'staff', 'turbo', 'subscriber'
-]
-
 const cheerPattern = /^cheer(\d+)$/
 
 // https://discuss.dev.twitch.tv/t/default-user-color-in-chat/385
@@ -21,27 +16,10 @@ function defaultColor(name) {
 }
 
 function getBadges(message) {
-  let mTags = (message.tags || {})
-  let badgeMap = {}
-  let badges = []
-
-  if (mTags.badges)
-    mTags.badges.split(',').forEach(badge => {
-      let splitted = badge.split('/')
-      badgeMap[splitted[0]] = splitted[1]
-    })
-
-  badgeTypes.forEach(type => {
-    if (badgeMap[type] == '1')
-      badges.push(type)
-  })
-
-  if (badgeMap.moderator) // I noticed this inconsistency...
-    badges.push('mod')
-  if (badgeMap.bits)
-    badges.push('bits' + badgeMap.bits)
-
-  return badges
+  if (message.tags && message.tags.badges)
+    return message.tags.badges.split(',')
+  else
+    return []
 }
 
 function emoteUrl(emoteId) {
