@@ -6,7 +6,7 @@ const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       autoPauseDuration          = 3,
       autoResumeDuration         = 3,
       autoResumeNumberOfSegments = 1,
-      segmentRequestRetryLimit   = 2
+      segmentRequestRetryLimit   = 5
 
 const chromecastSdkReceiverJsUrl    = '//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js',
       chromecastSdkMediaplayerJsUrl = '//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js'
@@ -16,6 +16,9 @@ class ChromecastReceiver {
   constructor(mediaElement) {
     this.mediaElement = mediaElement
     this.player = null
+
+    // Making sure autoplay is set
+    this.mediaElement.autoplay = autoplay
 
     // Add observer support
     riot.observable(this)
@@ -52,7 +55,7 @@ class ChromecastReceiver {
       let protocol = cast.player.api.CreateHlsStreamingProtocol(host)
 
       this.player = new cast.player.api.Player(host)
-      this.player.load(protocol, 0)
+      this.player.load(protocol, Infinity)
     }
   }
 
