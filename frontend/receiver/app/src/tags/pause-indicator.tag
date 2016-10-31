@@ -1,6 +1,6 @@
 <pause-indicator>
 
-    <img class="rotate" src="/twitch-cast/img/kappa.png" if={ visible }>
+  <img class="rotate" src="/twitch-cast/img/kappa.png" if={ visible }>
 
   <style scoped>
     img {
@@ -28,12 +28,11 @@
   </style>
 
   <script>
-    this.visible = false;
+    this.visible = false
 
     this.setVisible = (visible) => {
-      console.log('OK')
-      this.visible = visible;
-      this.update();
+      this.visible = visible
+      this.update()
     }
   </script>
 

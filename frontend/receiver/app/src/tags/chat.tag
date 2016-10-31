@@ -1,7 +1,7 @@
 <chat>
 
   <!-- Layout -->
-  <ul id="chat">
+  <ul id="chat" name="chat">
     <!-- <chat-line each={ message in messages } message={ message } store={ parent.store }>
     </chat-line> -->
   </ul>
@@ -28,8 +28,9 @@
 
   <!-- Logic -->
   <script>
-    import ChatAssetStore from '../chat_assets.js'
-    import buildChatLine from '../chat_line.js'
+    import ChatAssetStore from 'chat/asset_store.js'
+    import { buildChatLine } from 'chat/message.js'
+    import ReceiverEvent from 'receiver/events.js'
 
     const CHAT_MESSAGE_MAX_COUNT = 50;
     const CHAT_DISPLAY_INTERVAL = 0.3; // seconds
@@ -42,6 +43,7 @@
     var retryTimeout = null;
 
     this.messages = [];
+    this.store = new ChatAssetStore
 
     this.notify = (text) => {
       self.addMessage({ sender: 'SYSTEM', content: text });
@@ -122,13 +124,11 @@
     // }
 
     this.setChannel = (channel) => {
-      self.ul = $(this.root).find('#chat');
-
       messageQueue = [];
       this.messages = [];
       this.update();
 
-      this.store = new ChatAssetStore(channel);
+      this.store.loadChannelBadges(channel);
       connectToChat(channel);
     }
 
@@ -137,18 +137,30 @@
 
       // JQuery
       var chatLine = buildChatLine(message, self.store);
-      self.ul.append(chatLine);
+      $(self.chat).append(chatLine);
 
       var toSlice = Math.max(0, self.messages.length - CHAT_MESSAGE_MAX_COUNT);
       self.messages = self.messages.slice(toSlice);
 
-      self.ul.find('li:lt(' + toSlice + ')').remove();
+      $(self.chat).find('li:lt(' + toSlice + ')').remove();
     }
 
     this.on('mount', function() {
-      self.ul = $(this.root).find('#chat');
+      let self = this,
+          receiver = this.parent.receiver
 
-      processMessageQueue();
+      receiver.on(ReceiverEvent.ChannelChanged, e => {
+        self.setChannel(e.channel)
+      })
+
+      receiver.on(ReceiverEvent.ChatToggled, e => {
+        if (e.visible)
+          self.resume()
+        else
+          self.pause()
+      })
+
+      processMessageQueue()
     })
 
   </script>

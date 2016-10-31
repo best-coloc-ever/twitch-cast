@@ -1,6 +1,6 @@
 <notice>
 
-  <h1 if={ visible }>{ text }</h1>
+  <h1 show={ visible }>{ text }</h1>
 
   <style scoped>
     h1 {
@@ -10,18 +10,18 @@
   </style>
 
   <script>
-    this.visible = false;
-    this.text = '';
+    this.visible = false
+    this.text = ''
 
     this.show = (text) => {
-      this.visible = true;
-      this.text = text;
-      this.update();
+      this.visible = true
+      this.text = text
+      this.update()
     }
 
     this.hide = () => {
-      this.visible = false;
-      this.update();
+      this.visible = false
+      this.update()
     }
   </script>
 

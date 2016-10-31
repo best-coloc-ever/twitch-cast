@@ -1,8 +1,3 @@
-import './receiver.js'
-
-import './chat_line.js'
-import './chat_assets.js'
-
 import './tags/app.tag'
 import './tags/notice.tag'
 import './tags/chat.tag'
