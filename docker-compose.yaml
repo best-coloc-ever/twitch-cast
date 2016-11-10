@@ -10,6 +10,9 @@ volumes:
   # Receiver application bundle volume
   receiver-dist: {}
 
+  # Backend binaries
+  backend-dist: {}
+
 services:
 
   web:
@@ -24,18 +27,20 @@ services:
     restart: always
 
   streamer:
-    build: streamer
+    build: backend
     volumes:
-      # Sources
-      - './streamer:/streamer:ro'
+      # Binaries
+      - 'backend-dist:/streamer:ro'
       # Video content
       - 'video-data:/data/'
     environment:
-      SERVER_HOSTNAME: '${SERVER_NAME}'
-      OUTPUT_DIRECTORY: '/data/video'
-      SERVER_PATH: '/video'
-      OUTPUT_INDEX_FILE_NAME: 'stream.m3u8'
+      DATA_DIRECTORY: '/data/video'
+      INDEX_FILE_NAME: 'index.m3u8'
       TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
+      STREAM_INFO_TIMEOUT: 30
+      PROXY_TIMEOUT: 60
+      TS_SEGMENT_LENGTH: 4
+      TS_SEGMENT_COUNT: 4
 
   irc-relay:
     image: globidocker/twitch-irc

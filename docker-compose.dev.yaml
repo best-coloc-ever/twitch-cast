@@ -12,6 +12,10 @@ volumes:
   sender-node-modules: {}
   receiver-node-modules: {}
 
+  # Backend build cache and binaries
+  backend-stack-root: {}
+  backend-dist: {}
+
 services:
 
   web:
@@ -21,6 +25,11 @@ services:
     # Make the sender dev bundle available
     volumes:
       - 'sender-dev:/sender/dev/:ro'
+
+  streamer:
+    # Publishing a port for development
+    ports:
+      - '8000:8000'
 
   sender-builder:
     build: frontend/sender
@@ -49,3 +58,25 @@ services:
     environment:
       TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
     restart: always
+
+  streamer-builder:
+    image: 'haskell:8.0.1'
+    volumes:
+      # Sources
+      - './backend:/app'
+      # Stack related storage
+      - 'backend-stack-root:/stack-root'
+      # Backend binaries
+      - 'backend-dist:/dist'
+    working_dir: '/app'
+    command: [
+      "stack", "build",
+      "--copy-bins",
+      "--local-bin-path", "/dist",
+      "--file-watch"
+    ]
+    environment:
+      STACK_ROOT: '/stack-root'
+    # Stack apparently needs stdin
+    tty: true
+    stdin_open: true
