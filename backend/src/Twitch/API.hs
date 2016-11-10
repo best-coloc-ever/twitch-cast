@@ -3,15 +3,22 @@
 
 module Twitch.API where
 
+import Streamer.Prelude
+
 import Twitch.Types
+import Twitch.Playlist
 
 import Network.HTTP.Simple
 
 import Data.Aeson
 import Data.Char
+import Data.Either.Combinators
 
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy as LBS
+
+import Control.Exception
+import Control.Monad
 
 instance FromJSON AccessToken where
   parseJSON (Object v) = AccessToken <$>
@@ -25,14 +32,14 @@ channelAccessTokenUrl channel =
   ++ map toLower channel
   ++ "/access_token"
 
-channelAccessToken :: ClientID -> ChannelName -> IO AccessToken
+channelAccessToken :: ClientID -> ChannelName -> IO (Maybe AccessToken)
 channelAccessToken clientID channel = do
   request <- addRequestHeader "Client-ID" (BS.pack clientID) <$>
              parseRequest (channelAccessTokenUrl channel)
 
-  response <- httpJSON request
+  response <- httpJSONEither request
 
-  return $ getResponseBody response
+  return $ rightToMaybe $ getResponseBody response
 
 streamIndexUrl channel =
      "http://usher.twitch.tv/api/channel/hls/"
@@ -47,13 +54,26 @@ streamIndexQueryString AccessToken{tokenValue, signature} =
   , ("type",         Just "any")
   ]
 
-streamIndex :: ClientID -> ChannelName -> IO LBS.ByteString
-streamIndex clientID channel = do
-  token <- channelAccessToken clientID channel
+streamPlaylists :: ClientID -> ChannelName -> IO (Maybe [HLSPlaylist])
+streamPlaylists clientID channel = do
+  mbToken <- channelAccessToken clientID channel
 
-  request <- setRequestQueryString (streamIndexQueryString token) <$>
-             parseRequest (streamIndexUrl channel)
+  whenJustMaybe performRequestWithToken mbToken
 
-  response <- httpLBS request
+  where
+    performRequestWithToken :: AccessToken -> IO (Maybe [HLSPlaylist])
+    performRequestWithToken token = do
+      request <- setRequestQueryString (streamIndexQueryString token) <$>
+                 parseRequest (streamIndexUrl channel)
 
-  return $ getResponseBody response
+      mbResponse <- (Just <$> httpLBS request) `catch` nothingOnException
+
+      return $ join (parsePlaylistsWithResponse <$> mbResponse)
+
+    parsePlaylistsWithResponse :: Response LBS.ByteString -> Maybe [HLSPlaylist]
+    parsePlaylistsWithResponse response = do
+      let eitherPlaylists = parseHLSPlaylists $ getResponseBody response
+      rightToMaybe eitherPlaylists
+
+    nothingOnException :: HttpException -> IO (Maybe a)
+    nothingOnException = const $ return Nothing
