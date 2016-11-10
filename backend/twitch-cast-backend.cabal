@@ -45,6 +45,12 @@ executable twitch-cast-streamer
                      , aeson
                      , text
                      , directory
+                     , optparse-applicative
+  other-modules:       Server.HLSProxy
+                     , Server.Stream
+                     , Server.Types
+                     , Server.Web
+                     , Server.ProgramOptions
   default-language:    Haskell2010
 
 test-suite twitch-cast-backend-test

@@ -13,9 +13,8 @@ import Data.Char (toLower)
 
 import Control.Concurrent
 
-import System.Environment (lookupEnv)
-
 import Server.Types
+import Server.ProgramOptions
 
 import Twitch.API
 import Twitch.Types
@@ -28,28 +27,8 @@ deleteStream :: ChannelName -> ServerState -> ServerState
 deleteStream channel state@ServerState{streams} =
   state { streams = delete channel streams }
 
-fetchStream :: ChannelName -> IO (Maybe Stream)
-fetchStream channel = do
-  mbClientID <- getTwitchClientID
-
-  whenJustMaybe fetchStreamWithClientID mbClientID
-
-  where
-    getTwitchClientID :: IO (Maybe String)
-    getTwitchClientID = lookupEnv "TWITCH_CLIENT_ID"
-
-    fetchStreamWithClientID :: String -> IO (Maybe Stream)
-    fetchStreamWithClientID clientID = do
-      mbPlaylists <- streamPlaylists clientID channel
-      now <- getCurrentTime
-
-      return $ Stream
-        <$> Just channel
-        <*> mbPlaylists
-        <*> Just now
-
-getStream :: ChannelName -> MVar ServerState -> IO (Maybe Stream)
-getStream rawChannel state = do
+getStream :: ProgramOptions ->  ChannelName -> MVar ServerState -> IO (Maybe Stream)
+getStream options rawChannel state = do
   ServerState{streams} <- readMVar state
   -- Check if there is an existing stream
   case lookup channel streams of
@@ -59,6 +38,8 @@ getStream rawChannel state = do
     Nothing     -> createStream
 
   where
+    ProgramOptions{twitchClientID, streamInfoTimeout} = options
+
     channel = map toLower rawChannel
 
     createStream :: IO (Maybe Stream)
@@ -67,16 +48,24 @@ getStream rawChannel state = do
       whenJust monitorAndStoreStream mbStream
       return mbStream
 
+    fetchStream :: ChannelName -> IO (Maybe Stream)
+    fetchStream channel = do
+      mbPlaylists <- streamPlaylists twitchClientID channel
+      now <- getCurrentTime
+
+      return $ Stream
+        <$> Just channel
+        <*> mbPlaylists
+        <*> Just now
+
     monitorAndStoreStream :: Stream -> IO ()
     monitorAndStoreStream stream = do
       forkIO monitorStream
       updateMVar (insertStream stream) state
 
-    streamTimeout = 30
-
     monitorStream :: IO ()
     monitorStream = do
-      threadDelay (streamTimeout * 1000000)
+      threadDelay (streamInfoTimeout * 1000000)
       ServerState{proxies} <- readMVar state
       -- Check if there is a proxy running for the channel
       case find (fst & (== channel)) (keys proxies) of

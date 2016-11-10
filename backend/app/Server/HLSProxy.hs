@@ -20,6 +20,7 @@ import System.Directory
 
 import Server.Types
 import Server.Stream
+import Server.ProgramOptions
 
 import Twitch.API
 import Twitch.Types
@@ -42,25 +43,8 @@ updateProxy proxyKey state@ServerState{proxies} = do
     updateProxyLastUsed :: UTCTime -> HLSProxy -> HLSProxy
     updateProxyLastUsed time proxy = proxy { lastUsedAt = time }
 
-proxyProcess :: String -> String -> CreateProcess
-proxyProcess path indexUrl = do
-  proc ffmpegPath
-    [ "-i",                  indexUrl
-    , "-codec",              "copy"
-    , "-segment_list_flags", "+live"
-    , "-hls_list_size",      show hlsSegmentCount
-    , "-hls_time",           show hlsSegmentLength
-    , "-hls_flags",          "delete_segments"
-    , path
-    ]
-
-  where
-    ffmpegPath = "/tmp/ffmpeg/bin/ffmpeg"
-    hlsSegmentCount = 4
-    hlsSegmentLength = 4
-
-getProxy :: ChannelName -> PlaylistName -> MVar ServerState -> IO (Maybe HLSProxy)
-getProxy rawChannel rawQuality state = do
+getProxy :: ProgramOptions -> ChannelName -> PlaylistName -> MVar ServerState -> IO (Maybe HLSProxy)
+getProxy options rawChannel rawQuality state = do
   ServerState{proxies} <- readMVar state
   -- Check if there is a proxy running for the channel
   case lookup proxyKey proxies of
@@ -70,10 +54,17 @@ getProxy rawChannel rawQuality state = do
       return $ Just proxy
     -- No proxy found, get stream information and try creating a proxy
     Nothing    -> do
-      mbStream <- getStream channel state
+      mbStream <- getStream options channel state
       whenJustMaybe createProxyFromStream mbStream
 
   where
+    ProgramOptions
+      { ffmpegPath
+      , dataDirectory, indexFileName
+      , tsSegmentLength, tsSegmentCount
+      , proxyTimeout
+      } = options
+
     channel = map toLower rawChannel
     quality = map toLower rawQuality
     proxyKey = (channel, quality)
@@ -88,14 +79,14 @@ getProxy rawChannel rawQuality state = do
         byLowerCasedQuality :: HLSPlaylist -> Bool
         byLowerCasedQuality = name & (map toLower) & (== quality)
 
-    directory = intercalate "/" ["/tmp", "video", channel, quality]
-    indexPath = intercalate "/" [directory, "index.m3u8"]
+    directory = intercalate "/" [dataDirectory, channel, quality]
+    indexPath = intercalate "/" [directory, indexFileName]
 
     createProxy :: HLSPlaylist -> IO (Maybe HLSProxy)
     createProxy HLSPlaylist{url} = do
       -- Prepare FS and spawn the proxy process
       createDirectoryIfMissing True directory
-      (_, _, _, handle) <- createProcess $ proxyProcess indexPath url
+      (_, _, _, handle) <- createProcess $ proxyProcess url
 
       now <- getCurrentTime
       let proxy = HLSProxy handle indexPath now
@@ -105,7 +96,17 @@ getProxy rawChannel rawQuality state = do
 
       return $ Just proxy
 
-    proxyTimeout = 60
+    proxyProcess :: String -> CreateProcess
+    proxyProcess indexUrl = do
+      proc ffmpegPath
+        [ "-i",                  indexUrl
+        , "-codec",              "copy"
+        , "-segment_list_flags", "+live"
+        , "-hls_list_size",      show tsSegmentCount
+        , "-hls_time",           show tsSegmentLength
+        , "-hls_flags",          "delete_segments"
+        , indexPath
+        ]
 
     monitorProxy :: IO ()
     monitorProxy  = do
@@ -114,32 +115,31 @@ getProxy rawChannel rawQuality state = do
       let mbProxy = lookup proxyKey proxies
       whenJust checkTimeoutOrExit mbProxy
 
-      where
-        checkTimeoutOrExit :: HLSProxy -> IO ()
-        checkTimeoutOrExit HLSProxy{processHandle, lastUsedAt} = do
-          now <- getCurrentTime
-          mbExit <- getProcessExitCode processHandle
+    checkTimeoutOrExit :: HLSProxy -> IO ()
+    checkTimeoutOrExit HLSProxy{processHandle, lastUsedAt} = do
+      now <- getCurrentTime
+      mbExit <- getProcessExitCode processHandle
 
-          let remaining = diffUTCTime now lastUsedAt
-              expiresIn = (fromInteger proxyTimeout) - remaining
-              expired = expiresIn > 0
-              exited = isJust mbExit
+      let remaining = diffUTCTime now lastUsedAt
+          expiresIn = (fromIntegral proxyTimeout) - remaining
+          expired = expiresIn <= 0
+          exited = isJust mbExit
 
-          if expired || exited
-            then removeProxy processHandle
-            else checkLater expiresIn
+      if expired || exited
+        then removeProxy processHandle
+        else checkLater expiresIn
 
-        removeProxy :: ProcessHandle -> IO ()
-        removeProxy handle = do
-          -- Despawn process
-          terminateProcess handle
-          waitForProcess handle
-          -- Cleanup FS
-          removeDirectoryRecursive directory
-          -- Update state
-          updateMVar (deleteProxy proxyKey) state
+    removeProxy :: ProcessHandle -> IO ()
+    removeProxy handle = do
+      -- Despawn process
+      terminateProcess handle
+      waitForProcess handle
+      -- Cleanup FS
+      removeDirectoryRecursive directory
+      -- Update state
+      updateMVar (deleteProxy proxyKey) state
 
-        checkLater :: NominalDiffTime -> IO ()
-        checkLater seconds = do
-          threadDelay $ round (seconds * 1000000)
-          monitorProxy
+    checkLater :: NominalDiffTime -> IO ()
+    checkLater seconds = do
+      threadDelay $ round (seconds * 1000000)
+      monitorProxy
