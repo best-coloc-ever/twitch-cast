@@ -18,6 +18,7 @@ library
   exposed-modules:     Twitch.API
                      , Twitch.Types
                      , Twitch.Playlist
+                     , Streamer.Prelude
   build-depends:       base >= 4.7 && < 5
                      , http-conduit
                      , aeson
