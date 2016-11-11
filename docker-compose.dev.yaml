@@ -13,8 +13,8 @@ volumes:
   receiver-node-modules: {}
 
   # Backend build cache and binaries
-  backend-stack-root: {}
-  backend-dist: {}
+  streamer-stack-root: {}
+  streamer-dist: {}
 
 services:
 
@@ -63,11 +63,11 @@ services:
     image: 'haskell:8.0.1'
     volumes:
       # Sources
-      - './backend:/app'
+      - './streamer:/app'
       # Stack related storage
-      - 'backend-stack-root:/stack-root'
+      - 'streamer-stack-root:/stack-root'
       # Backend binaries
-      - 'backend-dist:/dist'
+      - 'streamer-dist:/dist'
     working_dir: '/app'
     command: [
       "stack", "build",

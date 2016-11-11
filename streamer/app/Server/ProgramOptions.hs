@@ -15,6 +15,7 @@ data ProgramOptions = ProgramOptions
   , proxyTimeout :: Int
   , tsSegmentLength :: Int
   , tsSegmentCount :: Int
+  , webPort :: Int
   } deriving (Show)
 
 parseOptions :: IO ProgramOptions
@@ -39,6 +40,7 @@ parseOptions = do
       <*> environmentRead "PROXY_TIMEOUT"       60
       <*> environmentRead "TS_SEGMENT_LENGTH"   4
       <*> environmentRead "TS_SEGMENT_COUNT"    4
+      <*> return 8000
 
     environment :: String -> String -> IO String
     environment key def = do
@@ -99,4 +101,10 @@ programOptionsParser defaults = ProgramOptions
       <> value (tsSegmentCount defaults)
       <> metavar "NUM"
       <> help "The number of proxied video data segments referenced in the playlist"
+      )
+  <*> option auto
+      (  long "web-port"
+      <> value (webPort defaults)
+      <> metavar "PORT"
+      <> help "The port used by the web server to listen on"
       )

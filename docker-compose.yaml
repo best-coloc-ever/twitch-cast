@@ -11,7 +11,7 @@ volumes:
   receiver-dist: {}
 
   # Backend binaries
-  backend-dist: {}
+  streamer-dist: {}
 
 services:
 
@@ -27,10 +27,10 @@ services:
     restart: always
 
   streamer:
-    build: backend
+    build: streamer
     volumes:
       # Binaries
-      - 'backend-dist:/streamer:ro'
+      - 'streamer-dist:/streamer:ro'
       # Video content
       - 'video-data:/data/'
     environment:

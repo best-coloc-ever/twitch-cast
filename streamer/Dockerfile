@@ -1,23 +1,11 @@
-FROM python:3
+FROM debian
 
-RUN pip install \
-    Flask \
-    jsonschema \
-    websockets
-
-# Install netcat and ffmpeg reqs
-RUN apt-get update -y && apt-get install -y \
-    netcat \
-    yasm \
-    nasm
-
-# Install my fork of Livestreamer
-RUN apt-get install -y unzip
-ENV branch fix-crash-on-httpserver-sigpipe
-ADD https://github.com/Globidev/livestreamer/archive/${branch}.zip /tmp/livestreamer.zip
-RUN unzip /tmp/livestreamer.zip -d /tmp
-RUN cd /tmp/livestreamer-${branch} && python3 setup.py install
-RUN rm -rf /tmp/livestreamer.zip /tmp/livestreamer-${branch}
+RUN apt-get update -q && apt-get install -y \
+    libgmp-dev \
+    zlib1g-dev \
+    curl \
+    build-essential \
+    yasm
 
 ENV FFMPEG_ARCHIVE_URL  http://www.ffmpeg.org/releases/ffmpeg-3.1.tar.gz
 ENV FFMPEG_BUILD_DIR    /ffmpeg-build
@@ -29,5 +17,6 @@ RUN mkdir ${FFMPEG_BUILD_DIR} &&\
     make -j$(nproc) install > build.log &&\
     rm -rf ${FFMPEG_BUILD_DIR}
 
-WORKDIR /streamer
-ENTRYPOINT ["./api.py"]
+ENV FFMPEG_PATH         ${FFMPEG_DIST_DIR}/bin/ffmpeg
+
+ENTRYPOINT ["/streamer/twitch-cast-streamer"]

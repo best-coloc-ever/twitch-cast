@@ -20,7 +20,7 @@ import Control.Monad.IO.Class  (liftIO)
 import Control.Concurrent.MVar (MVar(..))
 
 runServer :: MVar ServerState -> ProgramOptions -> IO ()
-runServer state options = scotty 8000 $ do
+runServer state options = scotty webPort $ do
   middleware logStdoutDev
 
   get "/:channel" $ do
@@ -39,7 +39,7 @@ runServer state options = scotty 8000 $ do
     withJustOr404 serveProxy mbProxy
 
   where
-    ProgramOptions{indexFileName} = options
+    ProgramOptions{indexFileName, webPort} = options
 
     playlistRoutePattern = fromString $
       "/:channel/:quality/" ++ indexFileName
