@@ -93,6 +93,8 @@ getProxy options rawChannel rawQuality state = do
       -- Monitor and store the proxy
       forkIO monitorProxy
       updateMVar (insertProxy proxyKey proxy) state
+      -- Wait for the index to be created
+      waitForIndex
 
       return $ Just proxy
 
@@ -107,6 +109,23 @@ getProxy options rawChannel rawQuality state = do
         , "-hls_flags",          "delete_segments"
         , indexPath
         ]
+
+    fsPollInterval = 250000 -- microseconds
+    maxIndexWaitTime = 3 * 1000000
+
+    waitForIndex :: IO ()
+    waitForIndex = go 0
+      where
+        go :: Int -> IO ()
+        go elapsed = do
+          threadDelay fsPollInterval
+          fileCreated <- doesFileExist indexPath
+
+          let timedOut = elapsed >= maxIndexWaitTime
+
+          if timedOut || fileCreated
+            then return ()
+            else go $ elapsed + fsPollInterval
 
     monitorProxy :: IO ()
     monitorProxy  = do
