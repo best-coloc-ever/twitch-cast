@@ -32,25 +32,20 @@ parseOptions = do
   where
     getDefaultOptions :: IO ProgramOptions
     getDefaultOptions = ProgramOptions
-      <$> environment     "FFMPEG_PATH"         ""
-      <*> environment     "DATA_DIRECTORY"      "/tmp/video"
-      <*> environment     "INDEX_FILE_NAME"     "index.m3u8"
-      <*> environment     "TWITCH_CLIENT_ID"    ""
-      <*> environmentRead "STREAM_INFO_TIMEOUT" 30
-      <*> environmentRead "PROXY_TIMEOUT"       60
-      <*> environmentRead "TS_SEGMENT_LENGTH"   4
-      <*> environmentRead "TS_SEGMENT_COUNT"    4
-      <*> return 8000
+      <$> env id     "FFMPEG_PATH"         ""
+      <*> env id     "DATA_DIRECTORY"      "/tmp/video"
+      <*> env id     "INDEX_FILE_NAME"     "index.m3u8"
+      <*> env id     "TWITCH_CLIENT_ID"    ""
+      <*> env read   "STREAM_INFO_TIMEOUT" 30
+      <*> env read   "PROXY_TIMEOUT"       60
+      <*> env read   "TS_SEGMENT_LENGTH"   4
+      <*> env read   "TS_SEGMENT_COUNT"    4
+      <*> return                           8000
 
-    environment :: String -> String -> IO String
-    environment key def = do
+    env :: (String -> a) -> String -> a -> IO a
+    env transform key defaultValue = do
       envValue <- lookupEnv key
-      return $ maybe def id envValue
-
-    environmentRead :: Read a => String -> a -> IO a
-    environmentRead key def = do
-      envValue <- lookupEnv key
-      return $ maybe def read envValue
+      return $ maybe defaultValue transform envValue
 
 programOptionsParser :: ProgramOptions -> Parser ProgramOptions
 programOptionsParser defaults = ProgramOptions
