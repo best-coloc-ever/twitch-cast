@@ -38,7 +38,7 @@ services:
       - 'sender-dist:/dist/'
     ports:
       # Exposing port for browser-sync
-      - '3001:3000'
+      - '3001:3001'
     environment:
       TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
     restart: always
