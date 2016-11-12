@@ -32,7 +32,7 @@ services:
       # Binaries
       - 'streamer-dist:/streamer:ro'
       # Video content
-      - 'video-data:/data/'
+      - 'video-data:/data/video'
     environment:
       DATA_DIRECTORY: '/data/video'
       INDEX_FILE_NAME: 'index.m3u8'
@@ -41,6 +41,7 @@ services:
       PROXY_TIMEOUT: 60
       TS_SEGMENT_LENGTH: 4
       TS_SEGMENT_COUNT: 4
+    restart: always
 
   irc-relay:
     image: globidocker/twitch-irc
