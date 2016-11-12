@@ -2,7 +2,6 @@ version: '2'
 
 volumes:
   # Sender application bundle volumes
-  sender-dev: {}
   sender-dist: {}
 
   # Receiver application bundle volume
@@ -22,9 +21,6 @@ services:
     # Publishing a port for development
     ports:
       - '8443:443'
-    # Make the sender dev bundle available
-    volumes:
-      - 'sender-dev:/sender/dev/:ro'
 
   streamer:
     # Publishing a port for development
@@ -32,15 +28,19 @@ services:
       - '8000:8000'
 
   sender-builder:
-    build: frontend/sender
+    build: frontend/sender/builder
     volumes:
       # Sources
-      - './frontend/sender/:/src/'
+      - './frontend/sender/app:/app/'
       # Node specific
-      - 'sender-node-modules:/src/node_modules'
+      - 'sender-node-modules:/app/node_modules'
       # Sender app
-      - 'sender-dist:/src/dist/'
-      - 'sender-dev:/src/dev/'
+      - 'sender-dist:/dist/'
+    ports:
+      # Exposing port for browser-sync
+      - '3001:3000'
+    environment:
+      TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
     restart: always
 
   receiver-builder:

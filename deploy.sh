@@ -15,9 +15,8 @@ streamer-run() {
 }
 
 # Bundle the sender application
-sender-run npm install
-sender-run bower install
-sender-run gulp dist
+receiver-run npm install
+receiver-run webpack -p
 
 # Bundle the receiver application
 receiver-run npm install
