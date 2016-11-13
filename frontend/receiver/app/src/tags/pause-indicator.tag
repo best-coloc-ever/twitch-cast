@@ -1,6 +1,6 @@
 <pause-indicator>
 
-  <img class="rotate" src="/twitch-cast/img/kappa.png" if={ visible }>
+  <img class="rotate" src="/chromecast/img/kappa.png" if={ visible }>
 
   <style scoped>
     img {

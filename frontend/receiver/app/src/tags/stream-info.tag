@@ -23,19 +23,19 @@
     }
 
     .joystick {
-      content:url("/twitch-cast/img/icons/joystick.svg");
+      content:url("/chromecast/img/icons/joystick.svg");
     }
 
     .viewers {
-      content:url("/twitch-cast/img/icons/viewers.svg");
+      content:url("/chromecast/img/icons/viewers.svg");
     }
 
     .views {
-      content:url("/twitch-cast/img/icons/views.svg");
+      content:url("/chromecast/img/icons/views.svg");
     }
 
     .follows {
-      content:url("/twitch-cast/img/icons/follows.svg");
+      content:url("/chromecast/img/icons/follows.svg");
     }
   </style>
 
