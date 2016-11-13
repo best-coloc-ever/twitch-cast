@@ -1,6 +1,6 @@
 <clock>
 
-  <div>{ hours }{ blinkerSwitch ? ':' : ' ' }{ minutes }</div>
+  <div>{ hours }{ separator() }{ minutes }</div>
 
   <script>
     this.blinkerSwitch = true
@@ -13,6 +13,8 @@
 
       return new Array(n - what.length + 1).join('0') + what
     }
+
+    this.separator = () => this.blinkerSwitch ? ':' : ' '
 
     this.refresh = () => {
       let now = new Date()
