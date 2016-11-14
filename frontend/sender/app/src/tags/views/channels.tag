@@ -43,10 +43,10 @@
 
   <!-- logic -->
   <script>
-    import { TwitchAPI } from 'api/twitch.js'
+    import TwitchAPI from 'api/twitch.js'
 
     const streamChunkSize = 4
-    const streamFetchCount = 20
+    const streamFetchCount = 40
 
     this.streamsChunks = []
     this.offset = 0
