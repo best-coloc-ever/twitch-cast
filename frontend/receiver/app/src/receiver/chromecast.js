@@ -62,6 +62,10 @@ class ChromecastReceiver {
     host.autoResumeDuration = autoResumeDuration
     host.autoResumeNumberOfSegments = autoResumeNumberOfSegments
     host.segmentRequestRetryLimit = segmentRequestRetryLimit
+    // Workaround (hopefully temporary)
+    host.updateManifestRequestInfo = info => {
+      info.timeoutInterval = 1000
+    }
 
     host.onError = this._onHostError.bind(this)
     host.onAutoPause = this._onHostAutoPause.bind(this)
