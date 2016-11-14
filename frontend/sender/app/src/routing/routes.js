@@ -1,4 +1,10 @@
+export const routeNames = {
+  Channels: 'channels',
+  Games:    'games'
+}
+
 export const routes = [
-  ["/",         "home-view"    ],
-  ["/channels", "channels-view"]
+  ['/',                       'home-view'    ],
+  [`/${routeNames.Channels}`, 'channels-view'],
+  [`/${routeNames.Games}`,    'games-view'   ],
 ]
