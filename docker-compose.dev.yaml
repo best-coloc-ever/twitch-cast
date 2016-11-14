@@ -41,6 +41,7 @@ services:
       - '3001:3001'
     environment:
       TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
+      CHROMECAST_APP_ID: '${CHROMECAST_APP_ID}'
     restart: always
 
   receiver-builder:
