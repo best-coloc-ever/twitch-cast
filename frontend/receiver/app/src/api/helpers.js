@@ -1,6 +1,15 @@
 import { loadScript } from 'utils/deferred_load.js'
 
-function jsonCall(url, init={}) {
+export function jsonCall(rawUrl, { init={}, params={} } = {}) {
+  if (rawUrl.startsWith('//'))
+    rawUrl = `${window.location.protocol}${rawUrl}`
+
+  let url = new URL(rawUrl)
+
+  Object.keys(params).forEach(key => {
+    url.searchParams.append(key, params[key])
+  })
+
   let promise =
     fetch(url, init)
       .then(response => {
@@ -14,15 +23,10 @@ function jsonCall(url, init={}) {
 }
 
 // Naive way of doing things
-function jsonPCall(url) {
+export function jsonPCall(url) {
   return new Promise((resolve, _) => {
     window.callback = resolve
 
     return loadScript(`${url}?callback=callback`)
   })
-}
-
-module.exports = {
-  jsonCall: jsonCall,
-  jsonPCall: jsonPCall,
 }

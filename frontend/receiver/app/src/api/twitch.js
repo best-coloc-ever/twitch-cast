@@ -6,23 +6,24 @@ const twitchInit = {
   }
 }
 
-function twitchJsonCall(route) {
+function twitchJsonCall(route, params={}) {
   let url = `//api.twitch.tv/kraken${route}`
 
-  return jsonCall(url, twitchInit)
+  return jsonCall(url, { init: twitchInit, params: params })
 }
 
 const betaBadgesEndpointPrefix = '//badges.twitch.tv/v1/badges'
 
 const TwitchAPI = {
   channel: (channelName) => twitchJsonCall(`/channels/${channelName}`),
-  stream: (channelName) => twitchJsonCall(`/streams/${channelName}`),
-  badges: (channelName) => twitchJsonCall(`/chat/${channelName}/badges`),
+  stream:  (channelName) => twitchJsonCall(`/streams/${channelName}`),
+  streams: (params = {}) => twitchJsonCall('/streams', params),
+  badges:  (channelName) => twitchJsonCall(`/chat/${channelName}/badges`),
 
   Beta: {
-    badges: () => jsonPCall(`${betaBadgesEndpointPrefix}/global/display`),
+    badges:        ()          => jsonPCall(`${betaBadgesEndpointPrefix}/global/display`),
     channelBadges: (channelId) => jsonPCall(`${betaBadgesEndpointPrefix}/channels/${channelId}/display`)
   }
 }
 
-module.exports = TwitchAPI
+export default TwitchAPI

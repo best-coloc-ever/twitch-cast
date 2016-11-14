@@ -1,21 +1,29 @@
-import { jsonCall } from './helpers.js'
+import { jsonCall, jsonPCall } from './helpers.js'
 
 const twitchInit = {
   headers: {
-    'Client-ID': TWITCH_CLIENT_ID
+    'Client-ID': TWITCH_CLIENT_ID // Available globally thanks to Webpack
   }
 }
 
 function twitchJsonCall(route, params={}) {
-  let url = new URL(`https://api.twitch.tv/kraken${route}`)
+  let url = `//api.twitch.tv/kraken${route}`
 
-  Object.keys(params).forEach(key => {
-    url.searchParams.append(key, params[key])
-  })
-
-  return jsonCall(url, twitchInit)
+  return jsonCall(url, { init: twitchInit, params: params })
 }
 
-export const TwitchAPI = {
-  streams: (params={}) => twitchJsonCall('/streams', params)
+const betaBadgesEndpointPrefix = '//badges.twitch.tv/v1/badges'
+
+const TwitchAPI = {
+  channel: (channelName) => twitchJsonCall(`/channels/${channelName}`),
+  stream:  (channelName) => twitchJsonCall(`/streams/${channelName}`),
+  streams: (params = {}) => twitchJsonCall('/streams', params),
+  badges:  (channelName) => twitchJsonCall(`/chat/${channelName}/badges`),
+
+  Beta: {
+    badges:        ()          => jsonPCall(`${betaBadgesEndpointPrefix}/global/display`),
+    channelBadges: (channelId) => jsonPCall(`${betaBadgesEndpointPrefix}/channels/${channelId}/display`)
+  }
 }
+
+export default TwitchAPI
