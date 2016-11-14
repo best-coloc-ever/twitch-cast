@@ -1,7 +1,7 @@
 <home-view>
 
   <!-- layout -->
-  <div>{ data }</div>
+  <div></div>
 
 
   <!-- style -->
@@ -12,10 +12,8 @@
 
   <!-- logic -->
   <script>
-    this.data = 'Hello from home.tag'
-
     this.on('mount', () => {
-
+      riot.route('/channels', '', true)
     })
   </script>
 
