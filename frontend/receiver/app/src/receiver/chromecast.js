@@ -1,5 +1,7 @@
 import ReceiverEvent from './events.js'
+import StreamerAPI from 'api/streamer.js'
 import { loadScript } from 'utils/deferred_load.js'
+import { ChromecastMessageType } from 'chromecast/messages.js'
 
 const customMessageBusName       = 'urn:x-cast:twitch.cast.message',
       // Host settings
@@ -18,10 +20,12 @@ class ChromecastReceiver {
     this.player = null
 
     // Making sure autoplay is set
-    this.mediaElement.autoplay = autoplay
+    this.mediaElement.autoplay = true
 
     // Add observer support
     riot.observable(this)
+
+    this.on(ChromecastMessageType.Watch, data => this.playChannel(data.channel))
 
     // Loading the chromecast sdk dynamically
     loadScript(chromecastSdkReceiverJsUrl)
@@ -31,10 +35,6 @@ class ChromecastReceiver {
 
   _initialize() {
     cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
-
-    // The mediaManager handles media messages
-    let mediaManager = new cast.receiver.MediaManager(this.mediaElement)
-    mediaManager.onLoad = this._onLoadEvent.bind(this)
 
     // The castManager allows communication with the sender application
     let castManager = cast.receiver.CastReceiverManager.getInstance()
@@ -46,23 +46,10 @@ class ChromecastReceiver {
     castManager.start()
   }
 
-  _onLoadEvent(event) {
-    this._unloadPlayer()
-
-    if (event.data['media'] && event.data['media']['contentId']) {
-      let url = event.data['media']['contentId']
-      let host = this._makeHost(url)
-      let protocol = cast.player.api.CreateHlsStreamingProtocol(host)
-
-      this.player = new cast.player.api.Player(host)
-      this.player.load(protocol, Infinity)
-    }
-  }
-
   _handleCustomMessages(event) {
     let message = JSON.parse(event.data)
 
-    this.trigger(message.type, message)
+    this.trigger(message.type, message.data)
   }
 
   _makeHost(url) {
@@ -101,6 +88,27 @@ class ChromecastReceiver {
 
   _onHostAutoPause(isPaused) {
     this.trigger(ReceiverEvent.AutoPaused, isPaused)
+  }
+
+  playChannel(channel) {
+    StreamerAPI.stream(channel)
+      .then(data => {
+        data.playlists.sort((a, b) => b.bandwidth - a.bandwidth)
+        let quality = data.playlists[0].name
+
+        this.playChannelAndQuality(channel, quality)
+      })
+  }
+
+  playChannelAndQuality(channel, quality) {
+    this._unloadPlayer()
+
+    let url = StreamerAPI.playlistUrl(channel, quality)
+    let host = this._makeHost(url)
+    let protocol = cast.player.api.CreateHlsStreamingProtocol(host)
+
+    this.player = new cast.player.api.Player(host)
+    this.player.load(protocol, Infinity)
   }
 
 }

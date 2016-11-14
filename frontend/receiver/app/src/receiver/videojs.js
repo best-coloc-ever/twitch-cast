@@ -20,6 +20,9 @@ class VideojsReceiver {
     // Add observer support
     riot.observable(this)
 
+    riot.route('/*',   this.onChannelChanged.bind(this))
+    riot.route('/*/*', this.onChannelAndQualityChanged.bind(this))
+
     // Loading videojs dynamically
     loadLink(videojsCssUrl)
     loadScript(videojsJsUrl)
@@ -27,20 +30,23 @@ class VideojsReceiver {
       .then(this._initialize.bind(this))
   }
 
-  _initialize() {
-    // Fetching stream id from query parameters
-    var streamId = riot.route.query().id
+  onChannelChanged(channel) {
+    StreamerAPI.stream(channel)
+      .then(data => {
+        data.playlists.sort((a, b) => b.bandwidth - a.bandwidth)
+        let quality = data.playlists[0].name
 
-    if (streamId)
-      this._fetchStream(streamId)
+        riot.route(`/${channel}/${quality}`, `${channel} (${quality})`, true)
+      })
   }
 
-  _fetchStream(streamId) {
-    StreamerAPI.stream(streamId)
-      .then(data => {
-        this.trigger(ReceiverEvent.ChannelChanged, { channel: data.channel })
-        this._playStream(data.proxy.indexUrl)
-      })
+  onChannelAndQualityChanged(channel, quality) {
+    this.trigger(ReceiverEvent.ChannelChanged, { channel: channel })
+    this._playStream(StreamerAPI.playlistUrl(channel, quality))
+  }
+
+  _initialize() {
+    riot.route.start(true)
   }
 
   _playStream(playlistUrl) {

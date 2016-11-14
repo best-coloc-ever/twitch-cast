@@ -67,6 +67,7 @@
   <!-- Logic -->
   <script>
     import ReceiverEvent from 'receiver/events.js'
+    import { ChromecastMessageType } from 'chromecast/messages.js'
 
     this.showStreamInfo = true
 
@@ -83,8 +84,8 @@
           streamInfo     = this.tags['stream-info'],
           pauseIndicator = this.tags['pause-indicator']
 
-      receiver.on(ReceiverEvent.ChannelChanged, e => {
-        streamInfo.setChannel(e.channel)
+      receiver.on(ChromecastMessageType.Watch, data => {
+        streamInfo.setChannel(data.channel)
       })
 
       receiver.on(ReceiverEvent.ChatToggled, e => {

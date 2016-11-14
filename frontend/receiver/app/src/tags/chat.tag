@@ -31,6 +31,7 @@
     import ChatAssetStore from 'chat/asset_store.js'
     import { buildChatLine } from 'chat/message.js'
     import ReceiverEvent from 'receiver/events.js'
+    import { ChromecastMessageType } from 'chromecast/messages.js'
 
     const CHAT_MESSAGE_MAX_COUNT = 50;
     const CHAT_DISPLAY_INTERVAL = 0.3; // seconds
@@ -149,8 +150,8 @@
       let self = this,
           receiver = this.parent.receiver
 
-      receiver.on(ReceiverEvent.ChannelChanged, e => {
-        self.setChannel(e.channel)
+      receiver.on(ChromecastMessageType.Watch, data => {
+        self.setChannel(data.channel)
       })
 
       receiver.on(ReceiverEvent.ChatToggled, e => {
