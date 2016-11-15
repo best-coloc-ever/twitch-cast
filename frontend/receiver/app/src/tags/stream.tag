@@ -84,7 +84,7 @@
           streamInfo     = this.tags['stream-info'],
           pauseIndicator = this.tags['pause-indicator']
 
-      receiver.on(ChromecastMessageType.Watch, data => {
+      receiver.on(ReceiverEvent.ChannelChanged, data => {
         streamInfo.setChannel(data.channel)
       })
 

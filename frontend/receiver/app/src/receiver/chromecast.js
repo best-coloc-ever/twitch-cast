@@ -95,6 +95,8 @@ class ChromecastReceiver {
   }
 
   playChannel(channel) {
+    this.trigger(ReceiverEvent.ChannelChanged, { channel: channel })
+
     StreamerAPI.stream(channel)
       .then(data => {
         data.playlists.sort((a, b) => b.bandwidth - a.bandwidth)

@@ -150,7 +150,7 @@
       let self = this,
           receiver = this.parent.receiver
 
-      receiver.on(ChromecastMessageType.Watch, data => {
+      receiver.on(ReceiverEvent.ChannelChanged, data => {
         self.setChannel(data.channel)
       })
 
