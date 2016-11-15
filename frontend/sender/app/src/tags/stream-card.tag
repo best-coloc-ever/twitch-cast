@@ -1,8 +1,7 @@
 <stream-card>
 
   <!-- layout -->
-  <a href={ streamLink }>
-  <div class="preview">
+  <div class="preview" onclick={ onClick }>
     <img src={ data.preview.medium }>
     <div class="embed">
       <div class="streamer-name">{ data.channel.display_name }</div>
@@ -16,12 +15,12 @@
       </div>
     </div>
   </div>
-  </a>
 
 
   <!-- style -->
   <style scoped>
     .preview {
+      cursor: pointer;
       position: relative;
       background: linear-gradient(rgba(255, 0, 0, 0), rgba(0, 0, 0, 0.8))
     }
@@ -68,10 +67,11 @@
 
   <!-- logic -->
   <script>
-    // import StreamerAPI from 'api/streamer.js'
     this.data = opts.data
 
-    this.streamLink = `#watch/${this.data.channel.name}`
+    this.onClick = () => {
+      opts.sender.play(this.data.channel.name)
+    }
 
     this.on('mount', () => {
 

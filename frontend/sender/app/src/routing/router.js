@@ -4,8 +4,9 @@ const dummyView = { unmount: (..._) => undefined }
 
 export class Router {
 
-  constructor(domNode) {
+  constructor(domNode, opts) {
     this.mountNode = domNode
+    this.opts = opts
     this.currentView = dummyView
 
     routes.forEach(descriptor => this.addRoute(...descriptor))
@@ -20,10 +21,12 @@ export class Router {
   setView(tagName) {
     this.currentView.unmount(true)
 
-    let children = riot.mount(this.mountNode, tagName)
+    let children = riot.mount(this.mountNode, tagName, this.opts)
 
-    if (children.length)
+    if (children.length) {
       this.currentView = children[0]
+      this.currentView.update()
+    }
     else {
       console.error(`Missing tag: "${tagName}"`)
       this.currentView = dummyView

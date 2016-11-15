@@ -4,7 +4,7 @@
   <div class="mdl-grid stream-grid" each={ streams in streamsChunks }>
     <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--12-col-phone"
          each={ stream in streams }>
-      <stream-card data={ stream }></stream-card>
+      <stream-card data={ stream } sender={ sender }></stream-card>
     </div>
   </div>
 
@@ -51,6 +51,7 @@
     this.streamsChunks = []
     this.offset = 0
     this.loading = false
+    this.sender = opts.__proto__.sender
 
     this.addStreams = data => {
       let streams = data.streams

@@ -38,24 +38,13 @@
 
   <!-- logic -->
   <script>
-    import { Router } from 'routing/router.js'
     import ChromecastSender from 'chromecast/sender.js'
-    import StreamerAPI from 'api/streamer.js'
+    import { Router } from 'routing/router.js'
 
     this.sender = new ChromecastSender
 
-    this.playLocally = channel => {
-      let url = StreamerAPI.receiverUrl(channel)
-      window.location.replace(url)
-    }
-
     this.on('mount', () => {
-      riot.route('/watch/*', channel => {
-        if (!this.sender.connected())
-          this.playLocally(channel)
-      })
-
-      let router = new Router(this.content)
+      let router = new Router(this.content, { sender: this.sender })
 
       router.start()
     })

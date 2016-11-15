@@ -1,5 +1,6 @@
 import { loadScript } from 'utils/deferred_load.js'
 import ChromecastMessage, { chromecastCustomMessageBus } from './messages.js'
+import StreamerAPI from 'api/streamer.js'
 
 const chromecastSdkSenderJsUrl = '//www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1'
 
@@ -7,27 +8,33 @@ export const SenderEvent = {
   Initialized: 'sender-initialized',
   CastStateChanged: 'sender-cast-state-changed',
   SessionStateChanged: 'sender-session-state-changed',
-  ChannelSent: 'sender-channel-sent'
+  ChannelSent: 'sender-channel-sent',
+  ChannelQueued: 'sender-channel-queued',
+  CastError: 'sender-cast-error'
 }
 
 export default class ChromecastSender {
 
   constructor() {
     this.castContext = null
+    this.playOnReady = null
 
     riot.observable(this)
 
-    riot.route('/watch/*', channel => {
-      this.sendCustomMessage(ChromecastMessage.watch(channel))
-        .then(mbError => {
-          if (!mbError)
-            this.trigger(SenderEvent.ChannelSent, channel)
-        })
+    this.on(SenderEvent.CastStateChanged, state => {
+      if (this.playOnReady && cast.framework.CastState.CONNECTED)
+        this.sendCustomMessage(ChromecastMessage.watch(this.playOnReady))
+          .then(
+            mbError => { if (mbError) this.onCastError(mbError) },
+            error   => this.onCastError(error)
+          )
     })
 
     window.__onGCastApiAvailable = isAvailable => {
       if (isAvailable)
         this.initialize()
+      else
+        console.log('unavailable')
     }
 
     loadScript(chromecastSdkSenderJsUrl)
@@ -40,9 +47,11 @@ export default class ChromecastSender {
       resumeSavedSession:    true
     }
 
-    let castContext = cast.framework.CastContext.getInstance()
+    this.on(SenderEvent.SessionStateChanged, console.log.bind(console))
 
+    let castContext = cast.framework.CastContext.getInstance()
     castContext.setOptions(castContextOptions)
+
     castContext.addEventListener(
       cast.framework.CastContextEventType.CAST_STATE_CHANGED,
       event => this.trigger(SenderEvent.CastStateChanged, event.castState)
@@ -90,13 +99,38 @@ export default class ChromecastSender {
     return 'Unknown device'
   }
 
-  connected() {
-    let session = this.castContext.getCurrentSession()
+  play(channel) {
+    this.playOnReady = null
 
-    if (session)
-      return session.getSessionObj().status == chrome.cast.SessionStatus.CONNECTED
+    let castState = this.castContext.getCastState()
 
-    return false
+    if (castState == cast.framework.CastState.CONNECTED) {
+      this.sendCustomMessage(ChromecastMessage.watch(channel))
+        .then(
+          mbError => {
+            if (!mbError)
+              this.trigger(SenderEvent.ChannelSent, channel)
+            else
+              this.onCastError(mbError)
+          },
+          error   => this.onCastError(error)
+        )
+    }
+    else if (castState == cast.framework.CastState.CONNECTING) {
+      this.playOnReady = channel
+      this.trigger(SenderEvent.ChannelQueued, channel)
+    }
+    else
+      this.playLocally(channel)
+  }
+
+  playLocally(channel) {
+    let url = StreamerAPI.receiverUrl(channel)
+    window.location = url
+  }
+
+  onCastError(error) {
+    this.trigger(SenderEvent.CastError, error)
   }
 
 }
