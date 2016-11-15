@@ -1,16 +1,17 @@
 <cast-button>
 
   <!-- layout -->
-  <button class="mdl-button mdl-js-button mdl-button--icon"
-          onclick={ state.action }
-          if={ state.available }>
-    <i class="material-icons">{ state.icon }</i>
-  </button>
+  <div show={ state.available } onclick={ state.action }>
+    <div class="mdl-spinner mdl-js-spinner is-active" show={ state.readying }></div>
+    <i class="material-icons" show={ !state.readying }>{ state.icon }</i>
+  </div>
 
 
   <!-- style -->
   <style scoped>
-
+    div {
+      cursor: pointer;
+    }
   </style>
 
 
@@ -21,18 +22,19 @@
     const castIconConnected   = 'cast_connected',
           castIconUnconnected = 'cast'
 
-    function state(available, icon, action) {
+    function state(available, readying, icon, action) {
       return {
         available: available,
+        readying: readying,
         icon: icon,
-        action: action
+        action: action,
       }
     }
 
-    const unavailableState = state(false, null,                undefined),
-          unconnectedState = state(true,  castIconUnconnected, () => this.sender.connect()),
-          connectingState  = state(true,  castIconUnconnected, undefined),
-          connectedState   = state(true,  castIconConnected,   () => this.sender.disconnect())
+    const unavailableState = state(false, false, null,                undefined),
+          unconnectedState = state(true,  false, castIconUnconnected, () => this.sender.connect()),
+          connectingState  = state(true,  true,  castIconUnconnected, undefined),
+          connectedState   = state(true,  false, castIconConnected,   () => this.sender.disconnect())
 
     this.sender = opts.sender
     this.state = unavailableState
