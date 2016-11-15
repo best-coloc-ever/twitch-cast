@@ -18,12 +18,27 @@
     import { SenderEvent } from 'chromecast/sender.js'
 
     this.onChannelSent = channel => {
+      let channelName = channel.toUpperCase()
+      let device = opts.sender.deviceName().toUpperCase()
+
       this.show({
-        message: `${channel.toUpperCase()} is now playing on ${opts.sender.deviceName().toUpperCase()}`,
-        actionHandler: (..._) => opts.app.playLocally(channel),
+        message: `${channelName} is now playing on ${device}`,
+        actionHandler: (..._) => opts.sender.playLocally(channel),
         actionText: 'Watch on this device',
-        timeout: 3 * 1000
+        timeout: 8 * 1000
       })
+    }
+
+    this.onChannelQueued = channel => {
+      let channelName = channel.toUpperCase()
+
+      this.show({
+        message: `Connecting to cast device - ${channelName} will play shortly`
+      })
+    }
+
+    this.onCastError = error => {
+      this.show({ message: error })
     }
 
     this.show = data => {
@@ -32,6 +47,8 @@
 
     this.on('mount', () => {
       opts.sender.on(SenderEvent.ChannelSent, this.onChannelSent)
+      opts.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
+      opts.sender.on(SenderEvent.CastError, this.onCastError)
 
     })
   </script>
