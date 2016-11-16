@@ -1,9 +1,9 @@
 <nav-bar>
 
   <!-- layout -->
-  <span class="mdl-layout-title mdl-color-text--primary-contrast">
+  <a href="#" class="home-link mdl-layout-title mdl-color-text--primary-contrast">
     Twitch Caster
-  </span>
+  </a>
   <!-- <hr> -->
 
   <nav class="mdl-navigation">
@@ -30,7 +30,7 @@
          "active": (activeRoute == link.route)
         }
        href={ '#' + link.route }>
-      <i class="material-icons">{ link.icon }</i><span class="text">{ link.display }</span>
+      <i class="material-icons">{ link.icon }</i><span>{ link.display }</span>
     </a>
 
 
@@ -38,6 +38,10 @@
 
   <!-- style -->
   <style scoped>
+    .home-link {
+      text-decoration: none;
+    }
+
     .search {
       padding: 20px 20px;
     }
@@ -55,7 +59,7 @@
       padding-right: 10px;
     }
 
-    a .mdl-navigation__link:hover {
+    .mdl-navigation__link:hover {
       background-color: #673ab7 !important;
     }
 

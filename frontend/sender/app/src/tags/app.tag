@@ -6,9 +6,7 @@
 
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-        <span class="mdl-layout-title">
-          <a class="mdl-color-text--primary-contrast" href="#">{ title }</a>
-        </span>
+        <span class="mdl-layout-title">{ title }</span>
         <div class="mdl-layout-spacer"></div>
         <nav class="mdl-navigation">
           <cast-button sender={ sender }></cast-button>
