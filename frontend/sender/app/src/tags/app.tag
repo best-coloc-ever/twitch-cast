@@ -27,8 +27,6 @@
 
   <!-- style -->
   <style scoped>
-    .mdl-layout-title a { text-decoration: none; }
-
     .mdl-layout__drawer { border: none; }
   </style>
 

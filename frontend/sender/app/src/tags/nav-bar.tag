@@ -89,10 +89,19 @@
     this.links = linkDescriptors.map(link)
     this.activeRoute = null
 
+    this.hideDrawer = () => {
+      let layout = document.querySelector('.mdl-layout')
+      let drawer = this.root
+
+      if (drawer.classList.contains('is-visible'))
+        layout.MaterialLayout.toggleDrawer()
+    }
+
     this.on('mount', () => {
 
       linkDescriptors.forEach(([route, _, title]) => {
         riot.route(`/${route}`, () => {
+          this.hideDrawer()
           this.activeRoute = route
           this.parent.updateTitle(title)
           this.update()
@@ -100,8 +109,8 @@
       })
 
       this['search-form'].onsubmit = e => {
+        this.hideDrawer()
         riot.route(`/search/${this['search-input'].value}`)
-
         return false
       }
 
