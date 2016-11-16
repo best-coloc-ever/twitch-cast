@@ -7,14 +7,13 @@
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
         <span class="mdl-layout-title">
-          <a class="mdl-color-text--primary-contrast" href="#">Twitch Caster</a>
+          <a class="mdl-color-text--primary-contrast" href="#">{ title }</a>
         </span>
         <div class="mdl-layout-spacer"></div>
         <nav class="mdl-navigation">
           <cast-button sender={ sender }></cast-button>
         </nav>
       </div>
-
     </header>
 
     <nav-bar class="mdl-layout__drawer mdl-color--grey-900"></nav-bar>
@@ -41,10 +40,21 @@
     import ChromecastSender from 'chromecast/sender.js'
     import { Router } from 'routing/router.js'
 
+    this.title = null
     this.sender = new ChromecastSender
 
+    this.updateTitle = title => {
+      this.title = title
+      this.update()
+    }
+
     this.on('mount', () => {
-      let router = new Router(this.content, { sender: this.sender })
+      let context = {
+        app: this,
+        sender: this.sender
+      }
+
+      let router = new Router(this.content, context)
 
       router.start()
     })

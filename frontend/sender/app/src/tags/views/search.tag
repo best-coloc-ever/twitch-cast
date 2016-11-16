@@ -1,4 +1,4 @@
-<channels-view>
+<search-view>
 
   <!-- layout -->
   <div class="mdl-grid stream-grid" each={ streams in streamsChunks }>
@@ -52,7 +52,7 @@
     this.offset = 0
     this.loading = false
     this.sender = opts.sender
-    this.gameName = opts.routeOpts ? opts.routeOpts[0] : null
+    this.query = opts.routeOpts ? opts.routeOpts[0] : null
 
     this.addStreams = data => {
       let streams = data.streams
@@ -77,13 +77,12 @@
       this.update()
 
       let params = {
+        q: this.query,
         offset: this.offset,
         limit: streamFetchCount,
       }
-      if (this.gameName)
-        params.game = this.gameName
 
-      TwitchAPI.streams(params)
+      TwitchAPI.Search.streams(params)
         .then(data => {
           this.offset += data.streams.length
           this.addStreams(data)
@@ -99,4 +98,4 @@
     })
   </script>
 
-</channels-view>
+</search-view>

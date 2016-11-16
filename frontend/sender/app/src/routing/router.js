@@ -14,14 +14,15 @@ export class Router {
 
   addRoute(path, tagName) {
     riot.route(path, (...args) => {
-      this.setView(tagName)
+      this.setView(tagName, ...args)
     })
   }
 
-  setView(tagName) {
+  setView(tagName, ...args) {
     this.currentView.unmount(true)
 
-    let children = riot.mount(this.mountNode, tagName, this.opts)
+    let context = Object.assign(this.opts, { routeOpts: args })
+    let children = riot.mount(this.mountNode, tagName, context)
 
     if (children.length) {
       this.currentView = children[0]

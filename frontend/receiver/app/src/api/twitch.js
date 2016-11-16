@@ -18,11 +18,16 @@ const TwitchAPI = {
   channel: (channelName) => twitchJsonCall(`/channels/${channelName}`),
   stream:  (channelName) => twitchJsonCall(`/streams/${channelName}`),
   streams: (params = {}) => twitchJsonCall('/streams', params),
+  games:   (params = {}) => twitchJsonCall('/games/top', params),
   badges:  (channelName) => twitchJsonCall(`/chat/${channelName}/badges`),
 
   Beta: {
     badges:        ()          => jsonPCall(`${betaBadgesEndpointPrefix}/global/display`),
     channelBadges: (channelId) => jsonPCall(`${betaBadgesEndpointPrefix}/channels/${channelId}/display`)
+  },
+
+  Search: {
+    streams: (params = {}) => twitchJsonCall('/search/streams', params)
   }
 }
 
