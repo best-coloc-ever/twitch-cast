@@ -100,7 +100,10 @@
       this.player.on(PlayerEvent.Ready, () => {
         this.player.play(playlistUrl)
       })
+    })
 
+    this.on('unmount', () => {
+      this.player.delete()
     })
   </script>
 

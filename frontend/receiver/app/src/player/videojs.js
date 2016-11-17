@@ -41,6 +41,10 @@ export default class VideojsPlayer {
     return (bufferEnd - currentTime)
   }
 
+  delete() {
+
+  }
+
   _initialize() {
     this._player = videojs(
       this.mediaElement,
