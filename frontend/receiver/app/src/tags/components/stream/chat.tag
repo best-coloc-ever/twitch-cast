@@ -130,7 +130,7 @@
       this.connectToChat()
       this.processMessageQueue()
 
-      setInterval(this.updateChatDelay, 3000)
+      // setInterval(this.updateChatDelay, 3000)
     })
 
   </script>

@@ -22,6 +22,8 @@ export default class ChromecastPlayer {
   }
 
   play(playlistUrl) {
+    this.stop()
+
     let host = this._makeHost(playlistUrl)
     let protocol = cast.player.api.CreateHlsStreamingProtocol(host)
 
@@ -29,15 +31,15 @@ export default class ChromecastPlayer {
     this._player.load(protocol, Infinity)
   }
 
-  delay() {
-    return this._player.getBufferDuration(0)
-  }
-
-  delete() {
+  stop() {
     if (this._player) {
       this._player.unload()
-      console.log('UNLOADED')
+      this._player = null
     }
+  }
+
+  delay() {
+    return this._player.getBufferDuration(0)
   }
 
   _initialize() {

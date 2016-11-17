@@ -6,8 +6,7 @@
       <notice></notice>
       <pause-indicator></pause-indicator>
 
-      <div class="center">
-        <video name="video" autoplay></video>
+      <div class="center" name="container">
       </div>
 
       <clock show={ showStreamInfo }></clock>
@@ -49,9 +48,9 @@
       overflow: hidden !important;
     }
 
-    .vjs_video_1-dimensions {
-      width: 100% !important;
-      height: 100% !important;
+    .vjs-controls-disabled {
+      width: unset;
+      height: unset;
     }
 
     stream-info {
@@ -77,33 +76,23 @@
   <script>
     import { isChromecastDevice } from 'utils/platform.js'
 
-    import { PlayerEvent } from 'player/events.js'
-    import ChromecastPlayer from 'player/chromecast.js'
-    import VideojsPlayer from 'player/videojs.js'
     import StreamerAPI from 'api/streamer.js'
 
     let [channel, quality] = opts.routeOpts
-    let playerClass = (
-      isChromecastDevice() ?
-      ChromecastPlayer :
-      VideojsPlayer
-    )
+    this.player = opts.player
 
     this.channel = channel
     this.quality = quality
     this.showStreamInfo = true
-    this.player = new playerClass(this.video)
 
     this.on('mount', () => {
+      this.container.appendChild(opts.video)
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
-
-      this.player.on(PlayerEvent.Ready, () => {
-        this.player.play(playlistUrl)
-      })
+      this.player.play(playlistUrl)
     })
 
-    this.on('unmount', () => {
-      this.player.delete()
+    this.on('before-unmount', () => {
+      this.player.stop()
     })
   </script>
 

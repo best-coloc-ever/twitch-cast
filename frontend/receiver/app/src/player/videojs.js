@@ -26,6 +26,8 @@ export default class VideojsPlayer {
   }
 
   play(playlistUrl) {
+
+
     this._player.src({
       src: playlistUrl,
       type: 'application/vnd.apple.mpegurl'
@@ -34,15 +36,15 @@ export default class VideojsPlayer {
     this.mediaElement.setAttribute('controls', 'controls')
   }
 
+  stop() {
+
+  }
+
   delay() {
     let currentTime = this._player.currentTime()
     let bufferEnd = this._player.bufferedEnd()
 
     return (bufferEnd - currentTime)
-  }
-
-  delete() {
-
   }
 
   _initialize() {

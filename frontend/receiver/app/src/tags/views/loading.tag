@@ -70,12 +70,26 @@
     this.loading = true
     this.secondsBeforeRetry = retryInSeconds
 
-    this.onPlaylistFetched = data => {
+    this.onStreamFetched = data => {
       let playlists = data.playlists
       // Sort by bandwidth descending
       playlists.sort((a, b) => b.bandwidth - a.bandwidth)
       // Choosing the best quality one
       let quality = data.playlists[0].name
+
+      fetch(StreamerAPI.playlistUrl(channel, quality))
+        .then(
+          response => {
+            if (response.ok)
+              this.onPlaylistFetched(quality)
+            else
+              this.onError()
+          },
+          this.onError
+        )
+    }
+
+    this.onPlaylistFetched = quality => {
       riot.route(`/${channel}/${quality}`, `${channel} (${quality})`, true)
     }
 
@@ -85,7 +99,7 @@
       clearInterval(secondsRefreshTimer)
       this.secondsBeforeRetry = retryInSeconds
 
-      setTimeout(this.load, retryInSeconds * 1000)
+      setTimeout(this.loadStream, retryInSeconds * 1000)
       retryInSeconds *= 2
 
       secondsRefreshTimer = setInterval(() => {
@@ -96,11 +110,11 @@
       this.update()
     }
 
-    this.load = () => {
+    this.loadStream = () => {
       this.loading = true
 
       StreamerAPI.stream(channel)
-        .then(this.onPlaylistFetched, this.onError)
+        .then(this.onStreamFetched, this.onError)
 
       this.update()
     }
@@ -108,7 +122,7 @@
     this.on('mount', () => {
       componentHandler.upgradeElements(this.root)
 
-      this.load()
+      this.loadStream()
     })
   </script>
 
