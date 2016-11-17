@@ -16,6 +16,8 @@ export default class ChromecastReceiver {
     loadScript(chromecastSdkReceiverJsUrl)
       .then(() => loadScript(chromecastSdkMediaplayerJsUrl))
       .then(() => this._initialize())
+
+    this.on(ChromecastMessageType.Watch, data => riot.route(`/${data.channel}`))
   }
 
   _initialize() {
