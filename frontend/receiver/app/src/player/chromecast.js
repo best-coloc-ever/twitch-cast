@@ -30,13 +30,14 @@ export default class ChromecastPlayer {
   }
 
   delay() {
-    console.log(this._player.getBufferDuration(0))
     return this._player.getBufferDuration(0)
   }
 
   delete() {
-    if (this._player)
+    if (this._player) {
       this._player.unload()
+      console.log('UNLOADED')
+    }
   }
 
   _initialize() {

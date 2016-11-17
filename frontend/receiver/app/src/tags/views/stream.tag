@@ -84,7 +84,7 @@
 
     let [channel, quality] = opts.routeOpts
     let playerClass = (
-      isChromecastDevice ?
+      isChromecastDevice() ?
       ChromecastPlayer :
       VideojsPlayer
     )
