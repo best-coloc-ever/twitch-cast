@@ -1,7 +1,7 @@
 import TwitchAPI from 'api/twitch.js'
 import { jsonCall } from 'api/helpers.js'
 
-class ChatAssetStore {
+export default class ChatAssetStore {
 
   constructor() {
     this.emotes = new Map
@@ -57,5 +57,3 @@ class ChatAssetStore {
   }
 
 }
-
-module.exports = ChatAssetStore

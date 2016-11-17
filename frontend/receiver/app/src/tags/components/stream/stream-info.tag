@@ -44,31 +44,35 @@
 
     const refreshInfoInterval = 30 // seconds
 
+    let fetchTimer = null
+
     this.channel = opts.channel
 
     this.fetchStreamInfos = () => {
-      let self = this
-
-      TwitchAPI.stream(self.channel)
+      TwitchAPI.stream(this.channel)
         .then(data => {
           let stream = data.stream
           let channel = stream.channel
 
-          self.name = channel.display_name
-          self.game = channel.game
+          this.name = channel.display_name
+          this.game = channel.game
 
-          self.viewers = stream.viewers.toLocaleString()
-          self.views = channel.views.toLocaleString()
-          self.followers = channel.followers.toLocaleString()
+          this.viewers = stream.viewers.toLocaleString()
+          this.views = channel.views.toLocaleString()
+          this.followers = channel.followers.toLocaleString()
 
-          self.update()
+          this.update()
         })
     }
 
     this.on('mount', () => {
       this.fetchStreamInfos()
 
-      setInterval(this.fetchStreamInfos, refreshInfoInterval * 1000)
+      fetchTimer = setInterval(this.fetchStreamInfos, refreshInfoInterval * 1000)
+    })
+
+    this.on('unmount', () => {
+      clearInterval(fetchTimer)
     })
 
   </script>

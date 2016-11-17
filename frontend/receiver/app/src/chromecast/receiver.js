@@ -1,8 +1,7 @@
 import { loadScript } from 'utils/deferred_load.js'
 import { ChromecastMessageType, chromecastCustomMessageBus } from 'chromecast/messages.js'
 
-const chromecastSdkReceiverJsUrl    = '//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js',
-      chromecastSdkMediaplayerJsUrl = '//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js'
+const chromecastSdkReceiverJsUrl = '//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js'
 
 export const ReceiverEvent = {
   Ready: 'receiver-ready'
@@ -14,7 +13,6 @@ export default class ChromecastReceiver {
     riot.observable(this)
 
     loadScript(chromecastSdkReceiverJsUrl)
-      .then(() => loadScript(chromecastSdkMediaplayerJsUrl))
       .then(() => this._initialize())
 
     this.on(ChromecastMessageType.Watch, data => riot.route(`/${data.channel}`))

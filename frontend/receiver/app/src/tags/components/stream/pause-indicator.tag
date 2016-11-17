@@ -28,12 +28,20 @@
   </style>
 
   <script>
+    import { PlayerEvent } from 'player/events.js'
+
     this.visible = false
 
     this.setVisible = (visible) => {
       this.visible = visible
       this.update()
     }
+
+    this.on('mount', () => {
+      opts.player.on(PlayerEvent.AutoPaused, isPaused => {
+        this.setVisible(isPaused)
+      })
+    })
   </script>
 
 </pause-indicator>

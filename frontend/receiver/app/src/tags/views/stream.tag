@@ -3,8 +3,8 @@
   <!-- layout -->
   <div id="main">
     <div id="player">
-      <notice></notice>
-      <pause-indicator></pause-indicator>
+      <notice player={ player }></notice>
+      <pause-indicator player={ player }></pause-indicator>
 
       <div class="center" name="container">
       </div>
@@ -68,6 +68,13 @@
       left: 2%;
       text-align: left;
       color: white;
+    }
+
+    notice {
+      position: absolute;
+      text-align: center;
+      color: white;
+      width: 100%;
     }
   </style>
 

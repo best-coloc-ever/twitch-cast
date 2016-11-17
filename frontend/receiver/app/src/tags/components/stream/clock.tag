@@ -3,16 +3,10 @@
   <div>{ hours }{ separator() }{ minutes }</div>
 
   <script>
-    this.blinkerSwitch = true
+    import { zpad } from 'utils/formatting.js'
 
-    function zpad(what, n) {
-      what = what + '' // Make it a string
-
-      if (what.length >= n)
-        return what
-
-      return new Array(n - what.length + 1).join('0') + what
-    }
+    let refreshTimer = null
+    let blinkerSwitch = true
 
     this.separator = () => this.blinkerSwitch ? ':' : ' '
 
@@ -21,14 +15,18 @@
 
       this.hours = zpad(now.getHours(), 2)
       this.minutes = zpad(now.getMinutes(), 2)
-      this.blinkerSwitch = !this.blinkerSwitch
+      blinkerSwitch = !blinkerSwitch
 
       this.update()
     }
 
     this.on('mount', () => {
       this.refresh()
-      setInterval(this.refresh, 1000)
+      refreshTimer = setInterval(this.refresh, 1000)
+    })
+
+    this.on('unmount', () => {
+      clearInterval(refreshTimer)
     })
   </script>
 

@@ -46,7 +46,6 @@
     #loading {
       font-size: 30px;
       font-weight: 700;
-      /*text-transform: uppercase;*/
       white-space: nowrap;
     }
 
@@ -123,6 +122,10 @@
       componentHandler.upgradeElements(this.root)
 
       this.loadStream()
+    })
+
+    this.on('unmount', () => {
+      clearInterval(secondsRefreshTimer)
     })
   </script>
 

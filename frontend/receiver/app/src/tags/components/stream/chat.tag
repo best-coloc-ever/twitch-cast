@@ -45,6 +45,10 @@
     let messageQueue = []
     let messages = []
 
+    let ws = null
+    let processFlag = true
+    let delayTimer = null
+
     this.notify = text => {
       this.addMessage({ sender: 'SYSTEM', content: text })
       this.update()
@@ -67,7 +71,7 @@
     }
 
     this.connectToChat = () => {
-      let ws = new WebSocket(chatUrl)
+      ws = new WebSocket(chatUrl)
 
       ws.onopen = () => {
         this.notify(`Successfully joined ${channel}'s chatroom`)
@@ -92,21 +96,21 @@
     this.addMessage = message => {
       messages.push(message)
       // JQuery
-      var chatLine = buildChatLine(message, store)
+      let chatLine = buildChatLine(message, store)
       $(this.chat).append(chatLine)
 
-      var toSlice = Math.max(0, messages.length - maxChatMessageCount)
+      let toSlice = Math.max(0, messages.length - maxChatMessageCount)
       messages = messages.slice(toSlice)
 
       $(this.chat).find('li:lt(' + toSlice + ')').remove()
     }
 
     this.processMessageQueue = () => {
-      var i = 0
-      var now = new Date().getTime()
+      let i = 0
+      let now = new Date().getTime()
 
       for (; i < messageQueue.length; ++i) {
-        var message = messageQueue[i]
+        let message = messageQueue[i]
 
         if (now - message.stamp < chatDelay * 1000)
           break
@@ -119,7 +123,8 @@
       this.update()
       this.root.scrollTop = this.root.scrollHeight
 
-      setTimeout(this.processMessageQueue, chatDisplayInterval * 1000)
+      if (processFlag)
+        setTimeout(this.processMessageQueue, chatDisplayInterval * 1000)
     }
 
     this.updateChatDelay = () => {
@@ -130,7 +135,13 @@
       this.connectToChat()
       this.processMessageQueue()
 
-      // setInterval(this.updateChatDelay, 3000)
+      delayTimer = setInterval(this.updateChatDelay, 3000)
+    })
+
+    this.on('unmount', () => {
+      clearInterval(delayTimer)
+      ws.close()
+      processFlag = false
     })
 
   </script>

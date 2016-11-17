@@ -10,6 +10,8 @@
   </style>
 
   <script>
+    import { PlayerEvent } from 'player/events.js'
+
     this.visible = false
     this.text = ''
 
@@ -23,6 +25,17 @@
       this.visible = false
       this.update()
     }
+
+    this.on('mount', () => {
+      opts.player.on(PlayerEvent.AutoPaused, isPaused => {
+        if (isPaused) this.show('Buffering...')
+        else          this.hide()
+      })
+
+      opts.player.on(PlayerEvent.HostError, error => {
+        this.show(error)
+      })
+    })
   </script>
 
 </notice>

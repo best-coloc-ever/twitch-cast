@@ -22,7 +22,13 @@
         [riot.observable(),      new VideojsPlayer(video)   ]
       )
 
-      let router = new Router(this.root, { receiver: receiver, player: player, video: video })
+      let context = {
+        receiver: receiver,
+        player: player,
+        video: video
+      }
+
+      let router = new Router(this.root, context)
 
       player.on(PlayerEvent.Ready, () => router.start())
     })

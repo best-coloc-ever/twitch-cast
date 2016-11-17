@@ -7,7 +7,7 @@ const cheerTheme = 'dark',
       cheerType  = 'animated',
       cheerSize  = '1'
 
-function cheerColor(cheerCount) {
+export function cheerColor(cheerCount) {
   for (let [milestone, color] of cheerColorsByMilestone) {
     if (cheerCount >= milestone)
       return color
@@ -16,13 +16,8 @@ function cheerColor(cheerCount) {
   return 'unknown'
 }
 
-function cheerEmote(cheerCount) {
+export function cheerEmote(cheerCount) {
   let color = cheerColor(cheerCount)
 
   return `https://static-cdn.jtvnw.net/bits/${cheerTheme}/${cheerType}/${color}/${cheerSize}`
-}
-
-module.exports = {
-  cheerColor: cheerColor,
-  cheerEmote: cheerEmote
 }

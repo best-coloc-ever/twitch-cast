@@ -26,8 +26,6 @@ export default class VideojsPlayer {
   }
 
   play(playlistUrl) {
-
-
     this._player.src({
       src: playlistUrl,
       type: 'application/vnd.apple.mpegurl'
