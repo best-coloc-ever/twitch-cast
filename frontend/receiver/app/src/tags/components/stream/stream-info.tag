@@ -44,7 +44,7 @@
 
     const refreshInfoInterval = 30 // seconds
 
-    this.channel = null
+    this.channel = opts.channel
 
     this.fetchStreamInfos = () => {
       let self = this
@@ -65,12 +65,9 @@
         })
     }
 
-    this.setChannel = (channel) => {
-      this.channel = channel
-      this.fetchStreamInfos()
-    }
-
     this.on('mount', () => {
+      this.fetchStreamInfos()
+
       setInterval(this.fetchStreamInfos, refreshInfoInterval * 1000)
     })
 
