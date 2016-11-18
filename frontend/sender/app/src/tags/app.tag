@@ -14,7 +14,7 @@
       </div>
     </header>
 
-    <nav-bar class="mdl-layout__drawer mdl-color--grey-900"></nav-bar>
+    <nav-bar class="mdl-layout__drawer mdl-color--grey-900" sender={ sender }></nav-bar>
 
     <main class="mdl-layout__content">
       <content-view name="content"></content-view>

@@ -9,11 +9,11 @@
       <div class="center" name="container">
       </div>
 
-      <clock show={ showStreamInfo }></clock>
-      <stream-info show={ showStreamInfo } channel={ channel }></stream-info>
+      <clock show={ !fullScreen }></clock>
+      <stream-info show={ !fullScreen } channel={ channel }></stream-info>
     </div>
 
-    <chat channel={ channel } player={ player }></chat>
+    <chat channel={ channel } player={ player } show={ !fullScreen }></chat>
   </div>
 
 
@@ -83,6 +83,8 @@
   <script>
     import { isChromecastDevice } from 'utils/platform.js'
 
+    import { ChromecastMessageType } from 'chromecast/messages.js'
+
     import StreamerAPI from 'api/streamer.js'
 
     let [channel, quality] = opts.routeOpts
@@ -90,10 +92,16 @@
 
     this.channel = channel
     this.quality = quality
-    this.showStreamInfo = true
+    this.fullScreen = false
 
     this.on('mount', () => {
+      opts.receiver.on(ChromecastMessageType.ToggleFullscreen, data => {
+        this.fullScreen = data.enabled
+        this.update()
+      })
+
       this.container.appendChild(opts.video)
+
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
       this.player.play(playlistUrl)
     })

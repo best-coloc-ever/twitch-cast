@@ -22,17 +22,19 @@
 
     <!-- <hr>
     <div class="category mdl-color-text--primary-contrast">Browse</div> -->
-    <hr class="category-separator">
-    <a each={ link in links }
-       class={
-         "mdl-navigation__link": true,
-         "mdl-color-text--primary-contrast": true,
-         "active": (activeRoute == link.route)
-        }
-       href={ '#' + link.route }>
-      <i class="material-icons">{ link.icon }</i><span>{ link.display }</span>
-    </a>
-
+    <div each={ links in linksCollection }>
+      <hr class="category-separator">
+      <a each={ link in links }
+         class={
+           "mdl-navigation__link": true,
+           "mdl-color-text--primary-contrast": true,
+           "active": (activeRoute == link.route)
+          }
+         show={ link.visibleIf() }
+         href={ '#' + link.route }>
+        <i class="material-icons">{ link.icon }</i><span>{ link.display }</span>
+      </a>
+    </div>
 
   </nav>
 
@@ -75,19 +77,27 @@
   <!-- logic -->
   <script>
     import { routeNames } from 'routing/routes.js'
+    import { SenderEvent } from 'chromecast/sender.js'
 
-    const link = ([route, icon, display]) => new Object({
+    const link = ([route, icon, display, visibleIf]) => new Object({
       route: route,
       icon: icon,
-      display: display
+      display: display,
+      visibleIf: visibleIf
     })
     const linkDescriptors = [
-      [routeNames.Channels, 'videocam', 'Channels'],
-      [routeNames.Games,    'gamepad',  'Games'   ],
+      [
+        [routeNames.Channels,   'videocam', 'Channels',   () => true],
+        [routeNames.Games,      'gamepad',  'Games',      () => true],
+      ],
+      [
+        [routeNames.Chromecast, 'cast',     'Chromecast', () => this.senderConnected]
+      ]
     ]
 
-    this.links = linkDescriptors.map(link)
+    this.linksCollection = linkDescriptors.map(links => links.map(link))
     this.activeRoute = null
+    this.senderConnected = false
 
     this.hideDrawer = () => {
       let layout = document.querySelector('.mdl-layout')
@@ -99,12 +109,14 @@
 
     this.on('mount', () => {
 
-      linkDescriptors.forEach(([route, _, title]) => {
-        riot.route(`/${route}`, () => {
-          this.hideDrawer()
-          this.activeRoute = route
-          this.parent.updateTitle(title)
-          this.update()
+      this.linksCollection.forEach(links => {
+        links.forEach(link => {
+          riot.route(`/${link.route}`, () => {
+            this.hideDrawer()
+            this.activeRoute = link.route
+            this.parent.updateTitle(link.display)
+            this.update()
+          })
         })
       })
 
@@ -113,6 +125,12 @@
         riot.route(`/search/${this['search-input'].value}`)
         return false
       }
+
+      opts.sender.on(SenderEvent.CastStateChanged, state => {
+        this.senderConnected = (state == cast.framework.CastState.CONNECTED)
+        console.log(this.senderConnected)
+        this.update()
+      })
 
     })
   </script>

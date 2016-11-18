@@ -22,7 +22,7 @@ export default class ChromecastSender {
     riot.observable(this)
 
     this.on(SenderEvent.CastStateChanged, state => {
-      if (this.playOnReady && cast.framework.CastState.CONNECTED)
+      if (this.playOnReady && state == cast.framework.CastState.CONNECTED)
         this.sendCustomMessage(ChromecastMessage.watch(this.playOnReady))
           .then(
             mbError => { if (mbError) this.onCastError(mbError) },
