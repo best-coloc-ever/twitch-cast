@@ -1,9 +1,9 @@
 <notice>
 
-  <h1 show={ visible }>{ text }</h1>
+  <h3 show={ visible }>{ text }</h3>
 
   <style scoped>
-    h1 {
+    h3 {
       color: white;
       text-align: center;
     }
