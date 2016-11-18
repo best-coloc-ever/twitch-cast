@@ -19,8 +19,6 @@ export default class ChromecastReceiver {
   }
 
   _initialize() {
-    cast.player.api.setLoggerLevel(cast.player.api.LoggerLevel.NONE)
-
     // The castManager allows communication with the sender application
     let castManager = cast.receiver.CastReceiverManager.getInstance()
 
