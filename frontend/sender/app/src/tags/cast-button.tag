@@ -2,7 +2,7 @@
 
   <!-- layout -->
   <div show={ state.available } onclick={ state.action }>
-    <div class="mdl-spinner mdl-js-spinner is-active" show={ state.readying }></div>
+    <div class="mdl-spinner mdl-js-spinner is-active spinner-white" show={ state.readying }></div>
     <i class="material-icons" show={ !state.readying }>{ state.icon }</i>
   </div>
 
@@ -11,6 +11,10 @@
   <style scoped>
     div {
       cursor: pointer;
+    }
+
+    .spinner-white .mdl-spinner__layer {
+      border-color: white;
     }
   </style>
 
