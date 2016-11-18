@@ -74,7 +74,8 @@ services:
       "stack", "build",
       "--copy-bins",
       "--local-bin-path", "/dist",
-      "--file-watch"
+      "--file-watch",
+      "--allow-different-user"
     ]
     environment:
       STACK_ROOT: '/stack-root'
