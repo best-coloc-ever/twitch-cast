@@ -10,12 +10,19 @@ export const ReceiverEvent = {
 export default class ChromecastReceiver {
 
   constructor() {
+    this.customMessageBus = null
+
     riot.observable(this)
 
     loadScript(chromecastSdkReceiverJsUrl)
       .then(() => this._initialize())
 
-    this.on(ChromecastMessageType.Watch, data => riot.route(`/${data.channel}`))
+    this.on(ChromecastMessageType.Watch, data => {
+      if (data.quality)
+        riot.route(`/${data.channel}/${data.quality}`)
+      else
+        riot.route(`/${data.channel}`)
+    })
   }
 
   _initialize() {
@@ -25,6 +32,7 @@ export default class ChromecastReceiver {
     // Setting up a custom message bus to communicate with the sender application
     let customMessageBus = castManager.getCastMessageBus(chromecastCustomMessageBus)
     customMessageBus.onMessage = this._handleCustomMessages.bind(this)
+    this.customMessageBus = customMessageBus
 
     castManager.start()
 
@@ -35,6 +43,10 @@ export default class ChromecastReceiver {
     let message = JSON.parse(event.data)
 
     this.trigger(message.type, message.data)
+  }
+
+  sendCustomMessage(message) {
+    this.customMessageBus.broadcast(JSON.stringify(message))
   }
 
 }

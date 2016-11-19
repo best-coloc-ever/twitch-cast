@@ -1,5 +1,7 @@
 import { routes } from './routes.js'
 
+import ChromecastMessage, { ChromecastMessageType } from 'chromecast/messages.js'
+
 const dummyView = { unmount: (..._) => undefined }
 
 export default class Router {
@@ -7,14 +9,23 @@ export default class Router {
   constructor(domNode, opts) {
     this.mountNode = domNode
     this.opts = opts
+
     this.currentView = dummyView
+    this.routeState = null
 
     routes.forEach(descriptor => this.addRoute(...descriptor))
+
+    opts.receiver.on(ChromecastMessageType.ReceiverState, () => {
+      let message = ChromecastMessage.receiverStateResponse(this.routeState)
+
+      opts.receiver.sendCustomMessage(message)
+    })
   }
 
-  addRoute(path, tagName) {
+  addRoute(path, tagName, state) {
     riot.route(path, (...args) => {
       this.setView(tagName, ...args)
+      this.routeState = state(...args)
     })
   }
 

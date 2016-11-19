@@ -1,15 +1,22 @@
 export const chromecastCustomMessageBus = 'urn:x-cast:twitch.cast.message'
 
-function message(type, data) {
+function message(type, data={}) {
   return {
     type: type,
     data: data
   }
 }
 
+export const ChatPositions = {
+  Left: 'left',
+  Right: 'right',
+}
+
 export const ChromecastMessageType = {
   Watch: 'watch',
-  ToggleFullscreen: 'toggle-fullscreen'
+  ReceiverState: 'reciever-state',
+  ToggleFullscreen: 'toggle-fullscreen',
+  ChatPosition: 'chat-position',
 }
 
 const ChromecastMessage = {
@@ -27,7 +34,16 @@ const ChromecastMessage = {
     let data = { enabled: enabled }
 
     return message(ChromecastMessageType.ToggleFullscreen, data)
-  }
+  },
+
+  receiverStateRequest: () => message(ChromecastMessageType.ReceiverState),
+  receiverStateResponse: state => message(ChromecastMessageType.ReceiverState, state),
+
+  chatPosition: position => {
+    let data = { position: position }
+
+    return message(ChromecastMessageType.ChatPosition, data)
+  },
 
 }
 

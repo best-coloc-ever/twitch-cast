@@ -47,7 +47,7 @@ export default class ChromecastSender {
       resumeSavedSession:    true
     }
 
-    this.on(SenderEvent.SessionStateChanged, console.log.bind(console))
+    this.on(SenderEvent.SessionStateChanged, state => this.onSessionStateChanged(state))
 
     let castContext = cast.framework.CastContext.getInstance()
     castContext.setOptions(castContextOptions)
@@ -74,6 +74,15 @@ export default class ChromecastSender {
       )
   }
 
+  onSessionStateChanged(event) {
+    if (event.session) {
+      event.session.addMessageListener(chromecastCustomMessageBus, (_, data) => {
+        let message = JSON.parse(data)
+
+        this.trigger(message.type, message.data)
+      })
+    }
+  }
   disconnect() {
     this.castContext.endCurrentSession(true)
   }
@@ -82,7 +91,7 @@ export default class ChromecastSender {
     let session = this.castContext.getCurrentSession()
 
     if (!session)
-      return new Promise((..._) => { })
+      return new Promise((_, onError) => { onError() })
 
     return session.sendMessage(
       chromecastCustomMessageBus,
