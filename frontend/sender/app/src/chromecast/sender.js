@@ -33,8 +33,6 @@ export default class ChromecastSender {
     window.__onGCastApiAvailable = isAvailable => {
       if (isAvailable)
         this.initialize()
-      else
-        console.log('unavailable')
     }
 
     loadScript(chromecastSdkSenderJsUrl)
@@ -83,6 +81,11 @@ export default class ChromecastSender {
       })
     }
   }
+
+  connected() {
+    return this.castContext.getCastState() == cast.framework.CastState.CONNECTED
+  }
+
   disconnect() {
     this.castContext.endCurrentSession(true)
   }

@@ -128,7 +128,6 @@
 
       opts.sender.on(SenderEvent.CastStateChanged, state => {
         this.senderConnected = (state == cast.framework.CastState.CONNECTED)
-        console.log(this.senderConnected)
         this.update()
       })
 

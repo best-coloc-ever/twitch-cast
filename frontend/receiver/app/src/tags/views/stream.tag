@@ -1,7 +1,7 @@
 <stream-view>
 
   <!-- layout -->
-  <div id="main">
+  <div id="main" class={ 'reverse-flex': chatLeft }>
     <div id="player">
       <notice player={ player }></notice>
       <pause-indicator player={ player }></pause-indicator>
@@ -22,6 +22,10 @@
     #main {
       height: 100%;
       display: flex;
+    }
+
+    .reverse-flex {
+      flex-direction: row-reverse;
     }
 
     #player {
@@ -83,7 +87,7 @@
   <script>
     import { isChromecastDevice } from 'utils/platform.js'
 
-    import { ChromecastMessageType } from 'chromecast/messages.js'
+    import { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
 
     import StreamerAPI from 'api/streamer.js'
 
@@ -93,10 +97,17 @@
     this.channel = channel
     this.quality = quality
     this.fullScreen = false
+    this.chatLeft = false
 
     this.on('mount', () => {
       opts.receiver.on(ChromecastMessageType.ToggleFullscreen, data => {
         this.fullScreen = data.enabled
+        this.update()
+      })
+
+      opts.receiver.on(ChromecastMessageType.ChatPosition, data => {
+        this.chatLeft = (data.position == ChatPositions.Left)
+        console.log(data.position, ChatPositions.Left)
         this.update()
       })
 

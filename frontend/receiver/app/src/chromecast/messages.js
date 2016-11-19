@@ -7,10 +7,16 @@ function message(type, data={}) {
   }
 }
 
+export const ChatPositions = {
+  Left: 'left',
+  Right: 'right',
+}
+
 export const ChromecastMessageType = {
   Watch: 'watch',
   ReceiverState: 'reciever-state',
-  ToggleFullscreen: 'toggle-fullscreen'
+  ToggleFullscreen: 'toggle-fullscreen',
+  ChatPosition: 'chat-position',
 }
 
 const ChromecastMessage = {
@@ -32,6 +38,12 @@ const ChromecastMessage = {
 
   receiverStateRequest: () => message(ChromecastMessageType.ReceiverState),
   receiverStateResponse: state => message(ChromecastMessageType.ReceiverState, state),
+
+  chatPosition: position => {
+    let data = { position: position }
+
+    return message(ChromecastMessageType.ChatPosition, data)
+  },
 
 }
 

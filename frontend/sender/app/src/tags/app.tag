@@ -33,7 +33,7 @@
 
   <!-- logic -->
   <script>
-    import ChromecastSender from 'chromecast/sender.js'
+    import ChromecastSender, { SenderEvent } from 'chromecast/sender.js'
     import { Router } from 'routing/router.js'
 
     this.title = null
@@ -52,7 +52,7 @@
 
       let router = new Router(this.content, context)
 
-      router.start()
+      this.sender.on(SenderEvent.Initialized, router.start)
     })
   </script>
 
