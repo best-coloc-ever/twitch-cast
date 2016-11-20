@@ -111,7 +111,7 @@ getProxy options rawChannel rawQuality state = do
         ]
 
     fsPollInterval = 250000 -- microseconds
-    maxIndexWaitTime = 3 * 1000000
+    maxIndexWaitTime = 8 * 1000000
 
     waitForIndex :: IO ()
     waitForIndex = go 0
