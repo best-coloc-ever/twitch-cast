@@ -30,7 +30,7 @@
     import { ChromecastMessageType } from 'chromecast/messages.js'
 
     const maxChatMessageCount = 50
-    const initialChatDelay = 2
+    const initialChatDelay = 4
     const chatDisplayInterval = 0.3 // seconds
 
     let channel = opts.channel
@@ -129,7 +129,7 @@
     }
 
     this.updateChatDelay = () => {
-      chatDelay = initialChatDelay + player.delay()
+      chatDelay = initialChatDelay //+ player.delay()
     }
 
     this.on('mount', () => {
