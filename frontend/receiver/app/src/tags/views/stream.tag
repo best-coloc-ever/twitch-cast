@@ -111,7 +111,7 @@
         this.update()
       })
 
-      this.container.appendChild(opts.video)
+      this.container.appendChild(opts.player.mediaElement)
 
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
       this.player.play(playlistUrl)

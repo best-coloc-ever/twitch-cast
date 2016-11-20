@@ -13,22 +13,12 @@ export const ChatPositions = {
 }
 
 export const ChromecastMessageType = {
-  Watch: 'watch',
   ReceiverState: 'reciever-state',
   ToggleFullscreen: 'toggle-fullscreen',
   ChatPosition: 'chat-position',
 }
 
 const ChromecastMessage = {
-
-  watch: (channel, quality = null) => {
-    let data = { channel: channel }
-
-    if (quality)
-      data.quality = quality
-
-    return message(ChromecastMessageType.Watch, data)
-  },
 
   toggleFullscreen: enabled => {
     let data = { enabled: enabled }

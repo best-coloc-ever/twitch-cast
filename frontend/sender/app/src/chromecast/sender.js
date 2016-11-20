@@ -17,17 +17,15 @@ export default class ChromecastSender {
 
   constructor() {
     this.castContext = null
-    this.playOnReady = null
+    this.queue = null
 
     riot.observable(this)
 
     this.on(SenderEvent.CastStateChanged, state => {
-      if (this.playOnReady && state == cast.framework.CastState.CONNECTED)
-        this.sendCustomMessage(ChromecastMessage.watch(this.playOnReady))
-          .then(
-            mbError => { if (mbError) this.onCastError(mbError) },
-            error   => this.onCastError(error)
-          )
+      if (this.queue && state == cast.framework.CastState.CONNECTED) {
+        this._playImpl(...this.queue)
+        this.queue = null
+      }
     })
 
     window.__onGCastApiAvailable = isAvailable => {
@@ -111,32 +109,35 @@ export default class ChromecastSender {
     return 'Unknown device'
   }
 
-  play(channel) {
-    this.playOnReady = null
+  play(channel, quality = null) {
+    this.queue = null
 
     let castState = this.castContext.getCastState()
 
-    if (castState == cast.framework.CastState.CONNECTED) {
-      this.sendCustomMessage(ChromecastMessage.watch(channel))
-        .then(
-          mbError => {
-            if (!mbError)
-              this.trigger(SenderEvent.ChannelSent, channel)
-            else
-              this.onCastError(mbError)
-          },
-          error   => this.onCastError(error)
-        )
-    }
+    if (castState == cast.framework.CastState.CONNECTED)
+      this._playImpl(channel, quality)
     else if (castState == cast.framework.CastState.CONNECTING) {
-      this.playOnReady = channel
+      this.queue = [channel, quality]
       this.trigger(SenderEvent.ChannelQueued, channel)
     }
     else
-      this.playLocally(channel)
+      this.playLocally(channel, quality)
   }
 
-  playLocally(channel) {
+  _playImpl(channel, quality) {
+    let mediaInfo = new chrome.cast.media.MediaInfo(),
+        request = new chrome.cast.media.LoadRequest(mediaInfo)
+
+    request.customData = {
+      channel: channel,
+      quality: quality
+    }
+
+    this.castContext.getCurrentSession().loadMedia(request)
+    this.trigger(SenderEvent.ChannelSent, channel)
+  }
+
+  playLocally(channel, quality = null) {
     let url = StreamerAPI.receiverUrl(channel)
     window.location = url
   }

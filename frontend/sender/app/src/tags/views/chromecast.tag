@@ -108,9 +108,7 @@
     }
 
     this.changeQuality = quality => () => {
-      let message = ChromecastMessage.watch(this.receiverState.channel, quality)
-
-      sender.sendCustomMessage(message)
+      sender.play(this.receiverState.channel, quality)
     }
 
     this.changeChatPosition = position => () => {
