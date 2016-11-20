@@ -39,7 +39,7 @@ export default class ChromecastPlayer {
   }
 
   delay() {
-    return this._player.getBufferDuration(0)
+    return this._player.getMaxBufferDuration(0) - this._player.getBufferDuration(0)
   }
 
   _initialize() {
