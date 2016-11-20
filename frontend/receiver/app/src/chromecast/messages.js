@@ -16,6 +16,7 @@ export const ChromecastMessageType = {
   ReceiverState: 'reciever-state',
   ToggleFullscreen: 'toggle-fullscreen',
   ChatPosition: 'chat-position',
+  ChatSize: 'chat-size'
 }
 
 const ChromecastMessage = {
@@ -33,6 +34,12 @@ const ChromecastMessage = {
     let data = { position: position }
 
     return message(ChromecastMessageType.ChatPosition, data)
+  },
+
+  chatSize: size => {
+    let data = { size: size }
+
+    return message(ChromecastMessageType.ChatSize, data)
   },
 
 }

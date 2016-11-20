@@ -36,7 +36,7 @@
       <hr>
 
       <div name="chat-position-option">
-      <button id="chat-position-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
+        <button id="chat-position-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
         <span class="label">Chat position</span>
@@ -48,6 +48,14 @@
             { position.toLowerCase() }
           </li>
         </ul>
+      </div>
+
+      <hr>
+
+      <div name="chat-size-option">
+        <span class="label-only">Chat size: { slider.value }px</span>
+        <input class="mdl-slider mdl-js-slider" type="range" name="slider"
+               min="0" max="900" value="300" onchange={ changeChatSize }>
       </div>
 
     </div>
@@ -79,6 +87,10 @@
     .label {
       margin-left: 16px;
     }
+
+    .label-only {
+      margin-left: 54px;
+    }
   </style>
 
 
@@ -94,7 +106,6 @@
     this.statusMessage = 'Waiting for a resumed session...'
     this.qualities = null
     this.chatPositions = Object.values(ChatPositions)
-    console.log(this.chatPositions)
 
     this.setStatus = message => {
       this.statusMessage = message
@@ -113,6 +124,12 @@
 
     this.changeChatPosition = position => () => {
       let message = ChromecastMessage.chatPosition(position)
+
+      sender.sendCustomMessage(message)
+    }
+
+    this.changeChatSize = event => {
+      let message = ChromecastMessage.chatSize(event.target.valueAsNumber)
 
       sender.sendCustomMessage(message)
     }
@@ -146,6 +163,7 @@
     this.on('mount', () => {
       componentHandler.upgradeElements(this['fullscreen-option'])
       componentHandler.upgradeElements(this['chat-position-option'])
+      componentHandler.upgradeElements(this['chat-size-option'])
 
       sender.on(ChromecastMessageType.ReceiverState, state => {
         this.receiverState = state

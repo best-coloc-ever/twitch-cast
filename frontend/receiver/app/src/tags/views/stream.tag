@@ -13,7 +13,7 @@
       <stream-info show={ !fullScreen } channel={ channel }></stream-info>
     </div>
 
-    <chat channel={ channel } player={ player } show={ !fullScreen }></chat>
+    <chat name="chat" channel={ channel } player={ player } show={ !fullScreen }></chat>
   </div>
 
 
@@ -107,7 +107,15 @@
 
       opts.receiver.on(ChromecastMessageType.ChatPosition, data => {
         this.chatLeft = (data.position == ChatPositions.Left)
-        console.log(data.position, ChatPositions.Left)
+        this.update()
+      })
+
+      opts.receiver.on(ChromecastMessageType.ChatSize, data => {
+        let sizeStr = `${data.size}px`
+
+        this.chat.style['min-width'] = sizeStr
+        this.chat.style['flex'] = `0 1 ${sizeStr}`
+
         this.update()
       })
 
