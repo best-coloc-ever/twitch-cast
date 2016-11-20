@@ -35,6 +35,10 @@
       opts.player.on(PlayerEvent.HostError, error => {
         this.show(error)
       })
+
+      opts.player.on(PlayerEvent.MediaEnd, () => {
+        this.show('Stream ended')
+      })
     })
   </script>
 

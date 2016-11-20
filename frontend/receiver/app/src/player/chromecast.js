@@ -65,6 +65,7 @@ export default class ChromecastPlayer {
 
     host.onError = this._onHostError.bind(this)
     host.onAutoPause = this._onHostAutoPause.bind(this)
+    host.onMediaDownloadEnded = this._onMediaDownloadEnded.bind(this)
 
     return host
   }
@@ -81,4 +82,7 @@ export default class ChromecastPlayer {
     this.trigger(PlayerEvent.AutoPaused, isPaused)
   }
 
+  _onMediaDownloadEnded() {
+    this.trigger(PlayerEvent.MediaEnd)
+  }
 }
