@@ -2,7 +2,8 @@ export const routeNames = {
   Channels:   'channels',
   Games:      'games',
   Search:     'search',
-  Chromecast: 'chromecast'
+  Chromecast: 'chromecast',
+  Following:  'following'
 }
 
 export const routes = [
@@ -12,4 +13,5 @@ export const routes = [
   [`/${routeNames.Games}/*`,    'channels-view'  ],
   [`/${routeNames.Search}/*`,   'search-view'    ],
   [`/${routeNames.Chromecast}`, 'chromecast-view'],
+  [`/${routeNames.Following}`,  'following-view' ],
 ]

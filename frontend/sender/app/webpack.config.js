@@ -48,6 +48,7 @@ module.exports = {
       riot: 'riot'
     }),
     new CopyWebpackPlugin([
+      { from: 'img', to: 'img' },
       { from: 'index.html' },
       { from: 'styles.css' }
     ]),
@@ -56,8 +57,10 @@ module.exports = {
       /* filename= */'vendor.bundle.js'
     ),
     new webpack.DefinePlugin({
-      TWITCH_CLIENT_ID:  JSON.stringify(process.env.TWITCH_CLIENT_ID),
-      CHROMECAST_APP_ID: JSON.stringify(process.env.CHROMECAST_APP_ID)
+      TWITCH_CLIENT_ID:        JSON.stringify(process.env.TWITCH_CLIENT_ID),
+      TWITCH_CLIENT_SECRET:    JSON.stringify(process.env.TWITCH_CLIENT_SECRET),
+      TWITCH_APP_REDIRECT_URI: JSON.stringify(process.env.TWITCH_APP_REDIRECT_URI),
+      CHROMECAST_APP_ID:       JSON.stringify(process.env.CHROMECAST_APP_ID)
     })
   ]
 };

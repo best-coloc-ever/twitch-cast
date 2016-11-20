@@ -11,6 +11,7 @@ import 'tags/views/home.tag'
 import 'tags/views/channels.tag'
 import 'tags/views/games.tag'
 import 'tags/views/search.tag'
+import 'tags/views/following.tag'
 import 'tags/views/chromecast.tag'
 
 riot.mount('app')

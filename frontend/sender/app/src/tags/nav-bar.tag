@@ -14,16 +14,14 @@
           <i class="material-icons mdl-color-text--primary-contrast"">search</i>
         </label>
         <div class="mdl-textfield__expandable-holder">
-          <input class="mdl-textfield__input" type="text" id="search-input" placeholder="Search">
+          <input class="mdl-textfield__input mdl-color-text--primary-contrast" type="text" id="search-input" placeholder="Search">
           <label class="mdl-textfield__label"></label>
         </div>
       </div>
     </form>
 
-    <!-- <hr>
-    <div class="category mdl-color-text--primary-contrast">Browse</div> -->
+    <hr class="category-separator">
     <div each={ links in linksCollection }>
-      <hr class="category-separator">
       <a each={ link in links }
          class={
            "mdl-navigation__link": true,
@@ -35,6 +33,10 @@
         <i class="material-icons">{ link.icon }</i><span>{ link.display }</span>
       </a>
     </div>
+
+    <hr class="category-separator">
+
+    <button show={ !oauthToken } class="mdl-button mdl-js-button mdl-color-text--primary-contrast mdl-button--colored mdl-button--raised" onclick={ login }>Log in with Twitch</button>
 
   </nav>
 
@@ -79,6 +81,10 @@
     import { routeNames } from 'routing/routes.js'
     import { SenderEvent } from 'chromecast/sender.js'
 
+    import Cookies from 'js-cookie'
+
+    import TwitchAPI from 'api/twitch.js'
+
     const link = ([route, icon, display, visibleIf]) => new Object({
       route: route,
       icon: icon,
@@ -91,6 +97,9 @@
         [routeNames.Games,      'gamepad',  'Games',      () => true],
       ],
       [
+        [routeNames.Following,  'favorite', 'Following',  () => Cookies.get('twitch-oauth-token')]
+      ],
+      [
         [routeNames.Chromecast, 'cast',     'Chromecast', () => this.senderConnected]
       ]
     ]
@@ -98,6 +107,7 @@
     this.linksCollection = linkDescriptors.map(links => links.map(link))
     this.activeRoute = null
     this.senderConnected = false
+    this.oauthToken = Cookies.get('twitch-oauth-token')
 
     this.hideDrawer = () => {
       let layout = document.querySelector('.mdl-layout')
@@ -105,6 +115,10 @@
 
       if (drawer.classList.contains('is-visible'))
         layout.MaterialLayout.toggleDrawer()
+    }
+
+    this.login = () => {
+      window.location = TwitchAPI.OAuth.authorizeUrl()
     }
 
     this.on('mount', () => {
@@ -129,6 +143,17 @@
       opts.sender.on(SenderEvent.CastStateChanged, state => {
         this.senderConnected = (state == cast.framework.CastState.CONNECTED)
         this.update()
+      })
+
+      riot.route('/twitch-oauth..', () => {
+        let code = riot.route.query().code
+
+        TwitchAPI.OAuth.token(code)
+          .then(data => {
+            this.oauthToken = data.access_token
+            Cookies.set('twitch-oauth-token', data.access_token)
+            riot.route('/following')
+          })
       })
 
     })
