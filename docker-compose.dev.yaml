@@ -41,6 +41,8 @@ services:
       - '3001:3001'
     environment:
       TWITCH_CLIENT_ID: '${TWITCH_CLIENT_ID}'
+      TWITCH_CLIENT_SECRET: '${TWITCH_CLIENT_SECRET}'
+      TWITCH_APP_REDIRECT_URI: '${TWITCH_APP_REDIRECT_URI}'
       CHROMECAST_APP_ID: '${CHROMECAST_APP_ID}'
     restart: always
 
