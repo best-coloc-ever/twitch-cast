@@ -4,10 +4,10 @@ import { loadScript } from 'utils/deferred_load.js'
 const chromecastSdkMediaplayerJsUrl = '//www.gstatic.com/cast/sdk/libs/mediaplayer/1.0.0/media_player.js'
 
       // Host settings
-const autoPauseDuration          = 3,
-      autoResumeDuration         = 3,
+const autoPauseDuration          = 2,
+      autoResumeDuration         = 2,
       autoResumeNumberOfSegments = 1,
-      segmentRequestRetryLimit   = 5
+      segmentRequestRetryLimit   = 3
 
 export default class ChromecastPlayer {
 
@@ -60,7 +60,7 @@ export default class ChromecastPlayer {
     host.segmentRequestRetryLimit = segmentRequestRetryLimit
     // Workaround (hopefully temporary)
     host.updateManifestRequestInfo = info => {
-      info.timeoutInterval = 2000
+      info.timeoutInterval = 4000
     }
 
     host.onError = this._onHostError.bind(this)
