@@ -40,8 +40,7 @@
     let chatDelay = initialChatDelay
     let reconnectTimeout = 2
 
-    let store = new ChatAssetStore
-    store.loadChannelBadges(channel)
+    let store = new ChatAssetStore(channel)
 
     let messageQueue = []
     let messages = []
