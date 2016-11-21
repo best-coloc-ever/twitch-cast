@@ -23,7 +23,7 @@ receiver-run npm install
 receiver-run webpack -p
 
 # Build the streamer app
-streamer-run stack build --copy-bins --local-bin-path /dist
+streamer-run stack --allow-different-user build --copy-bins --local-bin-path /dist
 
 # Magic
 ./scripts/prod up -d
