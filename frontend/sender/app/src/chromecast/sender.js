@@ -31,6 +31,8 @@ export default class ChromecastSender {
     window.__onGCastApiAvailable = isAvailable => {
       if (isAvailable)
         this.initialize()
+
+      this.trigger(SenderEvent.Initialized)
     }
 
     loadScript(chromecastSdkSenderJsUrl)
@@ -58,8 +60,6 @@ export default class ChromecastSender {
     )
 
     this.castContext = castContext
-
-    this.trigger(SenderEvent.Initialized)
   }
 
   connect() {
