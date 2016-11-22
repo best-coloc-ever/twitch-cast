@@ -1,104 +1,26 @@
 <following-view>
 
-<!-- layout -->
-  <div class="mdl-grid stream-grid" each={ streams in streamsChunks }>
-    <div class="mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--12-col-phone"
-         each={ stream in streams }>
-      <stream-card data={ stream } sender={ sender }></stream-card>
-    </div>
-  </div>
-
-
-  <div class="bottom-wrapper">
-    <div
-      class="mdl-progress mdl-js-progress mdl-progress__indeterminate progress-bar"
-      show={ loading }>
-    </div>
-    <button
-      class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-      onclick={ fetchNextStreams }
-      show={ !loading }>
-      Load more
-    </button>
-  </div>
-
-
-  <!-- style -->
-  <style scoped>
-    .bottom-wrapper {
-      text-align: center;
-      padding-top: 15px;
-      padding-bottom: 15px;
-    }
-
-    .progress-bar {
-      margin: 0 auto;
-    }
-
-    .stream-grid {
-      padding: 0;
-    }
-  </style>
-
+  <card-list-view config={ config }>
+  </card-list-view>
 
   <!-- logic -->
   <script>
     import TwitchAPI from 'api/twitch.js'
-
     import Cookies from 'js-cookie'
 
-    const streamChunkSize = 4
-    const streamFetchCount = 40
+    let authToken = Cookies.get('twitch-oauth-token')
 
-    this.streamsChunks = []
-    this.offset = 0
-    this.loading = false
-    this.sender = opts.sender
-    this.gameName = opts.routeOpts ? opts.routeOpts[0] : null
-
-    this.addStreams = data => {
-      let streams = data.streams
-      let i = 0
-      // Make sure we fill out the last chunk if any
-      if (this.streamsChunks.length) {
-        let lastChunkIdx = this.streamsChunks.length - 1
-        let lastChunk = this.streamsChunks[lastChunkIdx]
-
-        while (lastChunk.length < streamChunkSize && i < streams.length)
-          lastChunk.push(streams[i++])
-      }
-      // Split the remaining streams
-      while (i < streams.length) {
-        this.streamsChunks.push(streams.slice(i, i + streamChunkSize))
-        i += streamChunkSize
-      }
+    this.config = {
+      fetchLogic: TwitchAPI.followed.bind(undefined, authToken),
+      dataFilter: data => data.streams,
+      cardTag: 'stream-card',
+      tagOpts: { sender: opts.sender },
+      rowSizes: {
+        desktop: 4,
+        tablet:  2,
+        phone:   1,
+      },
     }
-
-    this.fetchNextStreams = () => {
-      this.loading = true
-      this.update()
-
-      let params = {
-        offset: this.offset,
-        limit: streamFetchCount,
-      }
-      if (this.gameName)
-        params.game = this.gameName
-
-      TwitchAPI.followed(Cookies.get('twitch-oauth-token'), params)
-        .then(data => {
-          this.offset += data.streams.length
-          this.addStreams(data)
-          this.loading = false
-          this.update()
-        })
-    }
-
-    this.on('mount', () => {
-      componentHandler.upgradeElements(this.root)
-
-      this.fetchNextStreams()
-    })
   </script>
 
 </following-view>
