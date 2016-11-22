@@ -135,8 +135,11 @@
       })
 
       this['search-form'].onsubmit = e => {
+        let query = this['search-input'].value
+
         this.hideDrawer()
-        riot.route(`/search/${this['search-input'].value}`)
+        this.parent.updateTitle(query)
+        riot.route(`/search/${query}`)
         return false
       }
 

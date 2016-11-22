@@ -9,7 +9,7 @@
     this.config = {
       fetchLogic: TwitchAPI.games,
       dataFilter: data => data.top,
-      cardTag: 'game-card',
+      cardTag: 'top-game-card',
       tagOpts: { },
       rowSizes: {
         desktop: 6,

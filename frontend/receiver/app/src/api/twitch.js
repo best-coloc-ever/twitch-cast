@@ -44,7 +44,9 @@ const TwitchAPI = {
   },
 
   Search: {
-    streams: (params = {}) => twitchJsonCall('/search/streams', params)
+    streams:  (params = {}) => twitchJsonCall('/search/streams', params),
+    channels: (params = {}) => twitchJsonCall('/search/channels', params),
+    games:    (params = {}) => twitchJsonCall('/search/games', params),
   },
 
   OAuth: {

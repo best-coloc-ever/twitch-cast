@@ -6,6 +6,8 @@ import 'tags/cast-button.tag'
 
 import 'tags/components/stream-card.tag'
 import 'tags/components/game-card.tag'
+import 'tags/components/top-game-card.tag'
+import 'tags/components/channel-card.tag'
 
 import 'tags/views/generic/card-list.tag'
 
