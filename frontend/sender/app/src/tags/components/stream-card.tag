@@ -22,7 +22,7 @@
     .preview {
       cursor: pointer;
       position: relative;
-      background: linear-gradient(rgba(255, 0, 0, 0), rgba(0, 0, 0, 0.8))
+      background: linear-gradient(rgba(255, 0, 0, 0) 50%, rgba(0, 0, 0, 0.8))
     }
 
     img {

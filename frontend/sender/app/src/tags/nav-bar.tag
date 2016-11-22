@@ -34,7 +34,7 @@
       </a>
     </div>
 
-    <hr class="category-separator">
+    <hr class="category-separator" show={ !oauthToken }>
 
     <button show={ !oauthToken } class="mdl-button mdl-js-button mdl-color-text--primary-contrast mdl-button--colored mdl-button--raised" onclick={ login }>Log in with Twitch</button>
 
