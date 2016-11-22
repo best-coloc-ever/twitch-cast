@@ -110,6 +110,9 @@ export default class ChromecastSender {
   }
 
   play(channel, quality = null) {
+    if (!this.castContext)
+      this.playLocally(channel, quality)
+
     this.queue = null
 
     let castState = this.castContext.getCastState()
