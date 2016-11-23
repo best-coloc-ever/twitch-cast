@@ -1,7 +1,7 @@
 <channel-card>
 
   <!-- layout -->
-  <div class="preview" onclick={ onClick }>
+  <div class="preview" onclick={ play }>
     <img src={ logo }>
     <div class="embed">
       <div class="channel-name">{ data.display_name }</div>
@@ -41,17 +41,14 @@
 
   <!-- logic -->
   <script>
+    import { Mixins } from 'context/mixins.js'
+
+    this.mixin(Mixins.Sender)
+
     this.data = opts.data
 
     this.logo = this.data.logo || '//fakeimg.pl/300x300/?text=?'
-
-    this.onClick = () => {
-      opts.sender.play(this.data.name)
-    }
-
-    this.on('mount', () => {
-
-    })
+    this.play = () => this.sender.play(this.data.name)
   </script>
 
 </channel-card>

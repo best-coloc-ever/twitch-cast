@@ -1,28 +1,46 @@
-import { routes } from "./routes.js"
+import { routeDescriptors } from "./routes.js"
+
+export const RouterEvent = {
+  RouteChanged: 'router-route-changed',
+}
 
 const dummyView = { unmount: (..._) => undefined }
 
 export class Router {
 
-  constructor(domNode, opts) {
+  constructor(domNode) {
     this.mountNode = domNode
-    this.opts = opts
     this.currentView = dummyView
 
-    routes.forEach(descriptor => this.addRoute(...descriptor))
+    riot.observable(this)
+
+    Object.values(routeDescriptors).forEach(routeDescriptor =>
+      this.addRoute(routeDescriptor)
+    )
   }
 
-  addRoute(path, tagName) {
-    riot.route(path, (...args) => {
-      this.setView(tagName, ...args)
+  addRoute(routeDescriptor) {
+    let pattern = `/${routeDescriptor.base}`
+
+    routeDescriptor.tagNames.forEach(tagName => {
+      riot.route(pattern, (...path) => {
+        this.trigger(RouterEvent.RouteChanged, routeDescriptor, path)
+
+        this.setView(tagName, path.map(decodeURIComponent))
+      })
+
+      pattern = `${pattern}/*`
     })
   }
 
-  setView(tagName, ...args) {
+  setView(tagName, path) {
     this.currentView.unmount(true)
 
-    let context = Object.assign(this.opts, { routeOpts: args })
-    let children = riot.mount(this.mountNode, tagName, context)
+    let children = riot.mount(
+      this.mountNode,
+      tagName,
+      { path: path }
+    )
 
     if (children.length) {
       this.currentView = children[0]

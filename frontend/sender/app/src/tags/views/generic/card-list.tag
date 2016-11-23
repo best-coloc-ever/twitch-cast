@@ -5,8 +5,7 @@
 
   <script>
     this.on('mount', () => {
-      let cardOpts = Object.assign(opts.forwardOpts, { data: opts.forwardData })
-      riot.mount(this.target, opts.cardTag, cardOpts)
+      riot.mount(this.target, opts.cardTag, { data: opts.forwardData })
     })
   </script>
 
@@ -15,15 +14,14 @@
 <card-list-view>
 
   <!-- layout -->
-  <h5 align="center" show={ !rows.length && !hasMoreData }>No results :(</h5>
+  <h5 align="center" show={ !rows.length && !hasMoreData }>No results 😢</h5>
 
   <div class="mdl-grid data-grid" each={ row in rows }>
     <div class={ cardCellClasses }
          each={ data in row }>
       <data-card
         card-tag={ parent.config.cardTag }
-        forward-data={ data }
-        forward-opts={ parent.config.tagOpts }>
+        forward-data={ data }>
       </data-card>
     </div>
   </div>

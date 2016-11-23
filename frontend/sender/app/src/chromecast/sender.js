@@ -13,7 +13,7 @@ export const SenderEvent = {
   CastError: 'sender-cast-error'
 }
 
-export default class ChromecastSender {
+export class ChromecastSender {
 
   constructor() {
     this.castContext = null

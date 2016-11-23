@@ -1,5 +1,7 @@
 import { jsonCall, jsonPCall } from './helpers.js'
 
+import Cookies from 'js-cookie'
+
 const twitchInit = {
   headers: {
     'Client-ID': TWITCH_CLIENT_ID // Available globally thanks to Webpack
@@ -29,7 +31,8 @@ function twitchJsonCallOauth(route, token, params={}) {
 const betaBadgesEndpointPrefix = '//badges.twitch.tv/v1/badges'
 
 const OAuthAuthorizeUrl = 'https://api.twitch.tv/kraken/oauth2/authorize',
-      OAuthTokenUrl = 'https://api.twitch.tv/kraken/oauth2/token'
+      OAuthTokenUrl = 'https://api.twitch.tv/kraken/oauth2/token',
+      OAuthTokenCookieName = 'twitch-oauth-token'
 
 const TwitchAPI = {
   channel: (channelName) => twitchJsonCall(`/channels/${channelName}`),
@@ -96,6 +99,10 @@ const TwitchAPI = {
   followed: (token, params={}) => {
     return twitchJsonCallOauth('/streams/followed', token, params)
   },
+
+  saveToken:       token => Cookies.set(OAuthTokenCookieName, token),
+  getToken:        ()    => Cookies.get(OAuthTokenCookieName),
+  isAuthenticated: ()    => TwitchAPI.getToken() != undefined,
 }
 
 export default TwitchAPI

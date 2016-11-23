@@ -1,7 +1,7 @@
 <stream-card>
 
   <!-- layout -->
-  <div class="preview" onclick={ onClick }>
+  <div class="preview" onclick={ play }>
     <img src={ data.preview.medium }>
     <div class="embed">
       <div class="streamer-name">{ data.channel.display_name }</div>
@@ -67,15 +67,13 @@
 
   <!-- logic -->
   <script>
+    import { Mixins } from 'context/mixins.js'
+
+    this.mixin(Mixins.Sender)
+
     this.data = opts.data
 
-    this.onClick = () => {
-      opts.sender.play(this.data.channel.name)
-    }
-
-    this.on('mount', () => {
-
-    })
+    this.play = () => this.sender.play(this.data.channel.name)
   </script>
 
 </stream-card>

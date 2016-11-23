@@ -1,17 +1,31 @@
-export const routeNames = {
-  Channels:   'channels',
-  Games:      'games',
-  Search:     'search',
-  Chromecast: 'chromecast',
-  Following:  'following'
-}
+export const routeDescriptors = {
+  Home: {
+    base: '',
+    tagNames: ['home-view']
+  },
 
-export const routes = [
-  ['/',                         'home-view'      ],
-  [`/${routeNames.Channels}`,   'channels-view'  ],
-  [`/${routeNames.Games}`,      'games-view'     ],
-  [`/${routeNames.Games}/*`,    'channels-view'  ],
-  [`/${routeNames.Search}/*`,   'search-view'    ],
-  [`/${routeNames.Chromecast}`, 'chromecast-view'],
-  [`/${routeNames.Following}`,  'following-view' ],
-]
+  Channels: {
+    base: 'channels',
+    tagNames: ['channels-view']
+  },
+
+  Games: {
+    base: 'games',
+    tagNames: ['games-view', 'channels-view']
+  },
+
+  Search: {
+    base: 'search',
+    tagNames: [undefined, 'search-view']
+  },
+
+  Chromecast: {
+    base: 'chromecast',
+    tagNames: ['chromecast-view']
+  },
+
+  Following: {
+    base: 'following',
+    tagNames: ['following-view']
+  }
+}

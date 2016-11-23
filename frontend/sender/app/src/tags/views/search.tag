@@ -28,7 +28,7 @@
   <script>
     import TwitchAPI from 'api/twitch.js'
 
-    let [query] = opts.routeOpts
+    let [query] = opts.path
 
     const streamsRowSizes =  {desktop: 4, tablet: 2, phone: 1 }
     const gamesRowSizes =    {desktop: 6, tablet: 4, phone: 2 }
@@ -44,7 +44,6 @@
       fetchLogic: pagedQueryFetchLogic(TwitchAPI.Search.streams),
       dataFilter: data => data.streams,
       cardTag: 'stream-card',
-      tagOpts: { sender: opts.sender },
       rowSizes: streamsRowSizes,
     }
 
@@ -52,7 +51,6 @@
       fetchLogic: gamesQueryFetchLogic(TwitchAPI.Search.games),
       dataFilter: data => data.games,
       cardTag: 'game-card',
-      tagOpts: { },
       rowSizes: gamesRowSizes,
     }
 
@@ -60,7 +58,6 @@
       fetchLogic: pagedQueryFetchLogic(TwitchAPI.Search.channels),
       dataFilter: data => data.channels,
       cardTag: 'channel-card',
-      tagOpts: { sender: opts.sender },
       rowSizes: channelsRowSizes,
     }
 

@@ -14,7 +14,6 @@
       fetchLogic: TwitchAPI.followed.bind(undefined, authToken),
       dataFilter: data => data.streams,
       cardTag: 'stream-card',
-      tagOpts: { sender: opts.sender },
       rowSizes: {
         desktop: 4,
         tablet:  2,

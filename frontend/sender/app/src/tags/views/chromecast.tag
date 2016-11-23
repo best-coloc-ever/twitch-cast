@@ -99,8 +99,9 @@
     import { SenderEvent } from 'chromecast/sender.js'
     import ChromecastMessage, { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
     import StreamerAPI from 'api/streamer.js'
+    import { Mixins } from 'context/mixins.js'
 
-    let sender = opts.sender
+    this.mixin(Mixins.Sender)
 
     this.receiverState = null
     this.statusMessage = 'Waiting for a resumed session...'
@@ -115,23 +116,23 @@
     this.toggleFullscreen = event => {
       let message = ChromecastMessage.toggleFullscreen(event.target.checked)
 
-      sender.sendCustomMessage(message)
+      this.sender.sendCustomMessage(message)
     }
 
     this.changeQuality = quality => () => {
-      sender.play(this.receiverState.channel, quality)
+      this.sender.play(this.receiverState.channel, quality)
     }
 
     this.changeChatPosition = position => () => {
       let message = ChromecastMessage.chatPosition(position)
 
-      sender.sendCustomMessage(message)
+      this.sender.sendCustomMessage(message)
     }
 
     this.changeChatSize = event => {
       let message = ChromecastMessage.chatSize(event.target.valueAsNumber)
 
-      sender.sendCustomMessage(message)
+      this.sender.sendCustomMessage(message)
     }
 
     this.onStateRequestComplete = mbError => {
@@ -147,7 +148,7 @@
     this.initialize = () => {
       this.setStatus('Connecting to the receiver...')
 
-      sender.sendCustomMessage(ChromecastMessage.receiverStateRequest())
+      this.sender.sendCustomMessage(ChromecastMessage.receiverStateRequest())
         .then(this.onStateRequestComplete, this.onStateRequestError)
     }
 
@@ -165,7 +166,7 @@
       componentHandler.upgradeElements(this['chat-position-option'])
       componentHandler.upgradeElements(this['chat-size-option'])
 
-      sender.on(ChromecastMessageType.ReceiverState, state => {
+      this.sender.on(ChromecastMessageType.ReceiverState, state => {
         this.receiverState = state
 
         if (state.quality)
@@ -174,7 +175,7 @@
         this.update()
       })
 
-      if (sender.connected())
+      if (this.sender.connected())
         this.initialize()
       else
         setTimeout(this.initialize, 1000) // Letting time to the sender to resume an possible session

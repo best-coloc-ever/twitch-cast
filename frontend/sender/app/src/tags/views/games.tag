@@ -10,7 +10,6 @@
       fetchLogic: TwitchAPI.games,
       dataFilter: data => data.top,
       cardTag: 'top-game-card',
-      tagOpts: { },
       rowSizes: {
         desktop: 6,
         tablet:  4,

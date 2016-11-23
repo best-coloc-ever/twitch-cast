@@ -6,7 +6,7 @@
   <script>
     import TwitchAPI from 'api/twitch.js'
 
-    let [game] = opts.routeOpts
+    let [game] = opts.path
 
     let fetchLogic = params => {
       if (game)
@@ -19,7 +19,6 @@
       fetchLogic: fetchLogic,
       dataFilter: data => data.streams,
       cardTag: 'stream-card',
-      tagOpts: { sender: opts.sender },
       rowSizes: {
         desktop: 4,
         tablet:  2,

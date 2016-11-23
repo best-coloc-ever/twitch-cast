@@ -9,7 +9,7 @@
 
   <!-- style -->
   <style scoped>
-    div {
+    :scope {
       cursor: pointer;
     }
 
@@ -22,6 +22,9 @@
   <!-- logic -->
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
+    import { Mixins } from 'context/mixins.js'
+
+    this.mixin(Mixins.Sender)
 
     const castIconConnected   = 'cast_connected',
           castIconUnconnected = 'cast'
@@ -40,7 +43,6 @@
           connectingState  = state(true,  true,  castIconUnconnected, undefined),
           connectedState   = state(true,  false, castIconConnected,   () => this.sender.disconnect())
 
-    this.sender = opts.sender
     this.state = unavailableState
 
     this.onCastInitialized = () => {
@@ -59,9 +61,7 @@
       })
     }
 
-    this.on('mount', () => {
-      this.sender.on(SenderEvent.Initialized, this.onCastInitialized)
-    })
+    this.sender.on(SenderEvent.Initialized, this.onCastInitialized)
   </script>
 
 </cast-button>

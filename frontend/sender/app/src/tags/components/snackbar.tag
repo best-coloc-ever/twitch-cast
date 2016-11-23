@@ -16,15 +16,18 @@
   <!-- logic -->
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
+    import { Mixins } from 'context/mixins.js'
+
+    this.mixin(Mixins.Sender)
 
     this.onChannelSent = channel => {
       let channelName = channel.toUpperCase()
-      let device = opts.sender.deviceName().toUpperCase()
+      let device = this.sender.deviceName().toUpperCase()
 
       this.show({
         message: `${channelName} is now playing on ${device}`,
-        actionHandler: (..._) => opts.sender.playLocally(channel),
         actionText: 'Watch on this device',
+        actionHandler: (..._) => this.sender.playLocally(channel),
         timeout: 8 * 1000
       })
     }
@@ -46,9 +49,9 @@
     }
 
     this.on('mount', () => {
-      opts.sender.on(SenderEvent.ChannelSent, this.onChannelSent)
-      opts.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
-      opts.sender.on(SenderEvent.CastError, this.onCastError)
+      this.sender.on(SenderEvent.ChannelSent, this.onChannelSent)
+      this.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
+      this.sender.on(SenderEvent.CastError, this.onCastError)
 
     })
   </script>
