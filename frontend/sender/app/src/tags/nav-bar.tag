@@ -1,10 +1,12 @@
 <nav-bar>
 
   <!-- layout -->
-  <a href="#" class="home-link mdl-layout-title mdl-color-text--primary-contrast">
-    Twitch Caster
-  </a>
-  <!-- <hr> -->
+  <div class="mdl-layout-title title-container">
+    <a href="#" class="home-link mdl-color-text--primary-contrast">
+      Twitch Caster
+    </a>
+    <github-corner></github-corner>
+  </div>
 
   <nav class="mdl-navigation">
 
@@ -42,6 +44,15 @@
 
   <!-- style -->
   <style scoped>
+    .title-container {
+      display: flex;
+      white-space: nowrap;
+    }
+
+    github-corner {
+      margin-left: auto;
+    }
+
     .home-link {
       text-decoration: none;
     }
