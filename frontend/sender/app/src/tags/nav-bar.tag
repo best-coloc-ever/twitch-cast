@@ -10,19 +10,8 @@
 
   <nav class="mdl-navigation">
 
-    <form name="search-form">
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable search">
-        <label class="mdl-button mdl-js-button mdl-button--icon" for="search-input">
-          <i class="material-icons mdl-color-text--primary-contrast"">search</i>
-        </label>
-        <div class="mdl-textfield__expandable-holder">
-          <input class="mdl-textfield__input mdl-color-text--primary-contrast" type="text" id="search-input" placeholder="Search">
-          <label class="mdl-textfield__label"></label>
-        </div>
-      </div>
-    </form>
-
     <hr class="category-separator">
+
     <div each={ links in linksCollection }>
       <a each={ link in links }
          class={
@@ -67,7 +56,8 @@
     }
 
     .category-separator {
-      margin: 0
+      margin: 0;
+      border-top: 3px solid #673ab7;
     }
 
     .material-icons {
@@ -144,15 +134,6 @@
           })
         })
       })
-
-      this['search-form'].onsubmit = e => {
-        let query = this['search-input'].value
-
-        this.hideDrawer()
-        this.parent.updateTitle(query)
-        riot.route(`/search/${query}`)
-        return false
-      }
 
       opts.sender.on(SenderEvent.CastStateChanged, state => {
         this.senderConnected = (state == cast.framework.CastState.CONNECTED)
