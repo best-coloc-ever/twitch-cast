@@ -155,11 +155,11 @@
       this.mixin(Mixins.Sender)
 
       this.sender.on(ChromecastMessageType.ReceiverState, state => {
+        this.update({ receiverState: state })
+
         componentHandler.upgradeElements(this.refs['fullscreen-option'])
         componentHandler.upgradeElements(this.refs['chat-position-option'])
         componentHandler.upgradeElements(this.refs['chat-size-option'])
-
-        this.update({ receiverState: state })
 
         if (state.quality)
           this.fetchQualities(state.channel)
