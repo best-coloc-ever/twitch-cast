@@ -43,12 +43,14 @@
   <script>
     import { Mixins } from 'context/mixins.js'
 
-    this.mixin(Mixins.Sender)
-
     this.data = opts.data
 
     this.logo = this.data.logo || '//fakeimg.pl/300x300/?text=?'
     this.play = () => this.sender.play(this.data.name)
+
+    this.on('mount', () => {
+      this.mixin(Mixins.Sender)
+    })
   </script>
 
 </channel-card>

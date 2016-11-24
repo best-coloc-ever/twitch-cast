@@ -9,7 +9,7 @@
     <navbar class="mdl-layout__drawer mdl-color--grey-900"></navbar>
 
     <main class="mdl-layout__content">
-      <content-view name="content"></content-view>
+      <content-view ref="content"></content-view>
     </main>
 
     <snackbar></snackbar>
@@ -29,13 +29,15 @@
     import { Router } from 'routing/router.js'
     import { Mixins } from 'context/mixins.js'
 
-    let sender = new ChromecastSender,
-        router = new Router(this.content)
+    this.on('mount', () => {
+      let sender = new ChromecastSender,
+          router = new Router(this.refs.content)
 
-    riot.mixin(Mixins.Sender, { sender: sender })
-    riot.mixin(Mixins.Router, { router: router })
+      riot.mixin(Mixins.Sender, { sender: sender })
+      riot.mixin(Mixins.Router, { router: router })
 
-    sender.on(SenderEvent.Initialized, router.start)
+      sender.on(SenderEvent.Initialized, router.start)
+    })
   </script>
 
 </app>

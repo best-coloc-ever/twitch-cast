@@ -69,11 +69,13 @@
   <script>
     import { Mixins } from 'context/mixins.js'
 
-    this.mixin(Mixins.Sender)
-
     this.data = opts.data
 
     this.play = () => this.sender.play(this.data.channel.name)
+
+    this.on('mount', () => {
+      this.mixin(Mixins.Sender)
+    })
   </script>
 
 </stream-card>

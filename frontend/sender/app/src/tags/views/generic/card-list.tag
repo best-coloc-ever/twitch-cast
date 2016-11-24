@@ -1,11 +1,11 @@
 <!-- Was forced to make this proxy tag for some reason... -->
 <data-card>
 
-  <tag name="target"></tag>
+  <tag ref="target"></tag>
 
   <script>
     this.on('mount', () => {
-      riot.mount(this.target, opts.cardTag, { data: opts.forwardData })
+      riot.mount(this.refs.target, opts.cardTag, { data: opts.forwardData })
     })
   </script>
 

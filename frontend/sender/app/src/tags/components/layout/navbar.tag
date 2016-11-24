@@ -95,8 +95,6 @@
           following  = link  (r.Following.base,  'favorite', 'Following',  TwitchAPI.isAuthenticated ),
           chromecast = link  (r.Chromecast.base, 'cast',     'Chromecast', () => this.senderConnected)
 
-    this.mixin(Mixins.Sender)
-    this.mixin(Mixins.Router)
     this.links = [channels, games, following, chromecast]
     this.activeRoute = null
     this.senderConnected = false
@@ -109,15 +107,21 @@
         layout.MaterialLayout.toggleDrawer()
     }
 
-    this.router.on(RouterEvent.RouteChanged, routeDescriptor => {
-      this.hideDrawer()
-      this.update({ activeRoute: routeDescriptor.base })
+    this.on('mount', () => {
+      this.mixin(Mixins.Sender)
+      this.mixin(Mixins.Router)
+
+      this.router.on(RouterEvent.RouteChanged, routeDescriptor => {
+        this.hideDrawer()
+        this.update({ activeRoute: routeDescriptor.base })
+      })
+
+      this.sender.on(SenderEvent.CastStateChanged, state => {
+        let isConnected = (state == cast.framework.CastState.CONNECTED)
+        this.update({ senderConnected: isConnected })
+      })
     })
 
-    this.sender.on(SenderEvent.CastStateChanged, state => {
-      let isConnected = (state == cast.framework.CastState.CONNECTED)
-      this.update({ senderConnected: isConnected })
-    })
   </script>
 
 </navbar>

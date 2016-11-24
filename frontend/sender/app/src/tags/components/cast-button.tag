@@ -34,7 +34,6 @@
           connecting  = state (true,        true,        castIconUnconnected, undefined                     ),
           connected   = state (true,        false,       castIconConnected,   () => this.sender.disconnect())
 
-    this.mixin(Mixins.Sender)
     this.state = unavailable
 
     this.onCastInitialized = () => {
@@ -52,7 +51,11 @@
       })
     }
 
-    this.sender.on(SenderEvent.Initialized, this.onCastInitialized)
+    this.on('mount', () => {
+      this.mixin(Mixins.Sender)
+
+      this.sender.on(SenderEvent.Initialized, this.onCastInitialized)
+    })
   </script>
 
 </cast-button>
