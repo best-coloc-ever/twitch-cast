@@ -6,14 +6,14 @@
       <notice player={ player }></notice>
       <pause-indicator player={ player }></pause-indicator>
 
-      <div class="center" name="container">
+      <div class="center" ref="container">
       </div>
 
       <clock show={ !fullScreen }></clock>
       <stream-info show={ !fullScreen } channel={ channel }></stream-info>
     </div>
 
-    <chat name="chat" channel={ channel } player={ player } show={ !fullScreen }></chat>
+    <chat ref="chat" channel={ channel } player={ player } show={ !fullScreen }></chat>
   </div>
 
 
@@ -113,13 +113,13 @@
       opts.receiver.on(ChromecastMessageType.ChatSize, data => {
         let sizeStr = `${data.size}px`
 
-        this.chat.style['min-width'] = sizeStr
-        this.chat.style['flex'] = `0 1 ${sizeStr}`
+        this.refs.chat.style['min-width'] = sizeStr
+        this.refs.chat.style['flex'] = `0 1 ${sizeStr}`
 
         this.update()
       })
 
-      this.container.appendChild(opts.player.mediaElement)
+      this.refs.container.appendChild(opts.player.mediaElement)
 
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
       this.player.play(playlistUrl)

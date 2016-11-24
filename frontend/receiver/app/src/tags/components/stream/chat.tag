@@ -1,7 +1,7 @@
 <chat>
 
   <!-- Layout -->
-  <ul id="chat" name="chat">
+  <ul ref="chat">
   </ul>
 
   <!-- Style -->
@@ -97,12 +97,12 @@
       messages.push(message)
       // JQuery
       let chatLine = buildChatLine(message, store)
-      $(this.chat).append(chatLine)
+      $(this.refs.chat).append(chatLine)
 
       let toSlice = Math.max(0, messages.length - maxChatMessageCount)
       messages = messages.slice(toSlice)
 
-      $(this.chat).find('li:lt(' + toSlice + ')').remove()
+      $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
     }
 
     this.processMessageQueue = () => {
