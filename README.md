@@ -12,7 +12,10 @@ Place the associated private key in `frontend/server/privkey.pem`
 
 then run:
 ```sh
-SERVER_NAME=your_domain_or_ip \
-TWITCH_CLIENT_ID=your_twitch_client_id \
+export TWITCH_CLIENT_ID=your_twitch_client_id
+export TWITCH_CLIENT_SECRET=your_twitch_client_secret
+export TWITCH_APP_REDIRECT_URI=your_twitch_app_redirect_uri
+export CHROMECAST_APP_ID=your_chromecast_app_id
+
 ./deploy.sh
 ```
