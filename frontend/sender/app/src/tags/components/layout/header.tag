@@ -30,15 +30,16 @@
     import { RouterEvent } from 'routing/router.js'
     import { routeDescriptors } from 'routing/routes.js'
 
-    const titlesSpec = [
-      [routeDescriptors.Home,       'Home'             ],
-      [routeDescriptors.Channels,   'Channels'         ],
-      [routeDescriptors.Games,      'Games'            ],
-      [routeDescriptors.Search,     'Search'           ],
-      [routeDescriptors.Chromecast, 'Chromecast remote'],
-      [routeDescriptors.Following,  'Following'        ],
-    ]
-    const titlesMap = new Map(titlesSpec.map(([k, v]) => [k.base, v]))
+    const r = routeDescriptors,
+          titlesSpec = [
+            [r.Home,       'Home'             ],
+            [r.Channels,   'Channels'         ],
+            [r.Games,      'Games'            ],
+            [r.Search,     'Search'           ],
+            [r.Chromecast, 'Chromecast remote'],
+            [r.Following,  'Following'        ],
+          ],
+          titlesMap = new Map(titlesSpec.map(([k, v]) => [k.base, v]))
 
     this.mixin(Mixins.Router)
     this.title = null

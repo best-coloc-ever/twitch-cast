@@ -1,7 +1,7 @@
 <top-game-card>
 
   <!-- layout -->
-  <a href={ gameLink }>
+  <a href={ '#' + gameLink }>
     <div class="preview">
       <img src={ data.game.box.large }>
       <div>
@@ -46,8 +46,10 @@
 
   <!-- logic -->
   <script>
+    import { routeLinks } from 'routing/routes.js'
+
     this.data = opts.data
-    this.gameLink = `#games/${this.data.game.name}`
+    this.gameLink = routeLinks.game(this.data.game.name)
   </script>
 
 </top-game-card>

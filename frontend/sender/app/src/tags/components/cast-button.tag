@@ -23,41 +23,32 @@
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
     import { Mixins } from 'context/mixins.js'
-
-    this.mixin(Mixins.Sender)
+    import { object } from 'utils/prelude.js'
 
     const castIconConnected   = 'cast_connected',
           castIconUnconnected = 'cast'
 
-    function state(available, readying, icon, action) {
-      return {
-        available: available,
-        readying: readying,
-        icon: icon,
-        action: action,
-      }
-    }
+    const state       = object('available', 'readying', 'icon',               'action'                      ),
+          unavailable = state (false,       false,       null,                undefined                     ),
+          unconnected = state (true,        false,       castIconUnconnected, () => this.sender.connect()   ),
+          connecting  = state (true,        true,        castIconUnconnected, undefined                     ),
+          connected   = state (true,        false,       castIconConnected,   () => this.sender.disconnect())
 
-    const unavailableState = state(false, false, null,                undefined),
-          unconnectedState = state(true,  false, castIconUnconnected, () => this.sender.connect()),
-          connectingState  = state(true,  true,  castIconUnconnected, undefined),
-          connectedState   = state(true,  false, castIconConnected,   () => this.sender.disconnect())
-
-    this.state = unavailableState
+    this.mixin(Mixins.Sender)
+    this.state = unavailable
 
     this.onCastInitialized = () => {
-      let newStates = {}
-
-      newStates[cast.framework.CastState.NO_DEVICES_AVAILABLE] = unavailableState
-      newStates[cast.framework.CastState.NOT_CONNECTED]        = unconnectedState
-      newStates[cast.framework.CastState.CONNECTING]           = connectingState
-      newStates[cast.framework.CastState.CONNECTED]            = connectedState
+      const cs = cast.framework.CastState,
+            statesSpec = [
+              [cs.NO_DEVICES_AVAILABLE, unavailable],
+              [cs.NOT_CONNECTED,        unconnected],
+              [cs.CONNECTING,           connecting ],
+              [cs.CONNECTED,            connected  ],
+            ],
+            stateMap = new Map(statesSpec)
 
       this.sender.on(SenderEvent.CastStateChanged, castState => {
-        let newState = newStates[castState]
-
-        this.state = newState
-        this.update()
+        this.update({ state: stateMap.get(castState) })
       })
     }
 

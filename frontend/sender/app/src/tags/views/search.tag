@@ -30,8 +30,8 @@
 
     let [query] = opts.path
 
-    const streamsRowSizes =  {desktop: 4, tablet: 2, phone: 1 }
-    const gamesRowSizes =    {desktop: 6, tablet: 4, phone: 2 }
+    const streamsRowSizes =  { desktop: 4, tablet: 2, phone: 1 }
+    const gamesRowSizes =    { desktop: 6, tablet: 4, phone: 2 }
     const channelsRowSizes = streamsRowSizes
 
     let pagedQueryFetchLogic = call => params =>

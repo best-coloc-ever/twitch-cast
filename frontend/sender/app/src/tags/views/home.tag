@@ -12,9 +12,9 @@
 
   <!-- logic -->
   <script>
-    this.on('mount', () => {
-      riot.route('/channels', '', true)
-    })
+    import { routeLinks } from 'routing/routes.js'
+
+    riot.route(routeLinks.channels(), '', true)
   </script>
 
 </home-view>

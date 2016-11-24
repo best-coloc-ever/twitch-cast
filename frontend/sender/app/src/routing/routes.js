@@ -29,3 +29,18 @@ export const routeDescriptors = {
     tagNames: ['following-view']
   }
 }
+
+const routeLink = (descriptor, ...path) =>
+  [descriptor.base, ...path].map(encodeURIComponent).join('/')
+
+const r = routeDescriptors
+
+export const routeLinks = {
+  home:       ()    => routeLink(r.Home            ),
+  channels:   ()    => routeLink(r.Channels        ),
+  games:      ()    => routeLink(r.Games           ),
+  game:       name  => routeLink(r.Games,     name ),
+  search:     query => routeLink(r.Search,    query),
+  chromecast: ()    => routeLink(r.Chromecast      ),
+  following:  ()    => routeLink(r.Following       )
+}

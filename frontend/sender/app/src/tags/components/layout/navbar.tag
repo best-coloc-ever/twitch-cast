@@ -88,17 +88,16 @@
 
     import TwitchAPI from 'api/twitch.js'
 
-    const link = object('route', 'icon', 'display', 'visibleIf')
-    const linksSpec = [
-      [routeDescriptors.Channels.base,   'videocam', 'Channels',   () => true],
-      [routeDescriptors.Games.base,      'gamepad',  'Games',      () => true],
-      [routeDescriptors.Following.base,  'favorite', 'Following',  TwitchAPI.isAuthenticated],
-      [routeDescriptors.Chromecast.base, 'cast',     'Chromecast', () => this.senderConnected]
-    ]
+    const r          = routeDescriptors,
+          link       = object('route',           'icon',     'display',    'visibleIf'               ),
+          channels   = link  (r.Channels.base,   'videocam', 'Channels',   () => true                ),
+          games      = link  (r.Games.base,      'gamepad',  'Games',      () => true                ),
+          following  = link  (r.Following.base,  'favorite', 'Following',  TwitchAPI.isAuthenticated ),
+          chromecast = link  (r.Chromecast.base, 'cast',     'Chromecast', () => this.senderConnected)
 
     this.mixin(Mixins.Sender)
     this.mixin(Mixins.Router)
-    this.links = linksSpec.map(params => link(...params))
+    this.links = [channels, games, following, chromecast]
     this.activeRoute = null
     this.senderConnected = false
 
@@ -116,9 +115,8 @@
     })
 
     this.sender.on(SenderEvent.CastStateChanged, state => {
-      this.update({
-        senderConnected: (state == cast.framework.CastState.CONNECTED)
-      })
+      let isConnected = (state == cast.framework.CastState.CONNECTED)
+      this.update({ senderConnected: isConnected })
     })
   </script>
 

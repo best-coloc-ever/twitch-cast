@@ -44,16 +44,11 @@
       this.show({ message: error })
     }
 
-    this.show = data => {
-      this.snackbar.MaterialSnackbar.showSnackbar(data)
-    }
+    this.show = data => this.snackbar.MaterialSnackbar.showSnackbar(data)
 
-    this.on('mount', () => {
-      this.sender.on(SenderEvent.ChannelSent, this.onChannelSent)
-      this.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
-      this.sender.on(SenderEvent.CastError, this.onCastError)
-
-    })
+    this.sender.on(SenderEvent.ChannelSent,   this.onChannelSent)
+    this.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
+    this.sender.on(SenderEvent.CastError,     this.onCastError)
   </script>
 
 </snackbar>

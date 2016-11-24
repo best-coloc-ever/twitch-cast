@@ -19,12 +19,13 @@
 
   <!-- logic -->
   <script>
+    import { routeLinks } from 'routing/routes.js'
     import TwitchAPI from 'api/twitch.js'
 
     this.isAuthenticated = TwitchAPI.isAuthenticated()
     this.loginUrl = TwitchAPI.OAuth.authorizeUrl()
 
-    let redirectHash = new URL(TWITCH_APP_REDIRECT_URI).hash
+    let redirectHash = new URL(TWITCH_APP_REDIRECT_URI).hash.substring(1)
 
     riot.route(`/${redirectHash}..`, () => {
       let code = riot.route.query().code
@@ -33,7 +34,7 @@
         .then(data => {
           TwitchAPI.saveToken(data.access_token)
           this.update({ isAuthenticated: true })
-          riot.route('/following')
+          riot.route(routeLinks.following())
         })
     })
   </script>

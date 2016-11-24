@@ -24,9 +24,10 @@ export class Router {
 
     routeDescriptor.tagNames.forEach(tagName => {
       riot.route(pattern, (...path) => {
-        this.trigger(RouterEvent.RouteChanged, routeDescriptor, path)
+        let decodedPath = path.map(decodeURIComponent)
 
-        this.setView(tagName, path.map(decodeURIComponent))
+        this.trigger(RouterEvent.RouteChanged, routeDescriptor, decodedPath)
+        this.setView(tagName, decodedPath)
       })
 
       pattern = `${pattern}/*`

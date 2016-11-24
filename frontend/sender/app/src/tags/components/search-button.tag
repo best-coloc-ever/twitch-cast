@@ -24,10 +24,12 @@
 
   <!-- logic -->
   <script>
+    import { routeLinks } from 'routing/routes.js'
+
     let input = this['search-input']
     let textField = this['mdl-textfield']
 
-    this.doSearch = event => {
+    this.doSearch = _ => {
       let query = input.value
       input.value = ''
 
@@ -37,8 +39,7 @@
         textField.MaterialTextfield.CssClasses_.IS_DIRTY,
       )
 
-      // this.router.routeTo.search(query)
-      riot.route(`/search/${query}`)
+      riot.route(routeLinks.search(query))
 
       return false
     }

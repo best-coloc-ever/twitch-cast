@@ -108,11 +108,6 @@
     this.qualities = null
     this.chatPositions = Object.values(ChatPositions)
 
-    this.setStatus = message => {
-      this.statusMessage = message
-      this.update()
-    }
-
     this.toggleFullscreen = event => {
       let message = ChromecastMessage.toggleFullscreen(event.target.checked)
 
@@ -138,15 +133,15 @@
     this.onStateRequestComplete = mbError => {
       let status = mbError || 'Waiting for a response from the receiver...'
 
-      this.setStatus(status)
+      this.update({ status: status })
     }
 
     this.onStateRequestError = (e) => {
-      this.setStatus('Could not reach the receiver')
+      this.update({ status: 'Could not reach the receiver' })
     }
 
     this.initialize = () => {
-      this.setStatus('Connecting to the receiver...')
+      this.update({ status: 'Connecting to the receiver...' })
 
       this.sender.sendCustomMessage(ChromecastMessage.receiverStateRequest())
         .then(this.onStateRequestComplete, this.onStateRequestError)
@@ -155,8 +150,7 @@
     this.fetchQualities = (channel) => {
       StreamerAPI.stream(channel)
         .then(data => {
-          this.qualities = data.playlists.map(pl => pl.name)
-          this.update()
+          this.update({ qualities: data.playlists.map(pl => pl.name) })
           componentHandler.upgradeElements(this['quality-option'])
         })
     }
@@ -167,12 +161,10 @@
       componentHandler.upgradeElements(this['chat-size-option'])
 
       this.sender.on(ChromecastMessageType.ReceiverState, state => {
-        this.receiverState = state
+        this.update({ receiverState: state })
 
         if (state.quality)
           this.fetchQualities(state.channel)
-
-        this.update()
       })
 
       if (this.sender.connected())

@@ -1,17 +1,18 @@
 <following-view>
 
-  <card-list-view config={ config }>
+  <h5 align="center" if={ !authToken }>You are not logged in to Twitch</h5>
+
+  <card-list-view config={ config } if={ authToken }>
   </card-list-view>
 
   <!-- logic -->
   <script>
     import TwitchAPI from 'api/twitch.js'
-    import Cookies from 'js-cookie'
 
-    let authToken = Cookies.get('twitch-oauth-token')
+    this.authToken = TwitchAPI.getToken()
 
     this.config = {
-      fetchLogic: TwitchAPI.followed.bind(undefined, authToken),
+      fetchLogic: params => TwitchAPI.followed(this.authToken, params),
       dataFilter: data => data.streams,
       cardTag: 'stream-card',
       rowSizes: {
