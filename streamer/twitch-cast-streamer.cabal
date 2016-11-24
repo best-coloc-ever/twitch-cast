@@ -1,0 +1,54 @@
+name:                twitch-cast-streamer
+version:             2.0
+synopsis:            Backend application for twitch-cast
+description:         Please see README.md
+homepage:            https://github.com/best-coloc-ever/twitch-cast
+license:             MIT
+license-file:        LICENSE
+author:              Guillaume Depardon
+maintainer:          guillaume.depardon@gmail.com
+copyright:           2016 Guillaume Depardon
+category:            Web
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Twitch.API
+                     , Twitch.Types
+                     , Twitch.Playlist
+                     , Streamer.Prelude
+  build-depends:       base >= 4.7 && < 5
+                     , http-conduit
+                     , aeson
+                     , bytestring
+                     , parsec
+                     , either
+  default-language:    Haskell2010
+
+executable twitch-cast-streamer
+  hs-source-dirs:      app
+  main-is:             Main.hs
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
+                     , twitch-cast-streamer
+                     , wai
+                     , wai-extra
+                     , warp
+                     , http-types
+                     , scotty
+                     , bytestring
+                     , process
+                     , time
+                     , containers
+                     , aeson
+                     , text
+                     , directory
+                     , optparse-applicative
+  other-modules:       Server.HLSProxy
+                     , Server.Stream
+                     , Server.Types
+                     , Server.Web
+                     , Server.ProgramOptions
+  default-language:    Haskell2010

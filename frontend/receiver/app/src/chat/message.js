@@ -26,7 +26,7 @@ function emoteUrl(emoteId) {
   return `//static-cdn.jtvnw.net/emoticons/v1/${emoteId}/1.0`
 }
 
-function buildChatLine(message, store) {
+export function buildChatLine(message, store) {
   let li = $('<li>')
     .addClass('chat-line')
 
@@ -117,8 +117,4 @@ function buildChatLine(message, store) {
   li.append(contentSpan)
 
   return li
-}
-
-module.exports = {
-  buildChatLine: buildChatLine
 }

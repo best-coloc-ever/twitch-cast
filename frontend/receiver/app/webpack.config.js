@@ -48,6 +48,7 @@ module.exports = {
       riot: 'riot'
     }),
     new CopyWebpackPlugin([
+      { from: 'img', to: 'img' },
       { from: 'index.html' },
       { from: 'styles.css' }
     ]),

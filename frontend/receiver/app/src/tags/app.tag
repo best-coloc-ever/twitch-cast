@@ -1,57 +1,56 @@
 <app>
 
-  <!-- Layout -->
-  <div class="box">
-
-    <stream class="flex"></stream>
-
-    <chat show={ chatVisible }></chat>
-
-  </div>
-
-  <!-- Style -->
-  <style scoped>
-    .box {
-      display: flex;
-      height: 100%;
-    }
-
-    .flex {
-      flex: 1 1 auto;
-      height: 100%;
-      position: relative;
-    }
-
-  </style>
-
   <!-- Logic -->
   <script>
-    import ChromecastReceiver from 'receiver/chromecast.js'
-    import VideojsReceiver from 'receiver/videojs.js'
-    import ReceiverEvent from 'receiver/events.js'
+    import Router from 'routing/router.js'
 
-    this.chatVisible = true
-    this.receiver = null
+    import ChromecastReceiver, { ReceiverEvent } from 'chromecast/receiver.js'
+
+    import { PlayerEvent } from 'player/events.js'
+    import ChromecastPlayer from 'player/chromecast.js'
+    import VideojsPlayer from 'player/videojs.js'
+
+    import { isChromecastDevice } from 'utils/platform.js'
+
+    let initChromecast = (mediaElement) => {
+      let receiver = new ChromecastReceiver(mediaElement)
+
+      receiver.on(ReceiverEvent.Ready, () => {
+        let player = new ChromecastPlayer(mediaElement)
+
+        startRouting(receiver, player)
+      })
+    }
+
+    let initNonChromecastDevice = (mediaElement) => {
+      let dummyReceiver = riot.observable(),
+          player = new VideojsPlayer(mediaElement)
+
+      startRouting(dummyReceiver, player)
+    }
+
+    let startRouting = (receiver, player) => {
+      let context = {
+        receiver: receiver,
+        player: player,
+      }
+
+      let router = new Router(this.root, context)
+
+      player.on(PlayerEvent.Ready, () => router.start())
+    }
 
     this.on('mount', () => {
-      let self = this,
-          isChromecastDevice = (navigator.userAgent.indexOf('CrKey') != -1),
-          receiverClass = (isChromecastDevice ? ChromecastReceiver : VideojsReceiver),
-          mediaElement = this.tags.stream.mediaElement()
+      let video = document.createElement('video')
+      video.autoplay = true
 
-      let receiver = new receiverClass(mediaElement)
+      let initLogic = (
+        isChromecastDevice() ?
+        initChromecast :
+        initNonChromecastDevice
+      )
 
-      receiver.on(ReceiverEvent.ChatToggled, e => {
-        self.chatVisible = e.visible
-        self.update()
-      })
-
-      // TODO: move the chat in the dom (bypass riot or not ?)
-      receiver.on(ReceiverEvent.ChatPositionChanged, e => {
-
-      })
-
-      this.receiver = receiver
+      initLogic(video)
     })
 
   </script>

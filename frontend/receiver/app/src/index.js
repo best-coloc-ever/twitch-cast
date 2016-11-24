@@ -1,10 +1,14 @@
-import './tags/app.tag'
-import './tags/notice.tag'
-import './tags/chat.tag'
-import './tags/chat-line.tag'
-import './tags/stream.tag'
-import './tags/pause-indicator.tag'
-import './tags/stream-info.tag'
-import './tags/clock.tag'
+import 'tags/app.tag'
+
+import 'tags/views/home.tag'
+import 'tags/views/loading.tag'
+import 'tags/views/stream.tag'
+
+import 'tags/components/stream/chat.tag'
+import 'tags/components/stream/clock.tag'
+import 'tags/components/stream/notice.tag'
+import 'tags/components/stream/pause-indicator.tag'
+import 'tags/components/stream/stream-info.tag'
+// import 'tags/components/stream/stream.tag'
 
 riot.mount('app')

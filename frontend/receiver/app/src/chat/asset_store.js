@@ -1,9 +1,11 @@
 import TwitchAPI from 'api/twitch.js'
 import { jsonCall } from 'api/helpers.js'
 
-class ChatAssetStore {
+export default class ChatAssetStore {
 
-  constructor() {
+  constructor(channel) {
+    this.channel = channel
+
     this.emotes = new Map
     this.badges = new Map
 
@@ -11,27 +13,30 @@ class ChatAssetStore {
     this._fetchEmotes()
   }
 
-  loadChannelBadges(channelName) {
-    TwitchAPI.channel(channelName)
-      .then(data => {
-        TwitchAPI.Beta.channelBadges(data._id)
-          .then(this._addBadges.bind(this))
-      })
-
-    // Channel specific BTTV emotes
-    jsonCall(`//api.betterttv.net/2/channels/${channelName}`)
-      .then(this._addBTTVEmotes.bind(this))
-  }
-
   _fetchEmotes() {
     // Global BTTV emotes
     jsonCall('//api.betterttv.net/2/emotes')
+      .then(this._addBTTVEmotes.bind(this))
+
+    // Channel specific BTTV emotes
+    jsonCall(`//api.betterttv.net/2/channels/${this.channel}`)
       .then(this._addBTTVEmotes.bind(this))
   }
 
   _fetchBadges() {
     TwitchAPI.Beta.badges()
-      .then(this._addBadges.bind(this))
+      .then(data => {
+        this._addBadges(data)
+        this._fetchChannelBadges()
+      })
+  }
+
+  _fetchChannelBadges() {
+    TwitchAPI.channel(this.channel)
+      .then(data => {
+        TwitchAPI.Beta.channelBadges(data._id)
+          .then(this._addBadges.bind(this))
+      })
   }
 
   _addBTTVEmotes(data) {
@@ -57,5 +62,3 @@ class ChatAssetStore {
   }
 
 }
-
-module.exports = ChatAssetStore
