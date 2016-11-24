@@ -29,7 +29,7 @@ export class ChromecastSender {
     })
 
     window.__onGCastApiAvailable = isAvailable => {
-      if (isAvailable)
+      if (isAvailable && chrome.cast)
         this.initialize()
 
       this.trigger(SenderEvent.Initialized)
