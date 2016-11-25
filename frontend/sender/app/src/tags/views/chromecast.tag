@@ -51,7 +51,7 @@
       <hr>
 
       <div ref="chat-size-option">
-        <span class="label-only">Chat size: { refs.slider.value }px</span>
+        <span class="label-only">Chat size: { chatSize }px</span>
         <input class="mdl-slider mdl-js-slider" type="range" ref="slider"
                min="0" max="900" value="300" onchange={ changeChatSize }>
       </div>
@@ -103,6 +103,7 @@
     this.statusMessage = 'Waiting for a resumed session...'
     this.qualities = null
     this.chatPositions = Object.values(ChatPositions)
+    this.chatSize = 300
 
     this.toggleFullscreen = event => {
       let message = ChromecastMessage.toggleFullscreen(event.target.checked)
@@ -121,9 +122,11 @@
     }
 
     this.changeChatSize = event => {
-      let message = ChromecastMessage.chatSize(event.target.valueAsNumber)
+      let chatSize = event.target.valueAsNumber,
+          message = ChromecastMessage.chatSize(chatSize)
 
       this.sender.sendCustomMessage(message)
+      this.update({ chatSize: chatSize })
     }
 
     this.onStateRequestComplete = mbError => {
@@ -151,24 +154,30 @@
         })
     }
 
+    this.onStateChanged = (state) => {
+      this.update({ receiverState: state })
+
+      componentHandler.upgradeElements(this.refs['fullscreen-option'])
+      componentHandler.upgradeElements(this.refs['chat-position-option'])
+      componentHandler.upgradeElements(this.refs['chat-size-option'])
+
+      if (state.quality)
+        this.fetchQualities(state.channel)
+    }
+
     this.on('mount', () => {
       this.mixin(Mixins.Sender)
 
-      this.sender.on(ChromecastMessageType.ReceiverState, state => {
-        this.update({ receiverState: state })
-
-        componentHandler.upgradeElements(this.refs['fullscreen-option'])
-        componentHandler.upgradeElements(this.refs['chat-position-option'])
-        componentHandler.upgradeElements(this.refs['chat-size-option'])
-
-        if (state.quality)
-          this.fetchQualities(state.channel)
-      })
+      this.sender.on(ChromecastMessageType.ReceiverState, this.onStateChanged)
 
       if (this.sender.connected())
         this.initialize()
       else
         setTimeout(this.initialize, 1000) // Letting time to the sender to resume an possible session
+    })
+
+    this.on('unmount', () => {
+      this.sender.off(ChromecastMessageType.ReceiverState, this.onStateChanged)
     })
   </script>
 
