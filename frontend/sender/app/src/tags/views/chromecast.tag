@@ -9,6 +9,9 @@
 
       <hr>
 
+      <div class="mdl-spinner mdl-js-spinner is-active spinner-white"
+           show={ !qualities }
+           ref="quality-spinner"></div>
       <div ref="quality-option" show={ qualities }>
         <button id="quality-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
@@ -160,6 +163,7 @@
       componentHandler.upgradeElements(this.refs['fullscreen-option'])
       componentHandler.upgradeElements(this.refs['chat-position-option'])
       componentHandler.upgradeElements(this.refs['chat-size-option'])
+      componentHandler.upgradeElements(this.refs['quality-spinner'])
 
       if (state.quality)
         this.fetchQualities(state.channel)
