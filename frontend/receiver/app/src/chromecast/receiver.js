@@ -1,5 +1,6 @@
 import { loadScript } from 'utils/deferred_load.js'
 import { ChromecastMessageType, chromecastCustomMessageBus } from 'chromecast/messages.js'
+import { routeLinks } from 'routing/routes.js'
 
 const chromecastSdkReceiverJsUrl = '//www.gstatic.com/cast/sdk/libs/receiver/2.0.0/cast_receiver.js'
 
@@ -47,10 +48,11 @@ export default class ChromecastReceiver {
     let channel = event.data.customData.channel,
         quality = event.data.customData.quality
 
+    let loadArgs = [channel]
     if (quality)
-      riot.route(`/${channel}/${quality}`)
-    else
-      riot.route(`/${channel}`)
+      loadArgs.push(quality)
+
+    riot.route(routeLinks.load(...loadArgs))
   }
 
   _handleCustomMessages(event) {

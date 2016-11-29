@@ -1,39 +1,48 @@
-import { routes } from './routes.js'
+import { routeDescriptors } from './routes.js'
 
-import ChromecastMessage, { ChromecastMessageType } from 'chromecast/messages.js'
+export const RouterEvent = {
+  RouteChanged: 'router-route-changed',
+}
 
 const dummyView = { unmount: (..._) => undefined }
 
 export default class Router {
 
-  constructor(domNode, opts) {
+  constructor(domNode) {
     this.mountNode = domNode
-    this.opts = opts
-
     this.currentView = dummyView
-    this.routeState = null
 
-    routes.forEach(descriptor => this.addRoute(...descriptor))
+    riot.observable(this)
 
-    opts.receiver.on(ChromecastMessageType.ReceiverState, () => {
-      let message = ChromecastMessage.receiverStateResponse(this.routeState)
+    Object.keys(routeDescriptors).forEach(k =>
+      this.addRoute(routeDescriptors[k])
+    )
+  }
 
-      opts.receiver.sendCustomMessage(message)
+  addRoute(routeDescriptor) {
+    let pattern = `/${routeDescriptor.base}`
+
+    routeDescriptor.tagNames.forEach(tagName => {
+      if (tagName)
+        riot.route(pattern, (...path) => {
+          let decodedPath = path.map(decodeURIComponent)
+
+          this.trigger(RouterEvent.RouteChanged, routeDescriptor, decodedPath)
+          this.setView(tagName, decodedPath)
+        })
+
+      pattern = (pattern == '/' ? '/*' : `${pattern}/*`)
     })
   }
 
-  addRoute(path, tagName, state) {
-    riot.route(path, (...args) => {
-      this.setView(tagName, ...args)
-      this.routeState = state(...args)
-    })
-  }
-
-  setView(tagName, ...args) {
+  setView(tagName, path) {
     this.currentView.unmount(true)
 
-    let context = Object.assign(this.opts, { routeOpts: args })
-    let children = riot.mount(this.mountNode, tagName, context)
+    let children = riot.mount(
+      this.mountNode,
+      tagName,
+      { path: path }
+    )
 
     if (children.length) {
       this.currentView = children[0]

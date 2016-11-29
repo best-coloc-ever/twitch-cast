@@ -9,6 +9,5 @@ import 'tags/components/stream/clock.tag'
 import 'tags/components/stream/notice.tag'
 import 'tags/components/stream/pause-indicator.tag'
 import 'tags/components/stream/stream-info.tag'
-// import 'tags/components/stream/stream.tag'
 
 riot.mount('app')

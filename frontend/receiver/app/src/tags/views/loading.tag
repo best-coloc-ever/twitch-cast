@@ -61,6 +61,8 @@
   <script>
     import StreamerAPI from 'api/streamer.js'
 
+    import { routeLinks } from 'routing/routes.js'
+
     let retryInSeconds = 5
     let secondsRefreshTimer = null
     let [channel] = opts.routeOpts
@@ -89,7 +91,11 @@
     }
 
     this.onPlaylistFetched = quality => {
-      riot.route(`/${channel}/${quality}`, `${channel} (${quality})`, true)
+      riot.route(
+        routeLinks.watch(channel, quality),
+        `${channel} (${quality})`,
+        true
+      )
     }
 
     this.onError = () => {
