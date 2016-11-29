@@ -3,8 +3,8 @@
   <!-- layout -->
   <div id="main" class={ 'reverse-flex': chatLeft }>
     <div id="player">
-      <notice player={ player }></notice>
-      <pause-indicator player={ player }></pause-indicator>
+      <notice></notice>
+      <pause-indicator if={ isPaused }></pause-indicator>
 
       <div class="center" ref="container">
       </div>
@@ -13,7 +13,7 @@
       <stream-info show={ !fullScreen } channel={ channel }></stream-info>
     </div>
 
-    <chat ref="chat" channel={ channel } player={ player } show={ !fullScreen }></chat>
+    <chat ref="chat" channel={ channel } show={ !fullScreen }></chat>
   </div>
 
 
@@ -85,50 +85,70 @@
 
   <!-- logic -->
   <script>
-    import { isChromecastDevice } from 'utils/platform.js'
-
     import { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
-
+    import { PlayerEvent } from 'player/events.js'
     import { Mixins } from 'context/mixins.js'
     import StreamerAPI from 'api/streamer.js'
 
-    let [channel, quality] = opts.routeOpts
-    this.player = opts.player
+    let [channel, quality] = opts.path
 
     this.channel = channel
     this.quality = quality
     this.fullScreen = false
     this.chatLeft = false
+    this.isPaused = false
+
+    // Receiver events
+    this.onFullscreenToggled = data => this.update({ fullScreen: data.enabled })
+    this.onChatPositionChanged = data => this.update({ chatLeft: (data.position == ChatPositions.Left) })
+    this.onChatSizeChanged = data => {
+      let sizeStr = `${data.size}px`
+
+      this.refs.chat.root.style['min-width'] = sizeStr
+      this.refs.chat.root.style['flex'] = `0 1 ${sizeStr}`
+
+      this.update()
+    }
+
+    let receiverEvents = [
+      [ChromecastMessageType.ToggleFullscreen, this.onFullscreenToggled],
+      [ChromecastMessageType.ChatPosition, this.onChatPositionChanged],
+      [ChromecastMessageType.ChatSize, this.onChatSizeChanged],
+    ]
+
+    // Player events
+    this.onMediaEnd = () => this.tags.notice.show('Stream ender')
+    this.onHostError = error => this.tags.notice.show(error)
+    this.onPlayerPaused = isPaused => {
+      this.update({ isPaused: isPaused })
+
+      if (isPaused) this.tags.notice.show('Buffering...')
+      else          this.tags.notice.hide()
+    }
+
+    let playerEvents = [
+      [PlayerEvent.MediaEnd, this.onMediaEnd],
+      [PlayerEvent.HostError, this.onHostError],
+      [PlayerEvent.AutoPaused, this.onPlayerPaused],
+    ]
 
     this.on('mount', () => {
-      opts.receiver.on(ChromecastMessageType.ToggleFullscreen, data => {
-        this.fullScreen = data.enabled
-        this.update()
-      })
-
-      opts.receiver.on(ChromecastMessageType.ChatPosition, data => {
-        this.chatLeft = (data.position == ChatPositions.Left)
-        this.update()
-      })
-
-      opts.receiver.on(ChromecastMessageType.ChatSize, data => {
-        let sizeStr = `${data.size}px`
-
-        this.refs.chat.style['min-width'] = sizeStr
-        this.refs.chat.style['flex'] = `0 1 ${sizeStr}`
-
-        this.update()
-      })
-
-      this.refs.container.appendChild(opts.player.mediaElement)
       this.mixin(Mixins.Receiver)
       this.mixin(Mixins.Player)
+
+      receiverEvents.forEach(action => this.receiver.on(...action))
+      playerEvents.forEach(action => this.player.on(...action))
+
+      this.refs.container.appendChild(this.player.mediaElement)
 
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
       this.player.play(playlistUrl)
     })
 
-    this.on('before-unmount', () => {
+    this.on('unmount', () => {
+      receiverEvents.forEach(action => this.receiver.off(...action))
+      playerEvents.forEach(action => this.player.off(...action))
+
       this.player.stop()
     })
   </script>
