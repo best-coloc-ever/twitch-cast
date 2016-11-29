@@ -3,7 +3,7 @@
   <div>{ hours }{ separator() }{ minutes }</div>
 
   <script>
-    import { zpad } from 'utils/formatting.js'
+    import { zpad } from 'utils/prelude.js'
 
     let refreshTimer = null
     let blinkerSwitch = true
