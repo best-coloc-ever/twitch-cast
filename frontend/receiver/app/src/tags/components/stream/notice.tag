@@ -10,36 +10,11 @@
   </style>
 
   <script>
-    import { PlayerEvent } from 'player/events.js'
-
     this.visible = false
     this.text = ''
 
-    this.show = (text) => {
-      this.visible = true
-      this.text = text
-      this.update()
-    }
-
-    this.hide = () => {
-      this.visible = false
-      this.update()
-    }
-
-    this.on('mount', () => {
-      opts.player.on(PlayerEvent.AutoPaused, isPaused => {
-        if (isPaused) this.show('Buffering...')
-        else          this.hide()
-      })
-
-      opts.player.on(PlayerEvent.HostError, error => {
-        this.show(error)
-      })
-
-      opts.player.on(PlayerEvent.MediaEnd, () => {
-        this.show('Stream ended')
-      })
-    })
+    this.show = (text) => this.update({ visible: true, text: text })
+    this.hide = ()     => this.update({ visible: false })
   </script>
 
 </notice>
