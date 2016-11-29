@@ -89,6 +89,7 @@
 
     import { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
 
+    import { Mixins } from 'context/mixins.js'
     import StreamerAPI from 'api/streamer.js'
 
     let [channel, quality] = opts.routeOpts
@@ -120,6 +121,8 @@
       })
 
       this.refs.container.appendChild(opts.player.mediaElement)
+      this.mixin(Mixins.Receiver)
+      this.mixin(Mixins.Player)
 
       let playlistUrl = StreamerAPI.playlistUrl(channel, quality)
       this.player.play(playlistUrl)

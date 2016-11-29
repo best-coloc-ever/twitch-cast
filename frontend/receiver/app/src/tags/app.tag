@@ -2,9 +2,10 @@
 
   <!-- Logic -->
   <script>
-    import Router from 'routing/router.js'
+    import Router, { RouterEvent } from 'routing/router.js'
 
     import ChromecastReceiver, { ReceiverEvent } from 'chromecast/receiver.js'
+    import ChromecastMessage, { ChromecastMessageType } from 'chromecast/messages.js'
 
     import { PlayerEvent } from 'player/events.js'
     import ChromecastPlayer from 'player/chromecast.js'
@@ -12,45 +13,57 @@
 
     import { isChromecastDevice } from 'utils/platform.js'
 
-    let initChromecast = (mediaElement) => {
-      let receiver = new ChromecastReceiver(mediaElement)
+    import { Mixins } from 'context/mixins.js'
+
+    let initChromecast = (mediaElement, router) => new Promise((resolve, _) => {
+      let receiver = new ChromecastReceiver(mediaElement),
+          appState = null
+
+      let notifyStateChange = () => receiver.sendCustomMessage(
+        ChromecastMessage.receiverStateResponse(appState)
+      )
+
+      receiver.on(ChromecastMessageType.ReceiverState, notifyStateChange)
 
       receiver.on(ReceiverEvent.Ready, () => {
         let player = new ChromecastPlayer(mediaElement)
 
-        startRouting(receiver, player)
+        resolve({ receiver: receiver, player: player })
       })
-    }
 
-    let initNonChromecastDevice = (mediaElement) => {
+      router.on(RouterEvent.RouteChanged, (descriptor, path) => {
+        appState = descriptor.getState(...path)
+        notifyStateChange()
+      })
+    })
+
+    let initNonChromecastDevice = (mediaElement) => new Promise((resolve, _) => {
       let dummyReceiver = riot.observable(),
           player = new VideojsPlayer(mediaElement)
 
-      startRouting(dummyReceiver, player)
-    }
-
-    let startRouting = (receiver, player) => {
-      let context = {
-        receiver: receiver,
-        player: player,
-      }
-
-      let router = new Router(this.root, context)
-
-      player.on(PlayerEvent.Ready, () => router.start())
-    }
+      resolve({ receiver: dummyReceiver, player: player })
+    })
 
     this.on('mount', () => {
-      let video = document.createElement('video')
+      let router = new Router(this.root),
+          video = document.createElement('video')
+
       video.autoplay = true
 
-      let initLogic = (
+      let runApp = context => {
+        riot.mixin(Mixins.Receiver, { receiver: context.receiver })
+        riot.mixin(Mixins.Player,   { player:   context.player   })
+
+        context.player.on(PlayerEvent.Ready, router.start)
+      }
+
+      let initDevice = (
         isChromecastDevice() ?
-        initChromecast :
-        initNonChromecastDevice
+        initChromecast(video, router) :
+        initNonChromecastDevice(video)
       )
 
-      initLogic(video)
+      initDevice.then(runApp)
     })
 
   </script>
