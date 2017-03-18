@@ -4,6 +4,12 @@ A Chromecast application and proxy for [twitch.tv](https://twitch.tv)
 
 official web application available at [datcoloc.com/twitch-cast](https://datcoloc.com/twitch-cast)
 
+## Devlopment
+
+```shell
+./scripts/dev up
+```
+
 ## Deployment
 Make sure you have **docker >= 1.10** and **docker-compose >= 1.6** installed 
 
