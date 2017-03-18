@@ -26,6 +26,9 @@ services:
     # Publishing a port for development
     ports:
       - '8000:8000'
+    depends_on:
+      - "streamer-builder"
+
 
   sender-builder:
     build: frontend/sender/builder
