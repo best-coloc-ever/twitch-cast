@@ -53,24 +53,26 @@
 
       <hr>
 
-      <div ref="chat-size-option">
-        <span class="label-only">Chat size: { chatSize }px</span>
-        <input class="mdl-slider mdl-js-slider" type="range" ref="slider"
-               min="0" max="900" value="300" onchange={ changeChatSize }>
-      </div>
-
       <div ref="chat-flavor-option">
         <button id="chat-flavor-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
         <span class="label">Chat flavor</span>
          <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            data-mdl-for="chat-position-drop-down">
-          <li each={ flavor in ChatFlavors }
+            data-mdl-for="chat-flavor-drop-down">
+          <li each={ flavor in chatFlavors }
               class="mdl-menu__item" onclick={ changeChatFlavor(flavor) }>
             { flavor.toLowerCase() }
           </li>
         </ul>
+      </div>
+
+      <hr>
+
+      <div ref="chat-size-option">
+        <span class="label-only">Chat size: { chatSize }px</span>
+        <input class="mdl-slider mdl-js-slider" type="range" ref="slider"
+               min="0" max="900" value="300" onchange={ changeChatSize }>
       </div>
 
     </div>
@@ -120,6 +122,7 @@
     this.statusMessage = 'Waiting for a resumed session...'
     this.qualities = null
     this.chatPositions = Object.values(ChatPositions)
+    this.chatFlavors = Object.values(ChatFlavors)
     this.chatSize = 300
 
     this.toggleFullscreen = event => {
@@ -146,7 +149,7 @@
       this.update({ chatSize: chatSize })
     }
 
-    this.changeChatFlavor = flavor => {
+    this.changeChatFlavor = flavor => () => {
       let message = ChromecastMessage.chatFlavor(flavor)
 
       this.sender.sendCustomMessage(message)
@@ -182,6 +185,7 @@
 
       componentHandler.upgradeElements(this.refs['fullscreen-option'])
       componentHandler.upgradeElements(this.refs['chat-position-option'])
+      componentHandler.upgradeElements(this.refs['chat-flavor-option'])
       componentHandler.upgradeElements(this.refs['chat-size-option'])
       componentHandler.upgradeElements(this.refs['quality-spinner'])
 

@@ -48,7 +48,7 @@ const ChromecastMessage = {
     return message(ChromecastMessageType.ChatSize, data)
   },
 
-  ChatFlavor: flavor => {
+  chatFlavor: flavor => {
     let data = { flavor: flavor }
 
     return message(ChromecastMessageType.ChatFlavor, data)

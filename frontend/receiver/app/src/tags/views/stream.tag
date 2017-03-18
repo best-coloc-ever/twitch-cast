@@ -13,7 +13,7 @@
       <stream-info show={ !fullScreen } channel={ channel } quality={ quality }></stream-info>
     </div>
 
-    <chat ref="chat" channel={ channel } show={ !fullScreen } twoPart={ twoPartChat }></chat>
+    <chat ref="chat" channel={ channel } show={ !fullScreen } two-part={ twoPartChat }></chat>
   </div>
 
 

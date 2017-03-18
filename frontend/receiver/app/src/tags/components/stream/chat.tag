@@ -1,7 +1,7 @@
 <chat>
 
   <!-- Layout -->
-  <ul ref="staticChat" if={ twoPart } class="static-chat">
+  <ul ref="staticChat" if={ opts.twoPart } class="static-chat">
   </ul>
   <ul ref="chat">
   </ul>
@@ -57,8 +57,6 @@
     let processFlag = true
     let delayTimer = null
 
-    this.twoPart = opts.twoPart
-
     this.notify = text => {
       this.addMessage({ sender: 'SYSTEM', content: text })
       this.update()
@@ -112,7 +110,7 @@
       let toSlice = Math.max(0, messages.length - maxChatMessageCount)
       messages = messages.slice(toSlice)
 
-      if (!this.twoPart)
+      if (!opts.twoPart)
         $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
     }
 
@@ -133,7 +131,7 @@
 
       this.update()
 
-      if (this.twoPart) {
+      if (opts.twoPart) {
         if (this.refs.chat.scrollHeight > this.root.clientHeight / 2 - 50) {
           $(this.refs.staticChat).empty()
           $(this.refs.chat).contents().appendTo(this.refs.staticChat)
