@@ -93,7 +93,6 @@
       clearInterval(secondsRefreshTimer)
 
       setTimeout(this.loadStream, retryInSeconds * 1000)
-      retryInSeconds *= 2
 
       secondsRefreshTimer = setInterval(
         () => this.update({ secondsBeforeRetry: this.secondsBeforeRetry - 1 }),
@@ -101,6 +100,7 @@
       )
 
       this.update({ secondsBeforeRetry: retryInSeconds, loading: false })
+      retryInSeconds *= 2
     }
 
     this.fetchPlaylist = quality => {
