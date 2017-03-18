@@ -90,9 +90,9 @@ getProxy options rawChannel rawQuality state = do
 
       now <- getCurrentTime
       let proxy = HLSProxy handle indexPath now
-      -- Monitor and store the proxy
-      forkIO monitorProxy
+      -- Store and monitor the proxy
       updateMVar (insertProxy proxyKey proxy) state
+      forkIO monitorProxy
       -- Wait for the index to be created
       waitForIndex
 
