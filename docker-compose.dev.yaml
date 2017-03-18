@@ -76,7 +76,7 @@ services:
       - 'streamer-dist:/dist'
     working_dir: '/app'
     command: [
-      "stack", "build",
+      "stack", "build", "--install-ghc",
       "--copy-bins",
       "--local-bin-path", "/dist",
       "--file-watch"
