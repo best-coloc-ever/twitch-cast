@@ -10,7 +10,7 @@
       </div>
 
       <clock show={ !fullScreen }></clock>
-      <stream-info show={ !fullScreen } channel={ channel }></stream-info>
+      <stream-info show={ !fullScreen } channel={ channel } quality={ quality }></stream-info>
     </div>
 
     <chat ref="chat" channel={ channel } show={ !fullScreen } twoPart={ twoPartChat }></chat>
