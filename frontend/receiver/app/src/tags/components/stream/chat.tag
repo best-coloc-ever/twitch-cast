@@ -102,16 +102,29 @@
     }
 
     this.addMessage = message => {
-      // JQuery
+      let chat = $(this.refs.chat)
       let chatLine = buildChatLine(message, store)
-      $(this.refs.chat).append(chatLine)
+
+      chat.append(chatLine)
+
+      if (opts.twoPart) {
+        let heightLimit = this.root.clientHeight / 2
+        if (chat.height() + chatLine.height() >= heightLimit) {
+          $(this.refs.staticChat).empty()
+          chatLine.detach()
+          chat.contents().appendTo(this.refs.staticChat)
+          chat.empty()
+          chat.append(chatLine)
+          messages = []
+        }
+      }
 
       if (!opts.twoPart) {
         messages.push(message)
         let toSlice = Math.max(0, messages.length - maxChatMessageCount)
         messages = messages.slice(toSlice)
 
-        $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
+        chat.find('li:lt(' + toSlice + ')').remove()
       }
     }
 
@@ -132,14 +145,7 @@
 
       this.update()
 
-      if (opts.twoPart) {
-        if (this.refs.chat.scrollHeight > this.root.clientHeight / 2 - 50) {
-          $(this.refs.staticChat).empty()
-          $(this.refs.chat).contents().appendTo(this.refs.staticChat)
-          $(this.refs.chat).empty()
-        }
-      }
-      else
+      if (!opts.twoPart)
         this.root.scrollTop = this.root.scrollHeight
 
       if (processFlag)
