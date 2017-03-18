@@ -102,16 +102,17 @@
     }
 
     this.addMessage = message => {
-      messages.push(message)
       // JQuery
       let chatLine = buildChatLine(message, store)
       $(this.refs.chat).append(chatLine)
 
-      let toSlice = Math.max(0, messages.length - maxChatMessageCount)
-      messages = messages.slice(toSlice)
+      if (!opts.twoPart) {
+        messages.push(message)
+        let toSlice = Math.max(0, messages.length - maxChatMessageCount)
+        messages = messages.slice(toSlice)
 
-      if (!opts.twoPart)
         $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
+      }
     }
 
     this.processMessageQueue = () => {
