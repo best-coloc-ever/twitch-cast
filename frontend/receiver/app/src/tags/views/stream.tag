@@ -13,7 +13,7 @@
       <stream-info show={ !fullScreen } channel={ channel }></stream-info>
     </div>
 
-    <chat ref="chat" channel={ channel } show={ !fullScreen }></chat>
+    <chat ref="chat" channel={ channel } show={ !fullScreen } twoPart={ twoPartChat }></chat>
   </div>
 
 
@@ -85,7 +85,7 @@
 
   <!-- logic -->
   <script>
-    import { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
+    import { ChromecastMessageType, ChatPositions, ChatFlavors } from 'chromecast/messages.js'
     import { PlayerEvent } from 'player/events.js'
     import { Mixins } from 'context/mixins.js'
     import StreamerAPI from 'api/streamer.js'
@@ -97,6 +97,7 @@
     this.fullScreen = false
     this.chatLeft = false
     this.isPaused = false
+    this.twoPartChat = false
 
     // Receiver events
     this.onFullscreenToggled = data => this.update({ fullScreen: data.enabled })
@@ -109,11 +110,13 @@
 
       this.update()
     }
+    this.onChatFlavorChanged = data => this.update({ twoPartChat: (data.flavor == ChatFlavors.TwoPart) })
 
     let receiverEvents = [
       [ChromecastMessageType.ToggleFullscreen, this.onFullscreenToggled],
       [ChromecastMessageType.ChatPosition, this.onChatPositionChanged],
       [ChromecastMessageType.ChatSize, this.onChatSizeChanged],
+      [ChromecastMessageType.ChatFlavor, this.onChatFlavorChanged],
     ]
 
     // Player events

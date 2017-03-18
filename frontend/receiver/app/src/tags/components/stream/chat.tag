@@ -1,6 +1,8 @@
 <chat>
 
   <!-- Layout -->
+  <ul ref="staticChat" if={ twoPart } class="static-chat">
+  </ul>
   <ul ref="chat">
   </ul>
 
@@ -11,6 +13,12 @@
       overflow-y: hidden;
       overflow-x: hidden;
       word-wrap: break-word;
+    }
+
+    .static-chat {
+      height: 50%;
+      border-bottom: 1px solid white;
+      overflow-y: hidden;
     }
 
     ul {
@@ -48,6 +56,8 @@
     let ws = null
     let processFlag = true
     let delayTimer = null
+
+    this.twoPart = opts.twoPart
 
     this.notify = text => {
       this.addMessage({ sender: 'SYSTEM', content: text })
@@ -102,7 +112,8 @@
       let toSlice = Math.max(0, messages.length - maxChatMessageCount)
       messages = messages.slice(toSlice)
 
-      $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
+      if (!this.twoPart)
+        $(this.refs.chat).find('li:lt(' + toSlice + ')').remove()
     }
 
     this.processMessageQueue = () => {
@@ -121,7 +132,16 @@
       messageQueue.splice(0, i)
 
       this.update()
-      this.root.scrollTop = this.root.scrollHeight
+
+      if (this.twoPart) {
+        if (this.refs.chat.scrollHeight > this.root.clientHeight / 2 - 50) {
+          $(this.refs.staticChat).empty()
+          $(this.refs.chat).contents().appendTo(this.refs.staticChat)
+          $(this.refs.chat).empty()
+        }
+      }
+      else
+        this.root.scrollTop = this.root.scrollHeight
 
       if (processFlag)
         setTimeout(this.processMessageQueue, chatDisplayInterval * 1000)

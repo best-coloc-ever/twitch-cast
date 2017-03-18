@@ -59,6 +59,20 @@
                min="0" max="900" value="300" onchange={ changeChatSize }>
       </div>
 
+      <div ref="chat-flavor-option">
+        <button id="chat-flavor-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <span class="label">Chat flavor</span>
+         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            data-mdl-for="chat-position-drop-down">
+          <li each={ flavor in ChatFlavors }
+              class="mdl-menu__item" onclick={ changeChatFlavor(flavor) }>
+            { flavor.toLowerCase() }
+          </li>
+        </ul>
+      </div>
+
     </div>
 
     <div class="mdl-cell mdl-cell--4-col" show={ !receiverState.playing }>
@@ -98,7 +112,7 @@
   <!-- logic -->
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
-    import ChromecastMessage, { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
+    import ChromecastMessage, { ChromecastMessageType, ChatPositions, ChatFlavors } from 'chromecast/messages.js'
     import StreamerAPI from 'api/streamer.js'
     import { Mixins } from 'context/mixins.js'
 
@@ -130,6 +144,12 @@
 
       this.sender.sendCustomMessage(message)
       this.update({ chatSize: chatSize })
+    }
+
+    this.changeChatFlavor = flavor => {
+      let message = ChromecastMessage.chatFlavor(flavor)
+
+      this.sender.sendCustomMessage(message)
     }
 
     this.onStateRequestComplete = mbError => {
