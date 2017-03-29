@@ -1,6 +1,7 @@
 <stream-info>
 
-  <span class="name">{ name }</span> <img class="icon joystick">
+  <span class="name">{ name }</span>
+  <span class="quality"> ({ quality }) </span> <img class="icon joystick">
   <span class="game">{ game }</span>
   <br>
   <div>
@@ -13,6 +14,11 @@
     .name, .game {
       color: #8D8B96;
       font-weight: bold;
+    }
+
+    .quality {
+      color: #8D8B96;
+      font-size: 75%;
     }
 
     .icon {
@@ -47,6 +53,7 @@
     let fetchTimer = null
 
     this.channel = opts.channel
+    this.quality = opts.quality
 
     this.fetchStreamInfos = () => {
       TwitchAPI.stream(this.channel)

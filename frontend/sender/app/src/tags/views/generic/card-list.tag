@@ -1,16 +1,3 @@
-<!-- Was forced to make this proxy tag for some reason... -->
-<data-card>
-
-  <tag name="target"></tag>
-
-  <script>
-    this.on('mount', () => {
-      riot.mount(this.target, opts.cardTag, { data: opts.forwardData })
-    })
-  </script>
-
-</data-card>
-
 <card-list-view>
 
   <!-- layout -->
@@ -19,9 +6,7 @@
   <div class="mdl-grid data-grid" each={ row in rows }>
     <div class={ cardCellClasses }
          each={ data in row }>
-      <data-card
-        card-tag={ parent.config.cardTag }
-        forward-data={ data }>
+      <data-card data-is={ parent.config.cardTag } data={ data }>
       </data-card>
     </div>
   </div>

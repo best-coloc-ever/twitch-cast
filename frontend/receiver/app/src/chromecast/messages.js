@@ -12,11 +12,17 @@ export const ChatPositions = {
   Right: 'right',
 }
 
+export const ChatFlavors = {
+  Classic: 'classic',
+  TwoPart: 'two part',
+}
+
 export const ChromecastMessageType = {
   ReceiverState: 'reciever-state',
   ToggleFullscreen: 'toggle-fullscreen',
   ChatPosition: 'chat-position',
-  ChatSize: 'chat-size'
+  ChatSize: 'chat-size',
+  ChatFlavor: 'chat-flavor',
 }
 
 const ChromecastMessage = {
@@ -40,6 +46,12 @@ const ChromecastMessage = {
     let data = { size: size }
 
     return message(ChromecastMessageType.ChatSize, data)
+  },
+
+  chatFlavor: flavor => {
+    let data = { flavor: flavor }
+
+    return message(ChromecastMessageType.ChatFlavor, data)
   },
 
 }

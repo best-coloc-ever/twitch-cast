@@ -1,7 +1,7 @@
 <chromecast-view>
 
   <!-- layout -->
-  <div class="mdl-grid" show={ receiverState }>
+  <div class="mdl-grid" if={ receiverState }>
     <div class="mdl-layout-spacer"></div>
 
     <div class="mdl-cell mdl-cell--3-col" show={ receiverState.playing }>
@@ -9,14 +9,16 @@
 
       <hr>
 
-      <div name="quality-option" show={ qualities }>
+      <div class="mdl-spinner mdl-js-spinner is-active spinner-white"
+           show={ !qualities }
+           ref="quality-spinner"></div>
+      <div ref="quality-option" show={ qualities }>
         <button id="quality-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
         <span class="label">Quality</span>
         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            data-mdl-for="quality-drop-down"
-            name="quality-list">
+            data-mdl-for="quality-drop-down">
           <li each={ quality in qualities } class="mdl-menu__item" onclick={ changeQuality(quality) }>
             { quality.toLowerCase() }
           </li>
@@ -25,7 +27,7 @@
 
       <hr>
 
-      <div name="fullscreen-option">
+      <div ref="fullscreen-option">
         <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="opt-fullscreen">
           <input type="checkbox" id="opt-fullscreen" class="mdl-switch__input"
                  onchange={ toggleFullscreen }>
@@ -35,14 +37,13 @@
 
       <hr>
 
-      <div name="chat-position-option">
+      <div ref="chat-position-option">
         <button id="chat-position-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
         <span class="label">Chat position</span>
         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
-            data-mdl-for="chat-position-drop-down"
-            name="quality-list">
+            data-mdl-for="chat-position-drop-down">
           <li each={ position in chatPositions }
               class="mdl-menu__item" onclick={ changeChatPosition(position) }>
             { position.toLowerCase() }
@@ -52,9 +53,25 @@
 
       <hr>
 
-      <div name="chat-size-option">
-        <span class="label-only">Chat size: { slider.value }px</span>
-        <input class="mdl-slider mdl-js-slider" type="range" name="slider"
+      <div ref="chat-flavor-option">
+        <button id="chat-flavor-drop-down" class="mdl-button mdl-js-button mdl-button--icon">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <span class="label">Chat flavor</span>
+         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            data-mdl-for="chat-flavor-drop-down">
+          <li each={ flavor in chatFlavors }
+              class="mdl-menu__item" onclick={ changeChatFlavor(flavor) }>
+            { flavor.toLowerCase() }
+          </li>
+        </ul>
+      </div>
+
+      <hr>
+
+      <div ref="chat-size-option">
+        <span class="label-only">Chat size: { chatSize }px</span>
+        <input class="mdl-slider mdl-js-slider" type="range" ref="slider"
                min="0" max="900" value="300" onchange={ changeChatSize }>
       </div>
 
@@ -97,16 +114,16 @@
   <!-- logic -->
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
-    import ChromecastMessage, { ChromecastMessageType, ChatPositions } from 'chromecast/messages.js'
+    import ChromecastMessage, { ChromecastMessageType, ChatPositions, ChatFlavors } from 'chromecast/messages.js'
     import StreamerAPI from 'api/streamer.js'
     import { Mixins } from 'context/mixins.js'
-
-    this.mixin(Mixins.Sender)
 
     this.receiverState = null
     this.statusMessage = 'Waiting for a resumed session...'
     this.qualities = null
     this.chatPositions = Object.values(ChatPositions)
+    this.chatFlavors = Object.values(ChatFlavors)
+    this.chatSize = 300
 
     this.toggleFullscreen = event => {
       let message = ChromecastMessage.toggleFullscreen(event.target.checked)
@@ -125,7 +142,15 @@
     }
 
     this.changeChatSize = event => {
-      let message = ChromecastMessage.chatSize(event.target.valueAsNumber)
+      let chatSize = event.target.valueAsNumber,
+          message = ChromecastMessage.chatSize(chatSize)
+
+      this.sender.sendCustomMessage(message)
+      this.update({ chatSize: chatSize })
+    }
+
+    this.changeChatFlavor = flavor => () => {
+      let message = ChromecastMessage.chatFlavor(flavor)
 
       this.sender.sendCustomMessage(message)
     }
@@ -133,15 +158,15 @@
     this.onStateRequestComplete = mbError => {
       let status = mbError || 'Waiting for a response from the receiver...'
 
-      this.update({ status: status })
+      this.update({ statusMessage: status })
     }
 
     this.onStateRequestError = (e) => {
-      this.update({ status: 'Could not reach the receiver' })
+      this.update({ statusMessage: 'Could not reach the receiver' })
     }
 
     this.initialize = () => {
-      this.update({ status: 'Connecting to the receiver...' })
+      this.update({ statusMessage: 'Connecting to the receiver...' })
 
       this.sender.sendCustomMessage(ChromecastMessage.receiverStateRequest())
         .then(this.onStateRequestComplete, this.onStateRequestError)
@@ -151,26 +176,36 @@
       StreamerAPI.stream(channel)
         .then(data => {
           this.update({ qualities: data.playlists.map(pl => pl.name) })
-          componentHandler.upgradeElements(this['quality-option'])
+          componentHandler.upgradeElements(this.refs['quality-option'])
         })
     }
 
+    this.onStateChanged = (state) => {
+      this.update({ receiverState: state })
+
+      componentHandler.upgradeElements(this.refs['fullscreen-option'])
+      componentHandler.upgradeElements(this.refs['chat-position-option'])
+      componentHandler.upgradeElements(this.refs['chat-flavor-option'])
+      componentHandler.upgradeElements(this.refs['chat-size-option'])
+      componentHandler.upgradeElements(this.refs['quality-spinner'])
+
+      if (state.quality)
+        this.fetchQualities(state.channel)
+    }
+
     this.on('mount', () => {
-      componentHandler.upgradeElements(this['fullscreen-option'])
-      componentHandler.upgradeElements(this['chat-position-option'])
-      componentHandler.upgradeElements(this['chat-size-option'])
+      this.mixin(Mixins.Sender)
 
-      this.sender.on(ChromecastMessageType.ReceiverState, state => {
-        this.update({ receiverState: state })
-
-        if (state.quality)
-          this.fetchQualities(state.channel)
-      })
+      this.sender.on(ChromecastMessageType.ReceiverState, this.onStateChanged)
 
       if (this.sender.connected())
         this.initialize()
       else
         setTimeout(this.initialize, 1000) // Letting time to the sender to resume an possible session
+    })
+
+    this.on('unmount', () => {
+      this.sender.off(ChromecastMessageType.ReceiverState, this.onStateChanged)
     })
   </script>
 

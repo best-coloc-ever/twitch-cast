@@ -1,6 +1,6 @@
 <pause-indicator>
 
-  <img class="rotate" src="/chromecast/img/kappa.png" if={ visible }>
+  <img class="rotate" src="/chromecast/img/kappa.png">
 
   <style scoped>
     img {
@@ -26,22 +26,5 @@
       -webkit-animation: rotate 1s linear infinite;
     }
   </style>
-
-  <script>
-    import { PlayerEvent } from 'player/events.js'
-
-    this.visible = false
-
-    this.setVisible = (visible) => {
-      this.visible = visible
-      this.update()
-    }
-
-    this.on('mount', () => {
-      opts.player.on(PlayerEvent.AutoPaused, isPaused => {
-        this.setVisible(isPaused)
-      })
-    })
-  </script>
 
 </pause-indicator>

@@ -41,14 +41,17 @@
           ],
           titlesMap = new Map(titlesSpec.map(([k, v]) => [k.base, v]))
 
-    this.mixin(Mixins.Router)
     this.title = null
     this.path = []
 
-    this.router.on(RouterEvent.RouteChanged, (routeDescriptor, path) => {
-      this.update({
-        title: titlesMap.get(routeDescriptor.base),
-        path: path
+    this.on('mount', () => {
+      this.mixin(Mixins.Router)
+
+      this.router.on(RouterEvent.RouteChanged, (routeDescriptor, path) => {
+        this.update({
+          title: titlesMap.get(routeDescriptor.base),
+          path: path
+        })
       })
     })
   </script>

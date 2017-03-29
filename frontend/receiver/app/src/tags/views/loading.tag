@@ -3,7 +3,7 @@
    <!-- layout -->
   <div id="main">
 
-    <div if={ loading }>
+    <div show={ loading }>
       <div class="mdl-grid">
         <div class="mdl-layout-spacer"></div>
         <div>
@@ -16,7 +16,7 @@
       <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
     </div>
 
-    <div if={ !loading }>
+    <div show={ !loading }>
       <div class="mdl-grid">
         <div class="mdl-layout-spacer"></div>
         <div>
@@ -61,9 +61,11 @@
   <script>
     import StreamerAPI from 'api/streamer.js'
 
+    import { routeLinks } from 'routing/routes.js'
+
     let retryInSeconds = 5
     let secondsRefreshTimer = null
-    let [channel] = opts.routeOpts
+    let [channel, quality] = opts.path
 
     this.channel = channel
     this.loading = true
@@ -76,6 +78,32 @@
       // Choosing the best quality one
       let quality = data.playlists[0].name
 
+      this.fetchPlaylist(quality)
+    }
+
+    this.onPlaylistFetched = quality => {
+      riot.route(
+        routeLinks.watch(channel, quality),
+        `${channel} (${quality})`,
+        true
+      )
+    }
+
+    this.onError = () => {
+      clearInterval(secondsRefreshTimer)
+
+      setTimeout(this.loadStream, retryInSeconds * 1000)
+
+      secondsRefreshTimer = setInterval(
+        () => this.update({ secondsBeforeRetry: this.secondsBeforeRetry - 1 }),
+        1000
+      )
+
+      this.update({ secondsBeforeRetry: retryInSeconds, loading: false })
+      retryInSeconds *= 2
+    }
+
+    this.fetchPlaylist = quality => {
       fetch(StreamerAPI.playlistUrl(channel, quality))
         .then(
           response => {
@@ -88,40 +116,20 @@
         )
     }
 
-    this.onPlaylistFetched = quality => {
-      riot.route(`/${channel}/${quality}`, `${channel} (${quality})`, true)
-    }
-
-    this.onError = () => {
-      this.loading = false
-
-      clearInterval(secondsRefreshTimer)
-      this.secondsBeforeRetry = retryInSeconds
-
-      setTimeout(this.loadStream, retryInSeconds * 1000)
-      retryInSeconds *= 2
-
-      secondsRefreshTimer = setInterval(() => {
-        this.secondsBeforeRetry -= 1
-        this.update()
-      }, 1000)
-
-      this.update()
-    }
-
     this.loadStream = () => {
-      this.loading = true
-
       StreamerAPI.stream(channel)
         .then(this.onStreamFetched, this.onError)
 
-      this.update()
+      this.update({ loading: true })
     }
 
     this.on('mount', () => {
       componentHandler.upgradeElements(this.root)
 
-      this.loadStream()
+      if (quality)
+        this.fetchPlaylist(quality)
+      else
+        this.loadStream()
     })
 
     this.on('unmount', () => {

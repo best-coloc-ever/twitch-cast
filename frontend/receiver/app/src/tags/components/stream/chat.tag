@@ -1,7 +1,9 @@
 <chat>
 
   <!-- Layout -->
-  <ul id="chat" name="chat">
+  <ul ref="staticChat" if={ opts.twoPart } class="static-chat">
+  </ul>
+  <ul ref="chat">
   </ul>
 
   <!-- Style -->
@@ -11,6 +13,12 @@
       overflow-y: hidden;
       overflow-x: hidden;
       word-wrap: break-word;
+    }
+
+    .static-chat {
+      height: 50%;
+      border-bottom: 1px solid white;
+      overflow-y: hidden;
     }
 
     ul {
@@ -30,7 +38,7 @@
     import { ChromecastMessageType } from 'chromecast/messages.js'
 
     const maxChatMessageCount = 50
-    const initialChatDelay = 4
+    const initialChatDelay = 3
     const chatDisplayInterval = 0.3 // seconds
 
     let channel = opts.channel
@@ -94,15 +102,30 @@
     }
 
     this.addMessage = message => {
-      messages.push(message)
-      // JQuery
+      let chat = $(this.refs.chat)
       let chatLine = buildChatLine(message, store)
-      $(this.chat).append(chatLine)
 
-      let toSlice = Math.max(0, messages.length - maxChatMessageCount)
-      messages = messages.slice(toSlice)
+      chat.append(chatLine)
 
-      $(this.chat).find('li:lt(' + toSlice + ')').remove()
+      if (opts.twoPart) {
+        let heightLimit = this.root.clientHeight / 2
+        if (chat.height() + chatLine.height() >= heightLimit) {
+          $(this.refs.staticChat).empty()
+          chatLine.detach()
+          chat.contents().appendTo(this.refs.staticChat)
+          chat.empty()
+          chat.append(chatLine)
+          messages = []
+        }
+      }
+
+      if (!opts.twoPart) {
+        messages.push(message)
+        let toSlice = Math.max(0, messages.length - maxChatMessageCount)
+        messages = messages.slice(toSlice)
+
+        chat.find('li:lt(' + toSlice + ')').remove()
+      }
     }
 
     this.processMessageQueue = () => {
@@ -121,7 +144,9 @@
       messageQueue.splice(0, i)
 
       this.update()
-      this.root.scrollTop = this.root.scrollHeight
+
+      if (!opts.twoPart)
+        this.root.scrollTop = this.root.scrollHeight
 
       if (processFlag)
         setTimeout(this.processMessageQueue, chatDisplayInterval * 1000)

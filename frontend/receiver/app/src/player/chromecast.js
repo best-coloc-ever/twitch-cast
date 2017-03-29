@@ -60,7 +60,7 @@ export default class ChromecastPlayer {
     host.segmentRequestRetryLimit = segmentRequestRetryLimit
     // Workaround (hopefully temporary)
     host.updateManifestRequestInfo = info => {
-      info.timeoutInterval = 4000
+      info.timeoutInterval = 500
     }
 
     host.onError = this._onHostError.bind(this)

@@ -44,9 +44,6 @@
 
   <!-- logic -->
   <script>
-    this.on('mount', () => {
-
-    })
   </script>
 
 </home-view>

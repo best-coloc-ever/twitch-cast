@@ -128,7 +128,7 @@ export class ChromecastSender {
   }
 
   _playImpl(channel, quality) {
-    let mediaInfo = new chrome.cast.media.MediaInfo(),
+    let mediaInfo = new chrome.cast.media.MediaInfo('', ''), // Need to pass non-null values to enable remote control notifications
         request = new chrome.cast.media.LoadRequest(mediaInfo)
 
     request.customData = {

@@ -1,7 +1,7 @@
 <snackbar>
 
   <!-- layout -->
-  <div class="mdl-snackbar mdl-js-snackbar" name="snackbar">
+  <div class="mdl-snackbar mdl-js-snackbar" ref="snackbar">
     <div class="mdl-snackbar__text"></div>
     <button class="mdl-snackbar__action" type="button"></button>
   </div>
@@ -17,8 +17,6 @@
   <script>
     import { SenderEvent } from 'chromecast/sender.js'
     import { Mixins } from 'context/mixins.js'
-
-    this.mixin(Mixins.Sender)
 
     this.onChannelSent = channel => {
       let channelName = channel.toUpperCase()
@@ -44,11 +42,16 @@
       this.show({ message: error })
     }
 
-    this.show = data => this.snackbar.MaterialSnackbar.showSnackbar(data)
+    this.show = data => this.refs.snackbar.MaterialSnackbar.showSnackbar(data)
 
-    this.sender.on(SenderEvent.ChannelSent,   this.onChannelSent)
-    this.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
-    this.sender.on(SenderEvent.CastError,     this.onCastError)
+    this.on('mount', () => {
+      this.mixin(Mixins.Sender)
+
+      this.sender.on(SenderEvent.ChannelSent,   this.onChannelSent)
+      this.sender.on(SenderEvent.ChannelQueued, this.onChannelQueued)
+      this.sender.on(SenderEvent.CastError,     this.onCastError)
+    })
+
   </script>
 
 </snackbar>
