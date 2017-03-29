@@ -120,7 +120,7 @@
     ]
 
     // Player events
-    this.onMediaEnd = () => this.tags.notice.show('Stream ender')
+    this.onMediaEnd = () => this.tags.notice.show('Stream ended')
     this.onHostError = error => this.tags.notice.show(error)
     this.onPlayerPaused = isPaused => {
       this.update({ isPaused: isPaused })
