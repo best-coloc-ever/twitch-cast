@@ -1,9 +1,9 @@
 <chat>
 
   <!-- Layout -->
-  <ul ref="staticChat" if={ opts.twoPart } class="static-chat">
+  <ul ref="staticChat" show={ opts.twoPart } class="static-chat">
   </ul>
-  <ul ref="chat">
+  <ul ref="scrollingChat">
   </ul>
 
   <!-- Style -->
@@ -33,140 +33,100 @@
 
   <!-- Logic -->
   <script>
+    import { ChatClient, ChatClientEvent } from 'chat/client.js'
     import ChatAssetStore from 'chat/asset_store.js'
     import { buildChatLine } from 'chat/message.js'
-    import { ChromecastMessageType } from 'chromecast/messages.js'
 
     const maxChatMessageCount = 50
-    const initialChatDelay = 3
-    const chatDisplayInterval = 0.3 // seconds
 
     let channel = opts.channel
-    let player = opts.player
-
-    let chatUrl = `wss://${window.location.host}/chat/${channel}`
-    let chatDelay = initialChatDelay
-    let reconnectTimeout = 2
 
     let store = new ChatAssetStore(channel)
+    let client = new ChatClient(channel)
 
-    let messageQueue = []
-    let messages = []
+    let scrollingMessages = []
 
-    let ws = null
-    let processFlag = true
-    let delayTimer = null
-
-    this.notify = text => {
-      this.addMessage({ sender: 'SYSTEM', content: text })
-      this.update()
+    this.addMessagesLogic = () => {
+      return opts.twoPart ?
+        this.addMessagesTwoPart :
+        this.addMessagesScrolling
     }
 
-    this.onmessage = (e) => {
-      let message = JSON.parse(e.data)
-      message.stamp = new Date().getTime()
-      messageQueue.push(message)
+    this.addMessages = this.addMessagesLogic()
+
+    this.notify = text => {
+      this.addMessages({ sender: 'SYSTEM', content: text })
     }
 
     this.pause = () => {
-      this.notify('Pausing chat')
-      ws.onmessage = null
+      client.pause()
     }
 
-    this.resume = () => {
-      this.notify('Resuming chat')
-      ws.onmessage = this.onmessage
+    this.unpause = () => {
+      client.unpause()
     }
 
-    this.connectToChat = () => {
-      ws = new WebSocket(chatUrl)
+    this.addMessagesScrolling = (...messages) => {
+      messages.forEach((message) => {
+        let chatLine = buildChatLine(message, store)
+        this.scrollingChat.append(chatLine)
+      })
 
-      ws.onopen = () => {
-        this.notify(`Successfully joined ${channel}'s chatroom`)
-      }
+      scrollingMessages.concat(messages)
+      let toSlice = Math.max(0, scrollingMessages.length - maxChatMessageCount)
+      scrollingMessages = scrollingMessages.slice(toSlice)
 
-      ws.onclose = e => {
-        this.notify(`Connection closed: reconnecting in ${reconnectTimeout} seconds`)
+      this.scrollingChat.find('li:lt(' + toSlice + ')').remove()
 
-        if (e.code != 1000) {
-          setTimeout(this.connectToChat, reconnectTimeout * 1000)
-          reconnectTimeout *= 2
-        }
-      }
-
-      ws.onerror = function(e) {
-        this.notify('Error: ' + e.reason)
-      }
-
-      ws.onmessage = this.onmessage
+      this.root.scrollTop = this.root.scrollHeight
     }
 
-    this.addMessage = message => {
-      let chat = $(this.refs.chat)
-      let chatLine = buildChatLine(message, store)
+    this.addMessagesTwoPart = (...messages) => {
+      let heightLimit = this.root.clientHeight / 2
 
-      chat.append(chatLine)
+      messages.forEach((message) => {
+        let chatLine = buildChatLine(message, store)
+        this.scrollingChat.append(chatLine)
 
-      if (opts.twoPart) {
-        let heightLimit = this.root.clientHeight / 2
-        if (chat.height() + chatLine.height() >= heightLimit) {
-          $(this.refs.staticChat).empty()
+        if (this.scrollingChat.height() + chatLine.height() >= heightLimit) {
           chatLine.detach()
-          chat.contents().appendTo(this.refs.staticChat)
-          chat.empty()
-          chat.append(chatLine)
-          messages = []
+          this.staticChat.empty()
+          this.scrollingChat.contents().appendTo(this.staticChat)
+          this.scrollingChat.empty()
+          this.scrollingChat.append(chatLine)
         }
-      }
-
-      if (!opts.twoPart) {
-        messages.push(message)
-        let toSlice = Math.max(0, messages.length - maxChatMessageCount)
-        messages = messages.slice(toSlice)
-
-        chat.find('li:lt(' + toSlice + ')').remove()
-      }
-    }
-
-    this.processMessageQueue = () => {
-      let i = 0
-      let now = new Date().getTime()
-
-      for (; i < messageQueue.length; ++i) {
-        let message = messageQueue[i]
-
-        if (now - message.stamp < chatDelay * 1000)
-          break
-
-        this.addMessage(message)
-      }
-
-      messageQueue.splice(0, i)
-
-      this.update()
-
-      if (!opts.twoPart)
-        this.root.scrollTop = this.root.scrollHeight
-
-      if (processFlag)
-        setTimeout(this.processMessageQueue, chatDisplayInterval * 1000)
-    }
-
-    this.updateChatDelay = () => {
-      chatDelay = initialChatDelay //+ player.delay()
+      })
     }
 
     this.on('mount', () => {
-      this.connectToChat()
-      this.processMessageQueue()
+      client.on(ChatClientEvent.Joined, (channel) => {
+        this.notify(`Successfully joined ${channel}'s chatroom`)
+      })
 
-      delayTimer = setInterval(this.updateChatDelay, 3000)
+      client.on(ChatClientEvent.Closed, (reconnectTimeout) => {
+        this.notify(`Connection closed: reconnecting in ${reconnectTimeout / 1000} seconds`)
+      })
+
+      client.on(ChatClientEvent.Error, (reason) => {
+        this.notify('Error: ' + reason)
+      })
+
+      client.on(ChatClientEvent.Messages, (messages) => {
+        this.addMessages(...messages)
+      })
+
+      this.scrollingChat = $(this.refs.scrollingChat)
+      this.staticChat = $(this.refs.staticChat)
     })
 
     this.on('unmount', () => {
-      clearInterval(delayTimer)
-      ws.close()
-      processFlag = false
+      client.destroy()
+    })
+
+    this.on('update', () => {
+      console.log('UPDATED')
+      this.addMessages = this.addMessagesLogic()
+      scrollingMessages = []
     })
 
   </script>
