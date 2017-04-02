@@ -91,19 +91,12 @@ export class ChatClient {
     let now = new Date(),
         i = 0
 
-    let poppedMessages = []
     for (; i < this.messageQueue.length; ++i) {
-      let message = this.messageQueue[i]
-
-      if (now - message.stamp < this.chatDelay)
+      if (now - this.messageQueue[i].stamp < this.chatDelay)
         break
-
-      poppedMessages.push(message)
     }
 
-    this.trigger(ChatClientEvent.Messages, poppedMessages)
-
-    this.messageQueue.splice(0, i)
+    let poppedMessages = this.messageQueue.splice(0, i)
 
     this.processMessageQueueTimeoutID = setTimeout(
       this._processMessageQueue.bind(this),
