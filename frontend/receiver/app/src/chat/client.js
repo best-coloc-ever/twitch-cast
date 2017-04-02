@@ -25,7 +25,9 @@ export class ChatClient {
     this.lastPause = null
 
     this.ws = this._initWebSocket()
-    this._processMessageQueue()
+
+    this.processMessageQueue = this._processMessageQueue.bind(this)
+    this.processMessageQueue()
   }
 
   destruct() {
@@ -99,7 +101,7 @@ export class ChatClient {
     let poppedMessages = this.messageQueue.splice(0, i)
 
     this.processMessageQueueTimeoutID = setTimeout(
-      this._processMessageQueue.bind(this),
+      this.processMessageQueue,
       chatDisplayInterval
     )
   }
