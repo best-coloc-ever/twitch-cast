@@ -70,7 +70,7 @@ export class ChatClient {
 
     if (event.code != 1000) {
       setTimeout(
-        () => { this.ws = _initWebSocket() },
+        () => { this.ws = this._initWebSocket() },
         this.reconnectTimeout
       )
       this.reconnectTimeout *= 2
