@@ -2,7 +2,6 @@ export const ChatClientEvent = {
   Joined: 'chat-client-joined',
   Closed: 'chat-client-closed',
   Error: 'chat-client-error',
-  Messages: 'chat-client-messages',
 }
 
 const initialChatDelay = 3000, // milliseconds
@@ -11,10 +10,11 @@ const initialChatDelay = 3000, // milliseconds
 
 export class ChatClient {
 
-  constructor(channel) {
+  constructor(channel, onMessages) {
     riot.observable(this)
 
     this.channel = channel
+    this.onMessages = onMessages
 
     this.chatDelay = initialChatDelay
     this.reconnectTimeout = initialReconnectTimeout
@@ -99,6 +99,7 @@ export class ChatClient {
     }
 
     let poppedMessages = this.messageQueue.splice(0, i)
+    this.onMessages(poppedMessages)
 
     this.processMessageQueueTimeoutID = setTimeout(
       this.processMessageQueue,

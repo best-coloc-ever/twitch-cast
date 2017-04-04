@@ -39,12 +39,17 @@
 
     const maxChatMessageCount = 50
 
-    let channel = opts.channel
+    this.notify = text => {
+      this.addMessages([{ sender: 'SYSTEM', content: text }])
+    }
 
-    let store = new ChatAssetStore(channel)
-    let client = new ChatClient(channel)
+    this.pause = () => {
+      this.client.pause()
+    }
 
-    let scrollingMessages = []
+    this.unpause = () => {
+      this.client.unpause()
+    }
 
     this.addMessagesLogic = () => {
       return opts.twoPart ?
@@ -52,40 +57,26 @@
         this.addMessagesScrolling
     }
 
-    this.addMessages = this.addMessagesLogic()
-
-    this.notify = text => {
-      this.addMessages({ sender: 'SYSTEM', content: text })
-    }
-
-    this.pause = () => {
-      client.pause()
-    }
-
-    this.unpause = () => {
-      client.unpause()
-    }
-
-    this.addMessagesScrolling = (...messages) => {
+    this.addMessagesScrolling = (messages) => {
       messages.forEach((message) => {
-        let chatLine = buildChatLine(message, store)
+        let chatLine = buildChatLine(message, this.store)
         this.scrollingChat.append(chatLine)
       })
 
-      scrollingMessages.concat(messages)
-      let toSlice = Math.max(0, scrollingMessages.length - maxChatMessageCount)
-      scrollingMessages = scrollingMessages.slice(toSlice)
+      this.scrollingMessageCount += messages.length
+      let toSlice = Math.max(0, this.scrollingMessageCount - maxChatMessageCount)
+      this.scrollingMessageCount -= toSlice
 
       this.scrollingChat.find('li:lt(' + toSlice + ')').remove()
 
       this.root.scrollTop = this.root.scrollHeight
     }
 
-    this.addMessagesTwoPart = (...messages) => {
+    this.addMessagesTwoPart = (messages) => {
       let heightLimit = this.root.clientHeight / 2
 
       messages.forEach((message) => {
-        let chatLine = buildChatLine(message, store)
+        let chatLine = buildChatLine(message, this.store)
         this.scrollingChat.append(chatLine)
 
         if (this.scrollingChat.height() + chatLine.height() >= heightLimit) {
@@ -99,34 +90,37 @@
     }
 
     this.on('mount', () => {
-      client.on(ChatClientEvent.Joined, (channel) => {
-        this.notify(`Successfully joined ${channel}'s chatroom`)
-      })
-
-      client.on(ChatClientEvent.Closed, (reconnectTimeout) => {
-        this.notify(`Connection closed: reconnecting in ${reconnectTimeout / 1000} seconds`)
-      })
-
-      client.on(ChatClientEvent.Error, (reason) => {
-        this.notify('Error: ' + reason)
-      })
-
-      client.on(ChatClientEvent.Messages, (messages) => {
-        this.addMessages(...messages)
-      })
+      this.channel = opts.channel
 
       this.scrollingChat = $(this.refs.scrollingChat)
       this.staticChat = $(this.refs.staticChat)
+
+      this.addMessages = this.addMessagesLogic()
+      this.scrollingMessageCount = 0
+
+      this.store = new ChatAssetStore(this.channel)
+      this.client = new ChatClient(this.channel, (ms) => this.addMessages(ms))
+
+      this.client.on(ChatClientEvent.Joined, (channel) => {
+        this.notify(`Successfully joined ${channel}'s chatroom`)
+      })
+
+      this.client.on(ChatClientEvent.Closed, (reconnectTimeout) => {
+        this.notify(`Connection closed: reconnecting in ${reconnectTimeout / 1000} seconds`)
+      })
+
+      this.client.on(ChatClientEvent.Error, (reason) => {
+        this.notify('Error: ' + reason)
+      })
     })
 
     this.on('unmount', () => {
-      client.destroy()
+      this.client.destroy()
     })
 
     this.on('update', () => {
-      console.log('UPDATED')
       this.addMessages = this.addMessagesLogic()
-      scrollingMessages = []
+      this.scrollingMessageCount = 0
     })
 
   </script>
