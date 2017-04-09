@@ -115,7 +115,7 @@
     })
 
     this.on('unmount', () => {
-      this.client.destroy()
+      this.client.destruct()
     })
 
     this.on('update', () => {
