@@ -1,9 +1,9 @@
 import { loadScript, loadLink } from 'utils/deferred_load.js'
 import { PlayerEvent } from './events.js'
 
-const videojsCssUrl   = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.11.3/video-js.min.css',
-      videojsJsUrl    = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.11.3/video.min.js',
-      videojsHlsJsUrl = '//cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/3.5.0/videojs-contrib-hls.min.js'
+const videojsCssUrl   = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.19.2/video-js.min.css',
+      videojsJsUrl    = '//cdnjs.cloudflare.com/ajax/libs/video.js/5.19.2/video.min.js',
+      videojsHlsJsUrl = '//cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.5.3/videojs-contrib-hls.min.js'
 
 const playerOptions = {
   nativeControlsForTouch: true,
