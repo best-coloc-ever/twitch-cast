@@ -125,8 +125,14 @@
     this.onPlayerPaused = isPaused => {
       this.update({ isPaused: isPaused })
 
-      if (isPaused) this.tags.notice.show('Buffering...')
-      else          this.tags.notice.hide()
+      if (isPaused) {
+        this.tags.notice.show('Buffering...')
+        this.tags.chat.pause()
+      }
+      else {
+        this.tags.notice.hide()
+        this.tags.chat.unpause()
+      }
     }
 
     let playerEvents = [
