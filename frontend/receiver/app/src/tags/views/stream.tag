@@ -13,7 +13,20 @@
       <stream-info show={ !fullScreen } channel={ channel } quality={ quality }></stream-info>
     </div>
 
-    <chat ref="chat" channel={ channel } show={ !fullScreen } two-part={ twoPartChat }></chat>
+    <chat ref="chat"
+      channel={ channel }
+      show={ !fullScreen }
+      two-part={ twoPartChat }
+      if={ !useOfficialChat }>
+    </chat>
+
+    <iframe if={ useOfficialChat }
+      frameborder="0"
+      scrolling="yes"
+      id="embed_chat"
+      src={ "https://www.twitch.tv/" + channel + "/chat" }
+      width="300">
+    </iframe>
   </div>
 
 
@@ -22,6 +35,10 @@
     #main {
       height: 100%;
       display: flex;
+    }
+
+    #embed_chat {
+      width: 300px;
     }
 
     .reverse-flex {
@@ -89,6 +106,7 @@
     import { PlayerEvent } from 'player/events.js'
     import { Mixins } from 'context/mixins.js'
     import StreamerAPI from 'api/streamer.js'
+    import { isChromecastDevice } from 'utils/platform.js'
 
     let [channel, quality] = opts.path
 
@@ -98,6 +116,7 @@
     this.chatLeft = false
     this.isPaused = false
     this.twoPartChat = false
+    this.useOfficialChat = !isChromecastDevice()
 
     // Receiver events
     this.onFullscreenToggled = data => this.update({ fullScreen: data.enabled })
