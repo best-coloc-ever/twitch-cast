@@ -28,7 +28,7 @@ instance FromJSON AccessToken where
 type ClientID = String
 
 channelAccessTokenUrl channel =
-     "http://api.twitch.tv/api/channels/"
+     "https://api.twitch.tv/api/channels/"
   ++ map toLower channel
   ++ "/access_token"
 
